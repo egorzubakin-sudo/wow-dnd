@@ -1,5 +1,5 @@
 # Permissions, undo granularity and HTML-safe import are checked in the same campaign.
-tab('bank')
+tab('workshop')
 btn('Мастерская данных')
 page.locator('#tableRaw').fill(json.dumps({'regions':[{'id':'undo-test','name':'<b>Только текст</b>','dc':10}]}))
 btn('Проверить и просмотреть')

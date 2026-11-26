@@ -52,6 +52,8 @@ function applyCommand(source, actor, name, payload, key) {
       recipient = project.hero;
     }
   }
+  if (name === "craft" && next.engine.projects.at(-1)?.status !== "done")
+    event = "";
   for (const a of next.portal?.achievements || []) {
     if (a.engineEvent === event && !a.archived)
       grant(
@@ -72,6 +74,7 @@ function applyCommand(source, actor, name, payload, key) {
       "gather",
       "quest",
       "project",
+      "craft",
       "work",
       "staffWork",
       "enchant",

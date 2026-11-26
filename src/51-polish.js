@@ -120,59 +120,6 @@ function campControl() {
   $("facility").onchange = show;
   show();
 }
-function professionPage() {
-  const hero = chosen(),
-    h = profile(S, hero),
-    e = economy(S);
-  openModal("Профессии", '<div id="profList" class="stack"></div>');
-  const box = $("profList");
-  for (const p of e.professions) {
-    const card = document.createElement("details"),
-      ok = eligibleProfession(S, h, p.id);
-    card.innerHTML =
-      "<summary>" +
-      esc(p.name) +
-      " · " +
-      (ok ? "доступно" : "нужно владение") +
-      "</summary><p>" +
-      esc(
-        [p.skill, ...(p.tools || [])].filter(Boolean).join(" / ") ||
-          "Без обязательного владения",
-      ) +
-      "</p><small>" +
-      esc(
-        p.source?.book
-          ? p.source.book + " · с. " + p.source.printed_page
-          : "Правило кампании",
-      ) +
-      "</small>";
-    if (ok) {
-      const rank = e.requireTrainer
-        ? Math.min(bv(h), h.trained?.[p.id] || 2)
-        : bv(h);
-      card.append(
-        document.createTextNode(
-          " · " +
-            ["Ученик", "Подмастерье", "Эксперт", "Искусник", "Мастер"][
-              Math.max(0, Math.min(4, rank - 2))
-            ],
-        ),
-      );
-      if (e.requireTrainer && bv(h) > rank)
-        card.append(
-          button("Обучиться у наставника", () =>
-            commandForm(
-              "Обучение",
-              "<p>" + esc(bv(h)) + " дн. · " + esc(bv(h) * 2) + " зм</p>",
-              "train",
-              () => ({ hero, profession: p.id }),
-            ),
-          ),
-        );
-    }
-    box.append(card);
-  }
-}
 function gearActions() {
   const hero = chosen(),
     bag = S.company.inventory.filter(
@@ -260,12 +207,11 @@ function recentActivity(box, hero, t) {
 actions.push((a, { gm, hero, t, e, box }) => {
   if (t && hero && owned(actor, hero)) {
     if (tab === "home") recentActivity(box, hero, t);
-    if (["home", "camp"].includes(tab))
-      a.append(button("Расписание", plansPage));
+    if (tab === "home") a.append(button("Расписание", plansPage));
   }
   if (hero && ["company", "bank"].includes(tab))
     a.append(
-      button("Профессии", professionPage),
+      button("Профессии", () => openCraftTab("professions")),
       button("Операции с вещами", gearActions),
     );
   if (gm && tab === "camp") {
@@ -284,54 +230,6 @@ actions.push((a, { gm, hero, t, e, box }) => {
         ),
       ),
     );
-    if (t)
-      a.append(
-        button("Добавить тушу", () =>
-          commandForm(
-            "Снятие шкур",
-            input("Название", "car", "text", "", "required") +
-              input("Показатель опасности", "cr", "number", 1) +
-              pick(
-                "Тип",
-                "kind",
-                [
-                  ["beast", "Зверь"],
-                  ["fiend", "Исчадие"],
-                  ["dragon", "Дракон"],
-                ],
-                "beast",
-              ),
-            "carcass",
-            () => ({ name: val("car"), cr: num("cr"), kind: val("kind") }),
-          ),
-        ),
-      );
-    if (
-      t &&
-      S.company.staff.length &&
-      e.projects.some((j) => j.status === "active")
-    )
-      a.append(
-        button("Работа специалиста", () =>
-          commandForm(
-            "Проект лагеря",
-            pick("Специалист", "worker", pairs(S.company.staff), "") +
-              pick(
-                "Проект",
-                "project",
-                pairs(e.projects.filter((j) => j.status === "active")),
-                "",
-              ) +
-              input("Отработать часов", "time", "number", 1),
-            "staffWork",
-            () => ({
-              staff: val("worker"),
-              project: val("project"),
-              hours: num("time"),
-            }),
-          ),
-        ),
-      );
   }
   if (actor.role === "captain" && actor.travel && !t && !S.journey) {
     const routes = S.routes.filter(
@@ -357,11 +255,20 @@ openAffPerson = function (kind, id) {
   personView(kind, id);
   if (kind === "hero" && owned(actor, id)) {
     activeHero = id;
-    $("modalBody").append(
+    const links = document.createElement("div");
+    links.className = "hero-shortcuts";
+    links.append(
+      button("Характеристики", heroStats),
       button("Сумки", bagPage),
-      button("Профессии", professionPage),
+      button("Профессии", () => openCraftTab("professions")),
+      button("Рецепты", () => openCraftTab("recipes")),
+      button("Занятия", () => {
+        closeModal();
+        switchTab("stay");
+      }),
+      button("Достижения", () => openPersonalAchievements("hero:" + id)),
     );
-    if (!player) $("modalBody").append(button("Характеристики", profileForm));
+    $("modalBody").append(links);
   }
 };
 const legacyRecords = uxRecords;
@@ -563,6 +470,19 @@ function professionEditor() {
         "required " + (p ? "readonly" : ""),
       ) +
         input("Название", "pn", "text", p?.name || "", "required") +
+        pick(
+          "Тип",
+          "pkind",
+          [
+            ["gathering", "Добыча и исследование"],
+            ["production", "Производство"],
+          ],
+          p?.kind || "production",
+        ) +
+        input("Иконка", "picon", "text", p?.icon || "") +
+        area("Краткое описание", "psummary", p?.summary || "") +
+        area("Механика", "pdescription", p?.description || "") +
+        area("Особые правила", "pspecial", p?.special || "") +
         input(
           "Допустимые инструменты (хотя бы одно владение)",
           "pt",
@@ -584,8 +504,13 @@ function professionEditor() {
                 id: val("pk"),
                 name: val("pn"),
                 tools: listText("pt"),
-                skill: val("ps") || undefined,
-                source: { origin: "house" },
+                skill: val("ps"),
+                kind: val("pkind"),
+                icon: val("picon"),
+                summary: val("psummary"),
+                description: val("pdescription"),
+                special: val("pspecial"),
+                source: p?.source || { origin: "house" },
               },
             ],
           },
@@ -625,8 +550,7 @@ function rollHistory() {
             esc(r.mod) +
             " = " +
             esc(r.total) +
-            " · Сл " +
-            esc(r.dc) +
+            (!player || r.showDC !== false ? " · Сл " + esc(r.dc) : "") +
             "</p>",
         )
         .join("") +
@@ -634,28 +558,8 @@ function rollHistory() {
   );
 }
 actions.push((a, { gm, hero, t, box }) => {
-  if (tab === "bank" && gm)
-    a.append(button("Редактор профессий", professionEditor));
   if (hero && tab === "company")
     a.append(button("Журнал проверок", rollHistory));
-  if (t && tab === "camp") {
-    const image = safeImage(t.image);
-    if (image) {
-      const el = document.createElement("img");
-      el.src = image;
-      el.alt = t.name;
-      el.className = "record-image";
-      box.append(el);
-    }
-    const details = document.createElement("details");
-    details.innerHTML =
-      "<summary>Условия стоянки</summary><p>" +
-      esc(t.description || "Особых ограничений нет.") +
-      "</p><p>" +
-      esc((t.services || []).join(", ")) +
-      "</p>";
-    box.append(details);
-  }
 });
 function journalPanel() {
   const hero = chosen(),

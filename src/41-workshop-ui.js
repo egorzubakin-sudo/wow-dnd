@@ -47,21 +47,34 @@ function sampleRow(k) {
   if (k === "professions") return rulebook.professions[0];
   if (k === "fishing" || k === "hunting")
     return demoPack.loot.find((r) => subset(k, r));
-  return demoPack[k]?.[0] || sampleRows[k];
+  const example = demoPack[k]?.[0] || sampleRows[k];
+  if (k === "regions") {
+    const { image, ...region } = example;
+    return region;
+  }
+  return example;
 }
-const formatNotes={
- items:"quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
- regions:"points: массив пар [x,y] в диапазоне 0–1. При перекрытии выше priority. tier: 1–5.",
- recipes:"rank: требуемый бонус владения. gold: стоимость в зм на один экземпляр. equipment: массив ID инструментов из каталога. experiment: объект с полями skill и dc.",
- ingredients:"Количество списывается при резервировании проекта. Одна строка связывает один рецепт с одним ингредиентом.",
- loot:"weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
- errands:"repeat: once, stay, day или period. При period задайте period в игровых днях. conditions поддерживает race, class, level, skill, profession, item, recipe, faction, rep, npc, achievement, quest.",
- rewards:"type: gold, item, rep, contact, discover, achievement. when: success или failure. Для item обязательны item_id и quantity, для rep — faction и amount.",
- diplomacy:"state: alliance, cooperation, neutral, truce, tension, hostility, war.",
- professions:"tools: массив альтернативных владений инструментом. Пустой массив снимает требование. skill: название обязательного навыка.",
- news:"kind: news или rumors. day и year используют календарь компании."
+const formatNotes = {
+  items:
+    "quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
+  regions:
+    "points: массив пар [x,y] в диапазоне 0–1. При перекрытии выше priority. tier: 1–5.",
+  recipes:
+    "rank: требуемый бонус владения. gold: стоимость в зм на один экземпляр. equipment: массив ID инструментов из каталога. experiment: объект с полями skill и dc.",
+  ingredients:
+    "Количество списывается при резервировании проекта. Одна строка связывает один рецепт с одним ингредиентом.",
+  loot: "weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
+  errands:
+    "repeat: once, stay, day или period. При period задайте period в игровых днях. conditions поддерживает race, class, level, skill, profession, item, recipe, faction, rep, npc, achievement, quest.",
+  rewards:
+    "type: gold, item, rep, contact, discover, achievement. when: success или failure. Для item обязательны item_id и quantity, для rep — faction и amount.",
+  diplomacy:
+    "state: alliance, cooperation, neutral, truce, tension, hostility, war.",
+  professions:
+    "tools: массив альтернативных владений инструментом. Пустой массив снимает требование. skill: название обязательного навыка. kind: gathering или production. summary: текст карточки. description и special: механика и особые правила.",
+  news: "kind: news или rumors. day и year используют календарь компании.",
 };
-formatNotes.hunting=formatNotes.fishing=formatNotes.loot;
+formatNotes.hunting = formatNotes.fishing = formatNotes.loot;
 function schemaDoc() {
   return {
     format: "atlas-tables",
@@ -82,13 +95,17 @@ function schemaDoc() {
     tables: Object.fromEntries(
       Object.keys(tables).map((k) => [
         k,
-        { title: tables[k][0],
-          notes: formatNotes[k]||"", fields: columns(k), example: sampleRow(k) },
+        {
+          title: tables[k][0],
+          notes: formatNotes[k] || "",
+          fields: columns(k),
+          example: sampleRow(k),
+        },
       ]),
     ),
   };
 }
-function workshop() {
+function workshop(initialTable = "regions") {
   if (actor.role !== "master") return;
   openModal(
     "Мастерская данных",
@@ -97,7 +114,7 @@ function workshop() {
         "Справочник",
         "tableKey",
         Object.entries(tables).map(([k, t]) => [k, t[0]]),
-        "regions",
+        initialTable,
       ) +
       pick(
         "Формат",
@@ -170,7 +187,9 @@ function workshop() {
             "</dd>",
         )
         .join("") +
-      "</dl><p>"+esc(formatNotes[key()]||"")+"</p><p>Для связанных записей можно загрузить единый JSON-объект с ключами справочников.</p>";
+      "</dl><p>" +
+      esc(formatNotes[key()] || "") +
+      "</p><p>Для связанных записей можно загрузить единый JSON-объект с ключами справочников.</p>";
   };
   $("tableKey").onchange = help;
   help();
@@ -208,7 +227,11 @@ function workshop() {
           "\n" +
           plan.issues.slice(0, 30).join("\n") +
           "\n" +
-          JSON.stringify(pack, null, 2).slice(0, 4800);
+          JSON.stringify(
+            pack,
+            (_, value) => (safeImage(value) ? "[изображение]" : value),
+            2,
+          ).slice(0, 4800);
         if (!c.errors) {
           const token = crypto.randomUUID();
           $("applyTools").append(
@@ -233,7 +256,3 @@ function workshop() {
     }),
   );
 }
-actions.push((a, { gm }) => {
-  if (gm && ["bank", "home"].includes(tab))
-    a.append(button("Мастерская данных", workshop));
-});

@@ -38,7 +38,7 @@ const tables = {
   professions: [
     "Профессии",
     "engine.professions",
-    "id name tools:json? skill?",
+    "id name kind? summary? description? special? icon? tools:json? skill?",
   ],
   recipes: [
     "Рецепты",
@@ -225,6 +225,16 @@ function rowFrom(k, row, categories = []) {
     let v = row[c.name];
     if (k === "items" && c.name === "quality") v ??= row.rarity;
     if (k === "items" && c.name === "desc") v ??= row.description;
+    if (["professions", "recipes"].includes(k) && c.name === "description")
+      v ??= row.desc;
+    if (
+      k === "professions" &&
+      v === "" &&
+      ["skill", "description", "summary", "special", "icon"].includes(c.name)
+    ) {
+      out[c.name] = v;
+      continue;
+    }
     if (c.name === "id" && !v && k === "ingredients")
       v = row.recipe_id + ":" + row.item_id;
     if (c.name === "id" && !v && ["loot", "hunting", "fishing"].includes(k))

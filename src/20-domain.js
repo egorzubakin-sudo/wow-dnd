@@ -5,6 +5,23 @@ function economy(s) {
   for (const k of ["items", "recipes", "ingredients", "loot", "projects"])
     e[k] ??= [];
   e.professions ??= structuredClone(rulebook.professions);
+  const defaults = new Map(rulebook.professions.map((p) => [p.id, p]));
+  for (const p of e.professions) {
+    const standard = defaults.get(p.id);
+    if (p.desc != null) p.description ??= p.desc;
+    for (const field of [
+      "description",
+      "summary",
+      "special",
+      "kind",
+      "icon",
+      "tools",
+      "skill",
+      "source",
+    ])
+      if (p[field] == null && standard?.[field] != null)
+        p[field] = structuredClone(standard[field]);
+  }
   e.gathering ??= structuredClone(rulebook.gathering);
   for (const stack of s.company.inventory || []) {
     if (stack.item_id) continue;
@@ -125,7 +142,7 @@ register("gold", "master", (s, p) => {
   h.wallet += p.amount;
   s.company.gold -= p.amount;
 });
-function gather(s, p, die = dice) {
+function gatheringDetails(s, p) {
   const h = profile(s, p.hero),
     t = currentStay(s),
     e = economy(s),
@@ -161,8 +178,9 @@ function gather(s, p, die = dice) {
     requireThat(count < rule.attempts, "Попытки исчерпаны");
   let hours = rule.hours || 1,
     dc = rule.dc ?? region.dc;
+  let carcass;
   if (id === "skinning") {
-    const carcass = byId(t.carcasses || [], p.carcass);
+    carcass = byId(t.carcasses || [], p.carcass);
     requireThat(
       !carcass.used &&
         bv(h) >=
@@ -182,24 +200,62 @@ function gather(s, p, die = dice) {
                 : 0
       ].dc;
     hours = 1 / 6;
-    carcass.used = true;
   }
-  spend(s, p.hero, hours, id);
-  const effects = activeEffects(s).filter((e) => e.profession === id);
-  const check = ability(
-    {
-      ...h,
-      bonus: h.bonus + effects.reduce((total, e) => total + (e.bonus || 0), 0),
-    },
-    {
-      skill: rule.skill || (id === "archaeology" ? "История" : "Выживание"),
-      tool: prof.tools?.find((x) => h.tools.includes(x)),
-      dc,
-      mode: effects.some((e) => e.advantage) ? "adv" : "normal",
-    },
-    die,
+  requireThat(
+    s.engine.phase === "stay" && remaining(s, p.hero) >= roundedHours(hours),
+    "Недостаточно времени стоянки",
   );
-  e.rolls.unshift({ ...check, hero: p.hero, label: prof.name });
+  const effects = activeEffects(s).filter((e) => e.profession === id);
+  const heroProfile = {
+    ...h,
+    bonus:
+      h.bonus +
+      effects.reduce((total, effect) => total + (effect.bonus || 0), 0),
+  };
+  const modifiers = {
+    skill: rule.skill || (id === "archaeology" ? "История" : "Выживание"),
+    tool: prof.tools?.find((tool) => h.tools.includes(tool)),
+    dc,
+    mode: effects.some((effect) => effect.advantage) ? "adv" : "normal",
+  };
+  return {
+    t,
+    e,
+    rows,
+    rule,
+    prof,
+    region,
+    hours,
+    dc,
+    carcass,
+    modifiers,
+    heroProfile,
+  };
+}
+function gather(s, p, die = dice) {
+  const id = p.profession;
+  const {
+    t,
+    e,
+    rows,
+    rule,
+    prof,
+    region,
+    hours,
+    dc,
+    carcass,
+    modifiers,
+    heroProfile,
+  } = gatheringDetails(s, p);
+  if (carcass) carcass.used = true;
+  spend(s, p.hero, hours, id);
+  const check = ability(heroProfile, modifiers, die);
+  e.rolls.unshift({
+    ...check,
+    hero: p.hero,
+    label: prof.name,
+    showDC: t.showDC !== false,
+  });
   if (
     id === "archaeology" ||
     (id === "fishing" && check.natural === 20 && rule.treasure_id)
@@ -298,16 +354,12 @@ function canCraft(s, hero, r) {
     facilities(s, r)
   );
 }
-register("project", "hero", (s, p) => {
+function projectQuote(s, p) {
   const e = economy(s),
     h = profile(s, p.hero),
     r = byId(e.recipes, p.recipe),
     owner = "member:" + p.hero;
   integer(p.qty, 1, 1000);
-  requireThat(
-    canCraft(s, p.hero, r),
-    "Проверьте рецепт, ранг, владения и инфраструктуру",
-  );
   const effect = campEffect(s, r),
     cost = Math.ceil(
       ((r.gold || 0) * p.qty * (100 - (effect.discount || 0))) / 100,
@@ -318,10 +370,6 @@ register("project", "hero", (s, p) => {
         (integer(r.hours * p.qty, 1) * (100 - (effect.speed || 0))) / 100,
       ),
     );
-  requireThat(
-    h.wallet >= cost - (p.credit || 0) && remaining(s, p.hero) > 0,
-    "Недостаточно золота или времени",
-  );
   const credit = p.credit || 0;
   integer(credit, 0);
   requireThat(credit <= cost, "Избыток абстрактных ресурсов");
@@ -341,22 +389,59 @@ register("project", "hero", (s, p) => {
     .map((i) => ({ item: i.item_id, qty: i.quantity * p.qty }));
   if (resource)
     reserve.push({ item: resource.id, qty: credit / resource.value_gp });
-  for (const line of reserve) take(s, line.item, owner, line.qty);
-  h.wallet -= cost - credit;
-  e.projects.push({
+  const needed = new Map();
+  for (const line of reserve)
+    needed.set(line.item, (needed.get(line.item) || 0) + line.qty);
+  const materials = [...needed].map(([item, qty]) => ({
+    item,
+    qty,
+    have: s.company.inventory
+      .filter((x) => x.owner === owner && x.item_id === item && !x.properties)
+      .reduce((sum, x) => sum + x.qty, 0),
+  }));
+  return { r, cost: cost - credit, work, reserve, materials, wallet: h.wallet };
+}
+function startProject(s, p) {
+  const { r, cost, work, reserve, materials, wallet } = projectQuote(s, p);
+  requireThat(
+    canCraft(s, p.hero, r),
+    "Проверьте рецепт, ранг, владения и инфраструктуру",
+  );
+  requireThat(
+    wallet >= cost && remaining(s, p.hero) > 0,
+    "Недостаточно золота или времени",
+  );
+  requireThat(
+    materials.every((line) => line.have >= line.qty),
+    "Недостаточно материалов",
+  );
+  for (const line of reserve) take(s, line.item, "member:" + p.hero, line.qty);
+  profile(s, p.hero).wallet -= cost;
+  const project = {
     id: crypto.randomUUID(),
     hero: p.hero,
     name: r.name,
     recipe: structuredClone(r),
-    cost: cost - credit,
+    cost,
     reserve,
     left: work,
     work,
     qty: p.qty,
     status: "active",
     contributors: [],
-  });
+  };
+  s.engine.projects.push(project);
+  return project;
+}
+register("project", "hero", (s, p) => startProject(s, p));
+register("craft", "hero", (s, p) => {
+  const project = startProject(s, p);
+  if (project.left <= remaining(s, p.hero))
+    commands
+      .get("work")
+      .run(s, { hero: p.hero, project: project.id, hours: project.left });
 });
+
 register("work", "hero", (s, p) => {
   const j = byId(economy(s).projects, p.project);
   requireThat(

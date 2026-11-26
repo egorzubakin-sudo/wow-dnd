@@ -134,6 +134,307 @@ body:has(.modalwrap.open) .ux-ach-popup {
 .ux-ach-popup button {
   pointer-events: auto;
 }
+
+.game-screen {
+  --game-gold: #e1c184;
+  --game-border: #706044;
+  --game-surface: #242b22;
+  display: grid;
+  gap: 1.15rem;
+}
+.game-screen h2,
+.game-screen h3,
+.game-screen h4 {
+  color: var(--game-gold);
+}
+.game-screen h2 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+.game-screen h3 {
+  font-size: 1.18rem;
+}
+.game-screen .card {
+  border-color: #504c38;
+  min-width: 0;
+}
+.game-cover {
+  display: grid;
+  gap: 1rem;
+  background:
+    radial-gradient(ellipse at 90% 0%, #393821, transparent 60%), #1f2820;
+}
+.game-intro {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  align-items: start;
+}
+.game-intro > div:first-child {
+  flex: 1 1 26rem;
+}
+.game-intro p {
+  margin-top: 0.45rem;
+}
+.stay-illustration {
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+  border-radius: 7px;
+}
+.game-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  border-top: 1px solid #4d5040;
+  padding-top: 0.85rem;
+}
+#gameHeroSelect {
+  margin-inline-start: auto;
+}
+.game-time label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.game-time strong {
+  color: var(--game-gold);
+}
+.game-cover progress,
+.project-row progress {
+  display: block;
+  width: 100%;
+  accent-color: #a0bc76;
+  margin-top: 0.35rem;
+}
+.game-section > h3 {
+  margin-bottom: 0.7rem;
+}
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr));
+  gap: 0.65rem;
+}
+.activity-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.35rem 0.65rem;
+  text-align: left;
+  padding: 0.95rem;
+  align-content: start;
+}
+.activity-card > span:not(.game-icon),
+.activity-card > small {
+  grid-column: 2;
+}
+.activity-card > .game-icon {
+  grid-row: span 2;
+}
+.activity-card,
+.recipe-option {
+  background: var(--game-surface);
+  border: 1px solid #595941;
+  border-radius: 6px;
+}
+.activity-card:hover,
+.recipe-option:hover,
+.recipe-option[aria-pressed="true"] {
+  border-color: #b79a60;
+  background: #3e3827;
+}
+.game-icon {
+  display: inline-grid;
+  place-items: center;
+  vertical-align: middle;
+  flex: 0 0 auto;
+  width: 2.15rem;
+  aspect-ratio: 1;
+  color: #ebcb8b;
+  background: #3c392a;
+  border: 1px solid #746243;
+  border-radius: 5px;
+  font-size: 1.15rem;
+  overflow: hidden;
+}
+.game-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game-hero .game-icon {
+  width: 3rem;
+}
+.game-good {
+  color: #abcf86;
+}
+.game-bad {
+  color: #f5a78e;
+}
+.game-task-list {
+  display: grid;
+  border-top: 1px solid #49503f;
+}
+.game-task-list button {
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  border: 0;
+  border-bottom: 1px solid #49503f;
+  border-radius: 0;
+  background: #202821;
+  padding: 0.9rem 1rem;
+}
+.game-task-list button:not(:disabled)::after {
+  content: "";
+  align-self: center;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: solid #dfbf7f;
+  border-width: 1px 1px 0 0;
+  transform: rotate(45deg);
+}
+.game-task-list button:hover {
+  background: #343a2b;
+}
+.game-tabs button[aria-pressed="true"] {
+  border-color: #bb9c62;
+  background: #493f29;
+}
+.profession-card {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+.profession-card h3,
+.recipe-detail h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.profession-card details,
+.recipe-detail details {
+  border-top: 1px solid #4f503d;
+  padding-top: 0.4rem;
+}
+.profession-card details p {
+  margin: 0.4rem 0;
+}
+.recipe-filters {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.5fr) repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.8rem;
+}
+.recipe-filters .field {
+  margin: 0;
+}
+.recipe-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 2fr) minmax(0, 3fr);
+  align-items: start;
+  gap: 0.9rem;
+}
+.recipe-list {
+  display: grid;
+  gap: 0.45rem;
+}
+.recipe-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  text-align: left;
+  min-width: 0;
+}
+.recipe-option > span > small {
+  display: block;
+}
+.recipe-option > small {
+  text-align: end;
+  max-width: 10rem;
+}
+.recipe-detail p,
+.recipe-detail h4 {
+  margin: 0.55rem 0;
+}
+.recipe-detail #craftInputs {
+  max-width: 22rem;
+}
+.material-line {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #3e4638;
+}
+.material-line strong {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.rarity-common {
+  color: #f0e8d4;
+}
+.rarity-uncommon {
+  color: #a8d883;
+}
+.rarity-rare {
+  color: #81bafe;
+}
+.rarity-epic {
+  color: #d6a5f8;
+}
+.rarity-legendary {
+  color: #efad62;
+}
+.project-row {
+  border-top: 1px solid #50513f;
+  padding: 0.7rem 0;
+}
+.project-row h4 {
+  margin: 0 0 0.25rem;
+}
+.project-row button {
+  margin: 0.5rem 0.5rem 0 0;
+}
+.hero-shortcuts,
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: 0.55rem;
+  margin-block: 0.8rem;
+}
+.stat-grid > div {
+  padding: 0.6rem;
+  border: 1px solid #4f543e;
+  border-radius: 5px;
+}
+@media (max-width: 1000px) {
+  .recipe-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .recipe-filters .field:first-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 700px) {
+  .recipe-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .recipe-list {
+    max-height: 48vh;
+    overflow: auto;
+  }
+  #gameHeroSelect {
+    width: 100%;
+  }
+  .stay-illustration {
+    aspect-ratio: 16 / 9;
+  }
+  .recipe-option > small {
+    max-width: 6.75rem;
+  }
+}
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
 <header class="header"><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div class="head-actions"><button id="navIconBtn" onclick="editNavIcons()" title="Настроить иконки меню">⚙ Иконки меню</button><button id="modeBtn" onclick="toggleMode()">Режим игроков</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxTools" class="ux-tools"></div><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
 <nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · локальная версия 0.8 · D&D 2024 / домашние правила Вольной компании</footer>
@@ -168,7 +469,7 @@ function exportData(){if(player)return;const blob=new Blob([JSON.stringify(S,nul
 $('importFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||player)return;try{const raw=normalize(JSON.parse(await f.text()));if(!confirm('Заменить текущую кампанию данными из файла? Сначала экспортируйте текущую кампанию, если нужно.'))return;S=raw;selected=null;view=null;routeStart=null;tool='select';tab='home';adventure(S);commit();toast('Кампания загружена')}catch(err){alert('Не удалось импортировать: '+err.message)}};
 function toggleMode(){if(!player){uxPopupQueue=[];clearTimeout(uxPopupTimer);uxPopupTimer=null;$('uxAchievementPopup').hidden=true}player=!player;tool='select';routeStart=null;selected=null;closeModal();render()}
 function switchTab(t){if(t==='rumors'){t='news';newsFilter='rumors'}else if(t==='news')newsFilter='all';tab=t;searchText='';tool='select';routeStart=null;render()}
-function render(){portalData();$('nav').innerHTML=renderNavigation();$('nav').hidden=tab==='home'&&!getHomePrefs().nav;restoreNavScroll();$('modeBtn').textContent=player?'Режим мастера':'Режим игроков';$('navIconBtn').hidden=player;$('exportBtn').hidden=player;$('importBtn').hidden=player;$('status').innerHTML=`<span>${esc(dayLabel())}</span><span>Компания: <strong>${esc(S.company.name)}</strong></span><span>Казна: <strong>${esc(S.company.gold)} зм</strong></span><span>Стоянка: <strong>${esc(S.company.location&&(!player||node(S.company.location)?.visibility!=='hidden')?nameOf(S.company.location):'Не установлена')}</strong></span>${S.journey?'<span class="tag med">Путешествие в процессе</span>':''}<span class="save" id="saveState">${player?'Просмотр игроками':db?'Локальная кампания':'Локальное хранилище'}</span>`;if(PORTAL[tab])renderPortal(tab);else ({home:renderHome,worldbook:renderWorldBook,map:renderMap,factions:renderFactions,diplomacy:renderDiplomacy,company:renderCompany,camp:renderCampV2,bank:renderBank,contracts:renderContracts,journal:renderJournal,help:renderHelp})[tab]();}
+function render(){portalData();$('nav').innerHTML=renderNavigation();$('nav').hidden=tab==='home'&&!getHomePrefs().nav;restoreNavScroll();$('modeBtn').textContent=player?'Режим мастера':'Режим игроков';$('navIconBtn').hidden=player;$('exportBtn').hidden=player;$('importBtn').hidden=player;$('status').innerHTML=`<span>${esc(dayLabel())}</span><span>Компания: <strong>${esc(S.company.name)}</strong></span><span>Казна: <strong>${esc(S.company.gold)} зм</strong></span><span>Стоянка: <strong>${esc(S.company.location&&(!player||node(S.company.location)?.visibility!=='hidden')?nameOf(S.company.location):'Не установлена')}</strong></span>${S.journey?'<span class="tag med">Путешествие в процессе</span>':''}<span class="save" id="saveState">${player?'Просмотр игроками':db?'Локальная кампания':'Локальное хранилище'}</span>`;if(PORTAL[tab])renderPortal(tab);else ({home:renderHome,worldbook:renderWorldBook,map:renderMap,factions:renderFactions,diplomacy:renderDiplomacy,company:renderCompany,camp:renderCampV2,stay:renderStay,craft:renderCraft,workshop:renderWorkshop,bank:renderBank,contracts:renderContracts,journal:renderJournal,help:renderHelp})[tab]();}
 function openModal(title,body){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalwrap').classList.add('open');$('modalBody').querySelector('input:not([type=hidden]),textarea,select')?.focus()}function closeModal(){$('modalwrap').classList.remove('open');$('modalBody').innerHTML=''}document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('modalwrap').classList.contains('open'))closeModal();else if(tab==='map')setTool('select')}});
 function field(label,id,value='',type='text',extra=''){return `<div class="field"><label for="${id}">${esc(label)}</label><input id="${id}" type="${type}" value="${esc(value)}" ${extra}></div>`}function area(label,id,value='',placeholder=''){return `<div class="field"><label for="${id}">${esc(label)}</label><textarea id="${id}" placeholder="${esc(placeholder)}">${esc(value)}</textarea></div>`}function selectField(label,id,opts,value){return `<div class="field"><label for="${id}">${esc(label)}</label><select id="${id}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(l)}</option>`).join('')}</select></div>`}function val(id){return $(id).value}function check(label,id,value){return `<label class="checkline"><input id="${id}" type="checkbox" ${value?'checked':''}> ${esc(label)}</label>`}function controls(label='Сохранить'){return `<div class="actions"><button type="button" class="ghost" onclick="closeModal()">Отмена</button><button class="primary" type="submit">${label}</button></div>`}function safeColor(c){return /^#[0-9a-f]{6}$/i.test(c||'')?c:'#a79668'}function jsid(id){return esc(JSON.stringify(String(id)))}function header(title,desc,action=''){return `<div class="pagehead"><div><div class="eyebrow">Вольная компания · Атлас</div><h2>${esc(title)}</h2><p>${esc(desc)}</p></div>${action}</div>`}
 function dims(){return S.map?{w:1000,h:1000*S.map.h/S.map.w}:{w:1000,h:650}}function resetView(){const d=dims();view={x:0,y:0,w:d.w,h:d.h}}function renderMap(){if(!view)resetView();$('main').innerHTML=`<div class="map-layout"><section class="map-main"><div class="toolbar">${!player?`<button class="${tool==='select'?'active':''}" onclick="setTool('select')">↖ Выбор</button><button class="${tool==='node'?'active':''}" onclick="setTool('node')">＋ Узел</button><button class="${tool==='route'?'active':''}" onclick="setTool('route')">⌁ Маршрут</button><button class="${tool==='move'?'active':''}" onclick="setTool('move')">✥ Переместить узел</button><button onclick="$('mapFile').click()">Загрузить карту</button>`:''}<div class="spacer"></div><button onclick="toggleQuestMarkers()">${S.settings.showQuests===false?'Показать':'Скрыть'} задания</button><button onclick="toggleLabels()">${S.settings.showLabels?'Скрыть':'Показать'} подписи</button>${!player&&!S.nodes.length?'<button onclick="loadDemo()">Пример</button>':''}</div><div class="mapframe" id="mapframe"><svg id="mapsvg" xmlns="http://www.w3.org/2000/svg" aria-label="Интерактивная карта мира"></svg><div class="zoom"><button onclick="zoomBy(1.3)" title="Приблизить">+</button><button onclick="zoomBy(1/1.3)" title="Отдалить">−</button><button onclick="resetView();drawMap()" title="Вся карта">⌂</button></div><div class="hint" id="maphint"></div></div><div class="row muted" style="font-size:12px"><span>Перетаскивание фона — панорамирование · колесо — масштаб</span><span style="margin-left:auto">Узлы: ${S.nodes.filter(visibleNode).length} · Нити: ${S.routes.filter(visibleRoute).length}</span></div></section><aside class="sidebar" id="sidebar"></aside></div>`;drawMap();bindMap();renderSidebar()}
@@ -390,13 +691,13 @@ function getHomePrefs(){const key=player?'player':'master';if(!homeLocal[key]){t
 function setHomePref(key,on,tile=false){const mode=player?'player':'master',p=getHomePrefs();if(tile)p.tiles[key]=on;else p[key]=on;homeLocal[mode]=p;try{localStorage.setItem('atlas-home-v06-'+mode,JSON.stringify(p))}catch{}render()}
 function resetHomePrefs(){const mode=player?'player':'master';homeLocal[mode]={};try{localStorage.removeItem('atlas-home-v06-'+mode)}catch{}render()}
 function homeSettingsPanel(p){const toggles=(rows,tile)=>rows.map(([k,l])=>`<label class="home-toggle"><span>${esc(l)}</span><input type="checkbox" role="switch" ${ (tile?p.tiles[k]!==false:p[k])?'checked':''} onchange="setHomePref('${k}',this.checked,${tile})"></label>`).join('');return `<details class="card home-settings" ${homeSettingsOpen?'open':''} ontoggle="homeSettingsOpen=this.open"><summary>⚙ Настроить главную страницу</summary><div class="home-switches">${toggles(HOME_SECTIONS,false)}</div><details class="subsettings" ${homeTilesOpen?'open':''} ontoggle="homeTilesOpen=this.open"><summary>Отдельные плитки быстрого доступа</summary><div class="home-switches">${toggles(HOME_TILES,true)}</div></details><div class="actions"><button class="ghost" onclick="resetHomePrefs()">Показать всё</button>${!player?'<button onclick="editNavIcons()">Иконки меню</button>':''}<small>Настройки сохраняются в этом браузере отдельно для мастера и игроков.</small></div></details>`}
-const NAV_BANDS=[['Мир',[['home','Главная','⌂'],['map','Карта','✥'],['news','Вестник','▤'],['people','Персонажи мира','♟'],['factions','Фракции','⚑'],['diplomacy','Дипломатия','⚖'],['worldbook','Хроники Азерота','▥'],['codex','Кодекс','▧']]],['Кампания',[['company','Герои и хартия','♜'],['camp','Лагерь','⛺'],['bank','Хранилище','◆'],['contracts','Доска заданий','!'],['mail','Почта','✉'],['chronicle','Летопись','✒'],['achievements','Достижения','★'],['journal','Журнал','▣'],['help','Правила','?']]]];
+const NAV_BANDS=[['Мир',[['home','Главная','⌂'],['map','Карта','✥'],['news','Вестник','▤'],['people','Персонажи мира','♟'],['factions','Фракции','⚑'],['diplomacy','Дипломатия','⚖'],['worldbook','Хроники Азерота','▥'],['codex','Кодекс','▧']]],['Кампания',[['company','Герои и хартия','♜'],['camp','Лагерь','⛺'],['stay','Стоянка','♨'],['craft','Ремесло','⚒'],['bank','Хранилище','◆'],['contracts','Доска заданий','!'],['mail','Почта','✉'],['chronicle','Летопись','✒'],['achievements','Достижения','★'],['journal','Журнал','▣'],['help','Правила','?'],['workshop','Мастерская','⚙']]]];
 const DIP_STATES=[['alliance','Союз','#8dc88d'],['cooperation','Сотрудничество','#96bfa9'],['neutral','Нейтралитет','#cfbd86'],['truce','Перемирие','#b4b6db'],['tension','Напряжённость','#e1b06b'],['hostility','Вражда','#e88d65'],['war','Война','#e46f66']];
 let dipFaction='',dipStatus='',iconTarget='',navOffsets=[0,0];
 function prepareDiplomacy(data){const ids=new Set(data.factions.map(f=>f.id)),pairs=new Set();data.diplomacy=(Array.isArray(data.diplomacy)?data.diplomacy:[]).filter(r=>{if(!r||!ids.has(r.a)||!ids.has(r.b)||r.a===r.b||!DIP_STATES.some(x=>x[0]===r.state))return false;let key=pairKey(r.a,r.b);if(pairs.has(key))return false;pairs.add(key);return true}).map(r=>({...r,id:typeof r.id==='string'?r.id:uid(),desc:String(r.desc||''),notes:String(r.notes||''),hidden:!!r.hidden}));data.settings??={};const old=data.settings.navIcons||{};if(!old.news&&safeImage(old.rumors))old.news=old.rumors;data.settings.navIcons=Object.fromEntries(NAV_BANDS.flatMap(b=>b[1]).filter(([k])=>safeImage(old[k])).map(([k])=>[k,old[k]]));return data}
 function pairKey(a,b){return JSON.stringify([a,b].sort())}
 function navIcon(k,fallback){const img=safeImage(S.settings.navIcons?.[k]);return img?`<img src="${esc(img)}" alt="">`:esc(fallback||NAV_BANDS.flatMap(b=>b[1]).find(t=>t[0]===k)?.[2]||'◆')}
-function renderNavigation(){return NAV_BANDS.map(([label,items],i)=>`<div class="nav-band"><div class="nav-band-label">${label}<small>Азерот · ${i?'отряд':'атлас'}</small></div><div class="nav-scroll" data-band="${i}" onscroll="navOffsets[${i}]=this.scrollLeft">${items.map(([k,l,icon])=>`<button title="${esc(l)}" aria-label="${esc(l)}" ${tab===k?'aria-current="page"':''} class="nav-tab ${tab===k?'active':''}" onclick="switchTab('${k}')"><span class="menu-icon">${navIcon(k,icon)}</span><span>${esc(l)}</span></button>`).join('')}</div></div>`).join('')}
+function renderNavigation(){return NAV_BANDS.map(([label,items],i)=>`<div class="nav-band"><div class="nav-band-label">${label}<small>Азерот · ${i?'отряд':'атлас'}</small></div><div class="nav-scroll" data-band="${i}" onscroll="navOffsets[${i}]=this.scrollLeft">${items.filter(([k])=>k!=='workshop'||!player).map(([k,l,icon])=>`<button title="${esc(l)}" aria-label="${esc(l)}" ${tab===k?'aria-current="page"':''} class="nav-tab ${tab===k?'active':''}" onclick="switchTab('${k}')"><span class="menu-icon">${navIcon(k,icon)}</span><span>${esc(l)}</span></button>`).join('')}</div></div>`).join('')}
 function restoreNavScroll(){document.querySelectorAll('.nav-scroll').forEach(el=>{el.scrollLeft=navOffsets[+el.dataset.band]||0;const b=el.querySelector('.active');if(b){const er=el.getBoundingClientRect(),br=b.getBoundingClientRect();if(br.left<er.left)el.scrollLeft-=er.left-br.left+4;else if(br.right>er.right)el.scrollLeft+=br.right-er.right+4}})}
 function editNavIcons(){if(player)return;openModal('Иконки верхнего меню',`<p class="muted">Загрузите квадратные иконки для каждого раздела. Они сохраняются в кампании и входят в JSON. Можно вернуть стандартный символ.</p>${NAV_BANDS.map(([l,items])=>`<h3 class="rule">${l}</h3><div class="icon-edit-grid">${items.map(([k,name,icon])=>`<div class="icon-edit-row"><span class="menu-icon">${navIcon(k,icon)}</span><span class="icon-edit-name">${esc(name)}</span><button onclick="chooseNavIcon('${k}')">Загрузить</button>${S.settings.navIcons[k]?`<button title="Вернуть стандартную" onclick="resetNavIcon('${k}')">×</button>`:''}</div>`).join('')}</div>`).join('')}<div class="actions"><button class="ghost" onclick="resetAllNavIcons()">Сбросить все</button><button class="primary" onclick="closeModal()">Готово</button></div>`)}
 function chooseNavIcon(k){if(player)return;iconTarget=k;$('navIconFile').click()}
@@ -547,6 +848,8 @@ function applyCommand(source, actor, name, payload, key) {
       recipient = project.hero;
     }
   }
+  if (name === "craft" && next.engine.projects.at(-1)?.status !== "done")
+    event = "";
   for (const a of next.portal?.achievements || []) {
     if (a.engineEvent === event && !a.archived)
       grant(
@@ -567,6 +870,7 @@ function applyCommand(source, actor, name, payload, key) {
       "gather",
       "quest",
       "project",
+      "craft",
       "work",
       "staffWork",
       "enchant",
@@ -1153,6 +1457,22 @@ register("stay", "master", (s, p) => {
     history: [],
   });
 });
+register("editStay", "master", (s, p) => {
+  const stay = currentStay(s);
+  requireThat(stay, "Стоянка закрыта");
+  integer(p.days, 1, 3650);
+  integer(p.hours, 1, 24);
+  requireThat(
+    Object.values(stay.spent).every((hours) => hours <= p.days * p.hours),
+    "Новый бюджет меньше уже потраченного времени",
+  );
+  const location = byId(s.nodes, p.location);
+  const region = p.region || regionAt(s, location)?.id || "";
+  if (region) byId(s.engine.regions, region);
+  const { startDay, ...settings } = p;
+  Object.assign(stay, settings, { region });
+  s.company.location = location.id;
+});
 register("rest", "hero", (s, p) => spend(s, p.hero, p.hours, "Отдых"));
 register("closeStay", "master", (s) => {
   const t = currentStay(s);
@@ -1321,18 +1641,30 @@ function rollForm() {
     "Бросить",
   );
 }
-function stayForm() {
+function stayForm(edit = null) {
   commandForm(
-    "Разбить стоянку",
-    input("Название", "sn", "text", "Стоянка", "required") +
-      pick("Узел карты", "loc", pairs(S.nodes), S.company.location) +
+    edit ? "Настроить стоянку" : "Разбить стоянку",
+    input("Название", "sn", "text", edit?.name || "Стоянка", "required") +
+      pick(
+        "Узел карты",
+        "loc",
+        pairs(S.nodes),
+        edit?.location || S.company.location,
+      ) +
       pick(
         "Регион",
         "reg",
         [["", "Определить по карте"], ...pairs(S.engine.regions)],
-        "",
+        edit?.region || "",
       ) +
-      input("Начало (день кампании)", "startDay", "number", S.company.day) +
+      (edit
+        ? ""
+        : input(
+            "Начало (день кампании)",
+            "startDay",
+            "number",
+            S.company.day,
+          )) +
       input(
         "Иллюстрация стоянки",
         "stayImage",
@@ -1340,15 +1672,31 @@ function stayForm() {
         "",
         'accept="image/*"',
       ) +
-      input("Дней", "days", "number", 3) +
-      input("Часов в день", "hrs", "number", 8) +
-      input("Местные услуги через запятую", "services") +
-      area("Описание и ограничения", "notes") +
-      check("Разрешить отъезд с открытыми проектами", "early", true),
-    "stay",
+      input("Дней", "days", "number", edit?.days ?? 3) +
+      input("Часов в день", "hrs", "number", edit?.hours ?? 8) +
+      input(
+        "Местные услуги через запятую",
+        "services",
+        (edit?.services || []).join(", "),
+      ) +
+      area("Описание", "notes", edit?.description || "") +
+      area("Ограничения", "limits", edit?.limits || "") +
+      check(
+        "Показывать игрокам сложность занятий",
+        "showDC",
+        edit ? edit.showDC !== false : false,
+      ) +
+      check(
+        "Разрешить отъезд с открытыми проектами",
+        "early",
+        edit?.early ?? true,
+      ),
+    edit ? "editStay" : "stay",
     async () => ({
-      image: await readImage($("stayImage").files[0]),
-      startDay: num("startDay"),
+      image: (await readImage($("stayImage").files[0])) || edit?.image || "",
+      startDay: edit?.start ?? num("startDay"),
+      limits: val("limits"),
+      showDC: $("showDC").checked,
       name: val("sn"),
       location: val("loc"),
       region: val("reg"),
@@ -1500,33 +1848,8 @@ function phasePanel() {
     };
     a.append(select);
   }
-  if (gm && !t && !S.journey)
-    a.append(
-      button("Разбить стоянку", stayForm),
-      button("Сменить фазу", () =>
-        commandForm(
-          "Фаза кампании",
-          pick(
-            "Фаза",
-            "phase",
-            [
-              ["adventure", "Приключение"],
-              ["travel", "Путешествие"],
-            ],
-            e.phase,
-          ),
-          "phase",
-          () => ({ phase: val("phase") }),
-        ),
-      ),
-    );
-  if (t && gm)
-    a.append(
-      button("Закрыть стоянку", () => {
-        if (confirm("Учесть отдых и продвинуть календарь?"))
-          return execute("closeStay", {});
-      }),
-    );
+  if (["home", "camp"].includes(tab))
+    a.append(button("К стоянке", () => switchTab("stay")));
   if (gm && tab === "map")
     a.append(
       button("Создать регион", () => regionForm()),
@@ -1535,17 +1858,6 @@ function phasePanel() {
   if (hero && gm) a.append(button("Профиль героя", profileForm));
   if (hero && owned(actor, hero)) {
     a.append(button("Бросок", rollForm));
-    if (t)
-      a.append(
-        button("Отдых", () =>
-          commandForm(
-            "Отдых",
-            input("Часов", "rh", "number", 1),
-            "rest",
-            () => ({ hero, hours: num("rh") }),
-          ),
-        ),
-      );
     const last = e.rolls.find((r) => r.hero === hero);
     if (last) {
       const p = document.createElement("p");
@@ -1557,8 +1869,7 @@ function phasePanel() {
         last.mod +
         " = " +
         last.total +
-        " · Сл " +
-        last.dc;
+        (!player || last.showDC !== false ? " · Сл " + last.dc : "");
       box.append(p);
     }
   }
@@ -1578,7 +1889,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 98
-      }
+      },
+      "icon": "⚒",
+      "summary": "Ищите жилы и добывайте руду, камень и самоцветы.",
+      "description": "Руда снабжает кузнецов, инженеров и ювелиров.",
+      "special": "Выплавка требует кузницы или плавильни. На каждые 10 зм стоимости металла уходит час.",
+      "kind": "gathering"
     },
     {
       "id": "herbalism",
@@ -1590,7 +1906,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 97
-      }
+      },
+      "icon": "❧",
+      "summary": "Собирайте травы, цветы и грибы.",
+      "description": "Сборы служат сырьём для алхимии и начертания.",
+      "special": "Добычу у существ-растений мастер вправе разрешать по образцу снятия шкур.",
+      "kind": "gathering"
     },
     {
       "id": "skinning",
@@ -1602,7 +1923,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 98
-      }
+      },
+      "icon": "♧",
+      "summary": "Заготавливайте кожу и шкуры.",
+      "description": "Сырьё берут с туши, а Сл зависит от показателя опасности существа.",
+      "special": "Снятие занимает 10 минут. Для подходящего исчадия нужен БВ +3, для дракона +5.",
+      "kind": "gathering"
     },
     {
       "id": "fishing",
@@ -1612,7 +1938,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 97
-      }
+      },
+      "icon": "♒",
+      "summary": "Ловите рыбу для продовольствия или рецептов.",
+      "description": "Конкретную рыбу ловят проверкой Мудрости (Выживание) против сложности региона.",
+      "special": "При натуральной 20 мастер может дать клад вместо обычного улова.",
+      "kind": "gathering"
     },
     {
       "id": "archaeology",
@@ -1622,7 +1953,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 96
-      }
+      },
+      "icon": "⌖",
+      "summary": "Исследуйте места раскопок и собирайте фрагменты.",
+      "description": "Час поисков и проверка Интеллекта (История) могут дать реликвию или фрагменты её происхождения.",
+      "special": "Превышение Сл на 5 даёт целую реликвию, натуральная 20 даёт магический фрагмент.",
+      "kind": "gathering"
     },
     {
       "id": "alchemy",
@@ -1635,7 +1971,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 99
-      }
+      },
+      "icon": "⚗",
+      "summary": "Готовьте зелья и реагенты.",
+      "description": "Для рецептов используют травы и другие ингредиенты. Новые рецепты открываются по мере роста ранга.",
+      "special": "Рецепты могут потребовать редкого сырья, добытого из конкретных источников.",
+      "kind": "production"
     },
     {
       "id": "smithing",
@@ -1648,7 +1989,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 100
-      }
+      },
+      "icon": "⚒",
+      "summary": "Куйте вещи из металла и камня.",
+      "description": "Планы кузнеца охватывают оружие, доспехи и другие изделия. Некоторые требуют кожи или ткани.",
+      "special": "Известный план и подходящие материалы определяют доступные изделия.",
+      "kind": "production"
     },
     {
       "id": "cooking",
@@ -1661,7 +2007,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 100
-      }
+      },
+      "icon": "♨",
+      "summary": "Готовьте провизию и блюда с особыми свойствами.",
+      "description": "Кулинары используют рыбу, мясо и травы.",
+      "special": "Книга отдельно описывает особое пиршество для искусника.",
+      "kind": "production"
     },
     {
       "id": "enchanting",
@@ -1675,7 +2026,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 100
-      }
+      },
+      "icon": "✧",
+      "summary": "Создавайте магические изделия и извлекайте магический остаток.",
+      "description": "Для чар нужны формулы и реагенты, в том числе остаток от распыления.",
+      "special": "Распыление открывается с БВ +3. Требуемый ранг зависит от редкости предмета.",
+      "kind": "production"
     },
     {
       "id": "engineering",
@@ -1687,7 +2043,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 101
-      }
+      },
+      "icon": "⚙",
+      "summary": "Собирайте устройства из деталей.",
+      "description": "Схемы инженера используют металл, кожу, ткань и другие материалы.",
+      "special": "Подготовка деталей входит в затраты устройства по книжной схеме.",
+      "kind": "production"
     },
     {
       "id": "inscription",
@@ -1701,7 +2062,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 101
-      }
+      },
+      "icon": "✎",
+      "summary": "Готовьте чернила, карты и записи.",
+      "description": "Начертатели перерабатывают травы в красители и чернила для своих техник.",
+      "special": "Время приготовления чернил для изделия включено в книжную технику.",
+      "kind": "production"
     },
     {
       "id": "jewelry",
@@ -1714,7 +2080,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 102
-      }
+      },
+      "icon": "◇",
+      "summary": "Создавайте украшения, сосуды и магические кольца.",
+      "description": "Ювелиры работают с металлами, самоцветами и стеклом по изученным дизайнам.",
+      "special": "Доступные дизайны зависят от ранга.",
+      "kind": "production"
     },
     {
       "id": "leather",
@@ -1727,7 +2098,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 102
-      }
+      },
+      "icon": "✂",
+      "summary": "Обрабатывайте шкуру и шейте кожаное снаряжение.",
+      "description": "Выкройки кожевника используют сырьё от снятия шкур.",
+      "special": "Выкройки охватывают от сумок до магического кожаного снаряжения.",
+      "kind": "production"
     },
     {
       "id": "tailor",
@@ -1739,7 +2115,12 @@ const rulebook = {
       "source": {
         "book": "wow",
         "printed_page": 102
-      }
+      },
+      "icon": "▧",
+      "summary": "Шейте одежду, доспехи и походное снаряжение.",
+      "description": "Портные используют ткань из добычи или торговли и работают по выкройкам.",
+      "special": "Доступные выкройки зависят от ранга.",
+      "kind": "production"
     },
     {
       "id": "hunt",
@@ -1748,7 +2129,12 @@ const rulebook = {
       "skill": "",
       "source": {
         "origin": "house"
-      }
+      },
+      "icon": "➳",
+      "summary": "Выслеживайте дичь в окрестностях стоянки.",
+      "description": "Проверка и добыча задаются региональной таблицей мастера.",
+      "special": "Домашняя механика Атласа.",
+      "kind": "gathering"
     }
   ],
   "gathering": [
@@ -1814,6 +2200,34 @@ const rulebook = {
   "bastions": {
     "book": "dmg2024",
     "printed_page": 333
+  },
+  "abilityNotes": {
+    "str": "Физическая мощь.",
+    "dex": "Проворность, рефлексы и равновесие.",
+    "con": "Здоровье и выносливость.",
+    "int": "Мышление и память.",
+    "wis": "Восприимчивость и стойкость ума.",
+    "cha": "Уверенность и самообладание."
+  },
+  "skillNotes": {
+    "Акробатика": "Удерживать равновесие.",
+    "Атлетика": "Прыгать, плыть или преодолевать препятствия силой.",
+    "Восприятие": "Замечать малозаметные детали.",
+    "Выживание": "Идти по следу, искать пищу и безопасную дорогу.",
+    "Выступление": "Развлекать исполнением.",
+    "Запугивание": "Воздействовать угрозой.",
+    "История": "Вспоминать события и культуры.",
+    "Ловкость рук": "Незаметно манипулировать предметами.",
+    "Медицина": "Распознавать болезни и причины смерти.",
+    "Обман": "Убедительно лгать или маскироваться.",
+    "Природа": "Вспоминать сведения о местности и живом мире.",
+    "Проницательность": "Распознавать намерения и настроение.",
+    "Расследование": "Искать скрытую информацию и понимать устройство вещей.",
+    "Религия": "Вспоминать сведения о богах и обрядах.",
+    "Скрытность": "Перемещаться и прятаться незаметно.",
+    "Тайная магия": "Вспоминать сведения о магии и планах.",
+    "Убеждение": "Влиять тактом и доводами.",
+    "Уход за животными": "Успокаивать и обучать животных."
   }
 }
 ;
@@ -1829,7 +2243,9 @@ const demoPack = {
       "points": [],
       "source": {
         "origin": "demo"
-      }
+      },
+      "description": "За красными уступами ветер гонит пыль. В обнажившихся жилах поблёскивает медь.",
+      "image": "data:image/webp;base64,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"
     },
     {
       "id": "barrens",
@@ -1841,7 +2257,8 @@ const demoPack = {
       "points": [],
       "source": {
         "origin": "demo"
-      }
+      },
+      "description": "Высокие травы шумят над тропами караванов. У воды видны свежие следы."
     },
     {
       "id": "ash",
@@ -1853,7 +2270,8 @@ const demoPack = {
       "points": [],
       "source": {
         "origin": "demo"
-      }
+      },
+      "description": "Под тенью древних деревьев пахнет сырой листвой. Ручьи тянутся к старым развалинам."
     }
   ],
   "items": [
@@ -1865,7 +2283,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Необработанная медная руда для выплавки."
     },
     {
       "id": "silver",
@@ -1875,7 +2294,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "bloom",
@@ -1885,7 +2305,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "leaf",
@@ -1895,7 +2316,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "hide",
@@ -1905,7 +2327,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "meat",
@@ -1915,7 +2338,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "fish",
@@ -1925,7 +2349,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "shard",
@@ -1935,7 +2360,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "bar",
@@ -1945,7 +2371,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Переплавленная медь для проволоки, гвоздей и других заготовок."
     },
     {
       "id": "wire",
@@ -1955,7 +2382,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Тонкая медная проволока для мелких деталей."
     },
     {
       "id": "hook",
@@ -1965,7 +2393,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "nail",
@@ -1975,7 +2404,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "oil",
@@ -1985,7 +2415,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "ink",
@@ -1995,7 +2426,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "meal",
@@ -2005,7 +2437,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "soup",
@@ -2015,7 +2448,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "strap",
@@ -2025,7 +2459,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "ring",
@@ -2035,7 +2470,8 @@ const demoPack = {
       "value_gp": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "stranglekelp",
@@ -2046,7 +2482,8 @@ const demoPack = {
       "source": {
         "book": "wow",
         "printed_page": 99
-      }
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
     },
     {
       "id": "blackmouth",
@@ -2057,7 +2494,8 @@ const demoPack = {
       "source": {
         "book": "wow",
         "printed_page": 99
-      }
+      },
+      "desc": "Редкая рыба, из которой добывают масло для зелья подводного дыхания."
     },
     {
       "id": "water-breathing",
@@ -2068,6 +2506,29 @@ const demoPack = {
       "source": {
         "book": "wow",
         "printed_page": 99
+      },
+      "desc": "Материал или изделие из демонстрационного набора ремесла."
+    },
+    {
+      "id": "game-fat",
+      "name": "Дичь: топлёный жир",
+      "category": "Материалы",
+      "quality": "uncommon",
+      "value_gp": 2,
+      "desc": "Жир дичи для походных припасов.",
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "river-perch",
+      "name": "Речной окунь",
+      "category": "Припасы",
+      "quality": "common",
+      "value_gp": 1,
+      "desc": "Свежий улов для походной кухни.",
+      "source": {
+        "origin": "demo"
       }
     }
   ],
@@ -2698,6 +3159,34 @@ const demoPack = {
       "source": {
         "origin": "demo"
       }
+    },
+    {
+      "id": "ash-game-fat",
+      "region_id": "ash",
+      "profession_id": "hunt",
+      "item_id": "game-fat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 2,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-river-perch",
+      "region_id": "barrens",
+      "profession_id": "fishing",
+      "item_id": "river-perch",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 2,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
     }
   ],
   "errands": [
@@ -2729,30 +3218,6 @@ const demoPack = {
       "id": "task-2",
       "title": "Вода для каравана",
       "desc": "У колодца стоит встревоженный караванщик.",
-      "type": "local",
-      "status": "available",
-      "repeat": "stay",
-      "hours": 1,
-      "source": {
-        "origin": "demo"
-      }
-    },
-    {
-      "id": "task-3",
-      "title": "Старая надпись",
-      "desc": "На камне сохранились руны.",
-      "type": "local",
-      "status": "available",
-      "repeat": "stay",
-      "hours": 1,
-      "source": {
-        "origin": "demo"
-      }
-    },
-    {
-      "id": "task-4",
-      "title": "Лекарь заставы",
-      "desc": "Лекарю нужен помощник в полевом лагере.",
       "type": "local",
       "status": "available",
       "repeat": "stay",
@@ -2816,42 +3281,6 @@ const demoPack = {
       "dc": 10,
       "success": "Поручение выполнено.",
       "failure": "Попытка не удалась."
-    },
-    {
-      "id": "option-3",
-      "quest_id": "task-3",
-      "name": "Помочь",
-      "skill": "История",
-      "dc": 10,
-      "success": "Поручение выполнено.",
-      "failure": "Попытка не удалась."
-    },
-    {
-      "id": "option-3-help",
-      "quest_id": "task-3",
-      "name": "Позвать подмогу",
-      "skill": "Убеждение",
-      "dc": 10,
-      "success": "Поручение выполнено.",
-      "failure": "Попытка не удалась."
-    },
-    {
-      "id": "option-4",
-      "quest_id": "task-4",
-      "name": "Помочь",
-      "skill": "Медицина",
-      "dc": 10,
-      "success": "Поручение выполнено.",
-      "failure": "Попытка не удалась."
-    },
-    {
-      "id": "option-4-help",
-      "quest_id": "task-4",
-      "name": "Позвать подмогу",
-      "skill": "Убеждение",
-      "dc": 10,
-      "success": "Поручение выполнено.",
-      "failure": "Попытка не удалась."
     }
   ],
   "rewards": [
@@ -2893,34 +3322,6 @@ const demoPack = {
     {
       "id": "gold-option-2-help",
       "solution_id": "option-2-help",
-      "type": "gold",
-      "amount": 2,
-      "when": "success"
-    },
-    {
-      "id": "gold-option-3",
-      "solution_id": "option-3",
-      "type": "gold",
-      "amount": 2,
-      "when": "success"
-    },
-    {
-      "id": "gold-option-3-help",
-      "solution_id": "option-3-help",
-      "type": "gold",
-      "amount": 2,
-      "when": "success"
-    },
-    {
-      "id": "gold-option-4",
-      "solution_id": "option-4",
-      "type": "gold",
-      "amount": 2,
-      "when": "success"
-    },
-    {
-      "id": "gold-option-4-help",
-      "solution_id": "option-4-help",
       "type": "gold",
       "amount": 2,
       "when": "success"
@@ -2971,6 +3372,23 @@ function economy(s) {
   for (const k of ["items", "recipes", "ingredients", "loot", "projects"])
     e[k] ??= [];
   e.professions ??= structuredClone(rulebook.professions);
+  const defaults = new Map(rulebook.professions.map((p) => [p.id, p]));
+  for (const p of e.professions) {
+    const standard = defaults.get(p.id);
+    if (p.desc != null) p.description ??= p.desc;
+    for (const field of [
+      "description",
+      "summary",
+      "special",
+      "kind",
+      "icon",
+      "tools",
+      "skill",
+      "source",
+    ])
+      if (p[field] == null && standard?.[field] != null)
+        p[field] = structuredClone(standard[field]);
+  }
   e.gathering ??= structuredClone(rulebook.gathering);
   for (const stack of s.company.inventory || []) {
     if (stack.item_id) continue;
@@ -3091,7 +3509,7 @@ register("gold", "master", (s, p) => {
   h.wallet += p.amount;
   s.company.gold -= p.amount;
 });
-function gather(s, p, die = dice) {
+function gatheringDetails(s, p) {
   const h = profile(s, p.hero),
     t = currentStay(s),
     e = economy(s),
@@ -3127,8 +3545,9 @@ function gather(s, p, die = dice) {
     requireThat(count < rule.attempts, "Попытки исчерпаны");
   let hours = rule.hours || 1,
     dc = rule.dc ?? region.dc;
+  let carcass;
   if (id === "skinning") {
-    const carcass = byId(t.carcasses || [], p.carcass);
+    carcass = byId(t.carcasses || [], p.carcass);
     requireThat(
       !carcass.used &&
         bv(h) >=
@@ -3148,24 +3567,62 @@ function gather(s, p, die = dice) {
                 : 0
       ].dc;
     hours = 1 / 6;
-    carcass.used = true;
   }
-  spend(s, p.hero, hours, id);
-  const effects = activeEffects(s).filter((e) => e.profession === id);
-  const check = ability(
-    {
-      ...h,
-      bonus: h.bonus + effects.reduce((total, e) => total + (e.bonus || 0), 0),
-    },
-    {
-      skill: rule.skill || (id === "archaeology" ? "История" : "Выживание"),
-      tool: prof.tools?.find((x) => h.tools.includes(x)),
-      dc,
-      mode: effects.some((e) => e.advantage) ? "adv" : "normal",
-    },
-    die,
+  requireThat(
+    s.engine.phase === "stay" && remaining(s, p.hero) >= roundedHours(hours),
+    "Недостаточно времени стоянки",
   );
-  e.rolls.unshift({ ...check, hero: p.hero, label: prof.name });
+  const effects = activeEffects(s).filter((e) => e.profession === id);
+  const heroProfile = {
+    ...h,
+    bonus:
+      h.bonus +
+      effects.reduce((total, effect) => total + (effect.bonus || 0), 0),
+  };
+  const modifiers = {
+    skill: rule.skill || (id === "archaeology" ? "История" : "Выживание"),
+    tool: prof.tools?.find((tool) => h.tools.includes(tool)),
+    dc,
+    mode: effects.some((effect) => effect.advantage) ? "adv" : "normal",
+  };
+  return {
+    t,
+    e,
+    rows,
+    rule,
+    prof,
+    region,
+    hours,
+    dc,
+    carcass,
+    modifiers,
+    heroProfile,
+  };
+}
+function gather(s, p, die = dice) {
+  const id = p.profession;
+  const {
+    t,
+    e,
+    rows,
+    rule,
+    prof,
+    region,
+    hours,
+    dc,
+    carcass,
+    modifiers,
+    heroProfile,
+  } = gatheringDetails(s, p);
+  if (carcass) carcass.used = true;
+  spend(s, p.hero, hours, id);
+  const check = ability(heroProfile, modifiers, die);
+  e.rolls.unshift({
+    ...check,
+    hero: p.hero,
+    label: prof.name,
+    showDC: t.showDC !== false,
+  });
   if (
     id === "archaeology" ||
     (id === "fishing" && check.natural === 20 && rule.treasure_id)
@@ -3264,16 +3721,12 @@ function canCraft(s, hero, r) {
     facilities(s, r)
   );
 }
-register("project", "hero", (s, p) => {
+function projectQuote(s, p) {
   const e = economy(s),
     h = profile(s, p.hero),
     r = byId(e.recipes, p.recipe),
     owner = "member:" + p.hero;
   integer(p.qty, 1, 1000);
-  requireThat(
-    canCraft(s, p.hero, r),
-    "Проверьте рецепт, ранг, владения и инфраструктуру",
-  );
   const effect = campEffect(s, r),
     cost = Math.ceil(
       ((r.gold || 0) * p.qty * (100 - (effect.discount || 0))) / 100,
@@ -3284,10 +3737,6 @@ register("project", "hero", (s, p) => {
         (integer(r.hours * p.qty, 1) * (100 - (effect.speed || 0))) / 100,
       ),
     );
-  requireThat(
-    h.wallet >= cost - (p.credit || 0) && remaining(s, p.hero) > 0,
-    "Недостаточно золота или времени",
-  );
   const credit = p.credit || 0;
   integer(credit, 0);
   requireThat(credit <= cost, "Избыток абстрактных ресурсов");
@@ -3307,22 +3756,59 @@ register("project", "hero", (s, p) => {
     .map((i) => ({ item: i.item_id, qty: i.quantity * p.qty }));
   if (resource)
     reserve.push({ item: resource.id, qty: credit / resource.value_gp });
-  for (const line of reserve) take(s, line.item, owner, line.qty);
-  h.wallet -= cost - credit;
-  e.projects.push({
+  const needed = new Map();
+  for (const line of reserve)
+    needed.set(line.item, (needed.get(line.item) || 0) + line.qty);
+  const materials = [...needed].map(([item, qty]) => ({
+    item,
+    qty,
+    have: s.company.inventory
+      .filter((x) => x.owner === owner && x.item_id === item && !x.properties)
+      .reduce((sum, x) => sum + x.qty, 0),
+  }));
+  return { r, cost: cost - credit, work, reserve, materials, wallet: h.wallet };
+}
+function startProject(s, p) {
+  const { r, cost, work, reserve, materials, wallet } = projectQuote(s, p);
+  requireThat(
+    canCraft(s, p.hero, r),
+    "Проверьте рецепт, ранг, владения и инфраструктуру",
+  );
+  requireThat(
+    wallet >= cost && remaining(s, p.hero) > 0,
+    "Недостаточно золота или времени",
+  );
+  requireThat(
+    materials.every((line) => line.have >= line.qty),
+    "Недостаточно материалов",
+  );
+  for (const line of reserve) take(s, line.item, "member:" + p.hero, line.qty);
+  profile(s, p.hero).wallet -= cost;
+  const project = {
     id: crypto.randomUUID(),
     hero: p.hero,
     name: r.name,
     recipe: structuredClone(r),
-    cost: cost - credit,
+    cost,
     reserve,
     left: work,
     work,
     qty: p.qty,
     status: "active",
     contributors: [],
-  });
+  };
+  s.engine.projects.push(project);
+  return project;
+}
+register("project", "hero", (s, p) => startProject(s, p));
+register("craft", "hero", (s, p) => {
+  const project = startProject(s, p);
+  if (project.left <= remaining(s, p.hero))
+    commands
+      .get("work")
+      .run(s, { hero: p.hero, project: project.id, hours: project.left });
 });
+
 register("work", "hero", (s, p) => {
   const j = byId(economy(s).projects, p.project);
   requireThat(
@@ -3429,157 +3915,12 @@ function bagPage() {
   }
   if (!bag.length) $("bagRows").textContent = "Сумки пусты";
 }
-function activities() {
-  const hero = chosen(),
-    h = profile(S, hero),
-    e = economy(S),
-    t = currentStay(S);
-  openModal(
-    "Занятия · " + remaining(S, hero) + " ч.",
-    '<div id="activityList" class="stack"></div>',
-  );
-  const list = $("activityList");
-  const ids = new Set(
-    e.loot.filter((l) => l.region_id === t.region).map((l) => l.profession_id),
-  );
-  for (const id of ids) {
-    const prof = byId(e.professions, id),
-      b = button(prof.name, () => {
-        const rule = e.loot.find(
-          (l) => l.region_id === t.region && l.profession_id === id,
-        );
-        commandForm(
-          prof.name,
-          (id === "skinning"
-            ? pick(
-                "Доступная туша",
-                "carcass",
-                (t.carcasses || [])
-                  .filter((x) => !x.used)
-                  .map((x) => [x.id, x.name]),
-                "",
-              )
-            : "") +
-            "<p>" +
-            esc(rule.hours || 1) +
-            " ч. · Сл " +
-            esc(rule.dc ?? byId(e.regions, t.region).dc) +
-            "</p>",
-          "gather",
-          () => ({ hero, profession: id, carcass: $("carcass")?.value }),
-          "Приступить",
-        );
-      });
-    b.disabled = !eligibleProfession(S, h, id);
-    b.title =
-      (prof.tools || []).join(" / ") || prof.skill || "Доступно без владения";
-    list.append(b);
-  }
-  if (!ids.size)
-    list.textContent = "Для этого региона таблицы добычи пока пусты.";
-}
 function recipeBook() {
-  const hero = chosen(),
-    e = economy(S),
-    h = profile(S, hero);
-  openModal(
-    "Книга рецептов и проекты",
-    '<section id="recipeRows" class="stack"></section>',
-  );
-  const box = $("recipeRows");
-  for (const r of e.recipes) {
-    const ingredients = e.ingredients
-      .filter((i) => i.recipe_id === r.id)
-      .map((i) => byId(e.items, i.item_id).name + " × " + i.quantity);
-    const b = button(r.name + " · " + r.hours + " ч.", () =>
-      commandForm(
-        r.name,
-        "<p>" +
-          esc(ingredients.join(", ") || "Абстрактные ресурсы") +
-          " · " +
-          esc(r.gold || 0) +
-          " зм / шт.</p>" +
-          input("Количество", "qty", "number", 1, 'min="1" max="1000"') +
-          (r.gold
-            ? pick(
-                "Материал для оплаты",
-                "abstractItem",
-                [
-                  ["", "Монеты"],
-                  ...pairs(
-                    e.items.filter((i) => i.profession_id === r.profession_id),
-                  ),
-                ],
-                "",
-              ) + input("Оплатить ресурсом, зм", "credit", "number", 0)
-            : ""),
-        "project",
-        () => ({
-          hero,
-          recipe: r.id,
-          qty: num("qty"),
-          resource: $("abstractItem")?.value,
-          credit: $("credit") ? num("credit") : 0,
-        }),
-        "Зарезервировать",
-      ),
-    );
-    b.disabled = !canCraft(S, hero, r);
-    b.title = [
-      byId(e.professions, r.profession_id).name,
-      "БВ +" + r.rank,
-      ...ingredients,
-      r.service,
-    ]
-      .filter(Boolean)
-      .join(" · ");
-    box.append(b);
-  }
-  for (const j of e.projects.filter((j) => j.status === "active")) {
-    box.append(
-      button(j.name + " · осталось " + j.left + " ч.", () =>
-        commandForm(
-          "Внести работу",
-          input("Часов", "wh", "number", Math.min(j.left, remaining(S, hero))),
-          "work",
-          () => ({ hero, project: j.id, hours: num("wh") }),
-        ),
-      ),
-    );
-    if (j.hero === hero)
-      box.append(
-        button("Отменить " + j.name, () =>
-          commandForm(
-            "Отмена проекта",
-            "<p>Доля возврата: " + esc((e.refund ?? 1) * 100) + "%</p>",
-            "cancelProject",
-            () => ({ hero, project: j.id }),
-          ),
-        ),
-      );
-  }
-  if (!box.children.length)
-    box.textContent = "Рецептов и открытых проектов пока нет.";
+  openCraftTab("recipes");
 }
-actions.push((a, { gm, hero, t, e }) => {
-  economy(S);
-  if (gm && !e.demo && ["bank", "camp"].includes(tab))
-    a.append(
-      button("Добавить демонстрационный набор", () =>
-        commandForm(
-          "Демонстрация",
-          "<p>Добавить тестовые регионы, предметы, рецепты и занятия в текущую кампанию?</p>",
-          "demo",
-          () => ({}),
-          "Добавить",
-        ),
-      ),
-    );
-  if (hero && owned(actor, hero)) {
+actions.push((a, { hero }) => {
+  if (tab === "bank" && hero && owned(actor, hero))
     a.append(button("Сумки", bagPage));
-    if (t) a.append(button("Добыча", activities));
-    a.append(button("Книга рецептов", recipeBook));
-  }
 });
 
 function meetsConditions(s, hero, c = {}) {
@@ -4090,7 +4431,7 @@ const tables = {
   professions: [
     "Профессии",
     "engine.professions",
-    "id name tools:json? skill?",
+    "id name kind? summary? description? special? icon? tools:json? skill?",
   ],
   recipes: [
     "Рецепты",
@@ -4277,6 +4618,16 @@ function rowFrom(k, row, categories = []) {
     let v = row[c.name];
     if (k === "items" && c.name === "quality") v ??= row.rarity;
     if (k === "items" && c.name === "desc") v ??= row.description;
+    if (["professions", "recipes"].includes(k) && c.name === "description")
+      v ??= row.desc;
+    if (
+      k === "professions" &&
+      v === "" &&
+      ["skill", "description", "summary", "special", "icon"].includes(c.name)
+    ) {
+      out[c.name] = v;
+      continue;
+    }
     if (c.name === "id" && !v && k === "ingredients")
       v = row.recipe_id + ":" + row.item_id;
     if (c.name === "id" && !v && ["loot", "hunting", "fishing"].includes(k))
@@ -4640,21 +4991,34 @@ function sampleRow(k) {
   if (k === "professions") return rulebook.professions[0];
   if (k === "fishing" || k === "hunting")
     return demoPack.loot.find((r) => subset(k, r));
-  return demoPack[k]?.[0] || sampleRows[k];
+  const example = demoPack[k]?.[0] || sampleRows[k];
+  if (k === "regions") {
+    const { image, ...region } = example;
+    return region;
+  }
+  return example;
 }
-const formatNotes={
- items:"quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
- regions:"points: массив пар [x,y] в диапазоне 0–1. При перекрытии выше priority. tier: 1–5.",
- recipes:"rank: требуемый бонус владения. gold: стоимость в зм на один экземпляр. equipment: массив ID инструментов из каталога. experiment: объект с полями skill и dc.",
- ingredients:"Количество списывается при резервировании проекта. Одна строка связывает один рецепт с одним ингредиентом.",
- loot:"weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
- errands:"repeat: once, stay, day или period. При period задайте period в игровых днях. conditions поддерживает race, class, level, skill, profession, item, recipe, faction, rep, npc, achievement, quest.",
- rewards:"type: gold, item, rep, contact, discover, achievement. when: success или failure. Для item обязательны item_id и quantity, для rep — faction и amount.",
- diplomacy:"state: alliance, cooperation, neutral, truce, tension, hostility, war.",
- professions:"tools: массив альтернативных владений инструментом. Пустой массив снимает требование. skill: название обязательного навыка.",
- news:"kind: news или rumors. day и year используют календарь компании."
+const formatNotes = {
+  items:
+    "quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
+  regions:
+    "points: массив пар [x,y] в диапазоне 0–1. При перекрытии выше priority. tier: 1–5.",
+  recipes:
+    "rank: требуемый бонус владения. gold: стоимость в зм на один экземпляр. equipment: массив ID инструментов из каталога. experiment: объект с полями skill и dc.",
+  ingredients:
+    "Количество списывается при резервировании проекта. Одна строка связывает один рецепт с одним ингредиентом.",
+  loot: "weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
+  errands:
+    "repeat: once, stay, day или period. При period задайте period в игровых днях. conditions поддерживает race, class, level, skill, profession, item, recipe, faction, rep, npc, achievement, quest.",
+  rewards:
+    "type: gold, item, rep, contact, discover, achievement. when: success или failure. Для item обязательны item_id и quantity, для rep — faction и amount.",
+  diplomacy:
+    "state: alliance, cooperation, neutral, truce, tension, hostility, war.",
+  professions:
+    "tools: массив альтернативных владений инструментом. Пустой массив снимает требование. skill: название обязательного навыка. kind: gathering или production. summary: текст карточки. description и special: механика и особые правила.",
+  news: "kind: news или rumors. day и year используют календарь компании.",
 };
-formatNotes.hunting=formatNotes.fishing=formatNotes.loot;
+formatNotes.hunting = formatNotes.fishing = formatNotes.loot;
 function schemaDoc() {
   return {
     format: "atlas-tables",
@@ -4675,13 +5039,17 @@ function schemaDoc() {
     tables: Object.fromEntries(
       Object.keys(tables).map((k) => [
         k,
-        { title: tables[k][0],
-          notes: formatNotes[k]||"", fields: columns(k), example: sampleRow(k) },
+        {
+          title: tables[k][0],
+          notes: formatNotes[k] || "",
+          fields: columns(k),
+          example: sampleRow(k),
+        },
       ]),
     ),
   };
 }
-function workshop() {
+function workshop(initialTable = "regions") {
   if (actor.role !== "master") return;
   openModal(
     "Мастерская данных",
@@ -4690,7 +5058,7 @@ function workshop() {
         "Справочник",
         "tableKey",
         Object.entries(tables).map(([k, t]) => [k, t[0]]),
-        "regions",
+        initialTable,
       ) +
       pick(
         "Формат",
@@ -4763,7 +5131,9 @@ function workshop() {
             "</dd>",
         )
         .join("") +
-      "</dl><p>"+esc(formatNotes[key()]||"")+"</p><p>Для связанных записей можно загрузить единый JSON-объект с ключами справочников.</p>";
+      "</dl><p>" +
+      esc(formatNotes[key()] || "") +
+      "</p><p>Для связанных записей можно загрузить единый JSON-объект с ключами справочников.</p>";
   };
   $("tableKey").onchange = help;
   help();
@@ -4801,7 +5171,11 @@ function workshop() {
           "\n" +
           plan.issues.slice(0, 30).join("\n") +
           "\n" +
-          JSON.stringify(pack, null, 2).slice(0, 4800);
+          JSON.stringify(
+            pack,
+            (_, value) => (safeImage(value) ? "[изображение]" : value),
+            2,
+          ).slice(0, 4800);
         if (!c.errors) {
           const token = crypto.randomUUID();
           $("applyTools").append(
@@ -4826,10 +5200,6 @@ function workshop() {
     }),
   );
 }
-actions.push((a, { gm }) => {
-  if (gm && ["bank", "home"].includes(tab))
-    a.append(button("Мастерская данных", workshop));
-});
 
 // Validate incoming saves before the legacy normalizer has a chance to repair them.
 function validateBackup(raw) {
@@ -5466,59 +5836,6 @@ function campControl() {
   $("facility").onchange = show;
   show();
 }
-function professionPage() {
-  const hero = chosen(),
-    h = profile(S, hero),
-    e = economy(S);
-  openModal("Профессии", '<div id="profList" class="stack"></div>');
-  const box = $("profList");
-  for (const p of e.professions) {
-    const card = document.createElement("details"),
-      ok = eligibleProfession(S, h, p.id);
-    card.innerHTML =
-      "<summary>" +
-      esc(p.name) +
-      " · " +
-      (ok ? "доступно" : "нужно владение") +
-      "</summary><p>" +
-      esc(
-        [p.skill, ...(p.tools || [])].filter(Boolean).join(" / ") ||
-          "Без обязательного владения",
-      ) +
-      "</p><small>" +
-      esc(
-        p.source?.book
-          ? p.source.book + " · с. " + p.source.printed_page
-          : "Правило кампании",
-      ) +
-      "</small>";
-    if (ok) {
-      const rank = e.requireTrainer
-        ? Math.min(bv(h), h.trained?.[p.id] || 2)
-        : bv(h);
-      card.append(
-        document.createTextNode(
-          " · " +
-            ["Ученик", "Подмастерье", "Эксперт", "Искусник", "Мастер"][
-              Math.max(0, Math.min(4, rank - 2))
-            ],
-        ),
-      );
-      if (e.requireTrainer && bv(h) > rank)
-        card.append(
-          button("Обучиться у наставника", () =>
-            commandForm(
-              "Обучение",
-              "<p>" + esc(bv(h)) + " дн. · " + esc(bv(h) * 2) + " зм</p>",
-              "train",
-              () => ({ hero, profession: p.id }),
-            ),
-          ),
-        );
-    }
-    box.append(card);
-  }
-}
 function gearActions() {
   const hero = chosen(),
     bag = S.company.inventory.filter(
@@ -5606,12 +5923,11 @@ function recentActivity(box, hero, t) {
 actions.push((a, { gm, hero, t, e, box }) => {
   if (t && hero && owned(actor, hero)) {
     if (tab === "home") recentActivity(box, hero, t);
-    if (["home", "camp"].includes(tab))
-      a.append(button("Расписание", plansPage));
+    if (tab === "home") a.append(button("Расписание", plansPage));
   }
   if (hero && ["company", "bank"].includes(tab))
     a.append(
-      button("Профессии", professionPage),
+      button("Профессии", () => openCraftTab("professions")),
       button("Операции с вещами", gearActions),
     );
   if (gm && tab === "camp") {
@@ -5630,54 +5946,6 @@ actions.push((a, { gm, hero, t, e, box }) => {
         ),
       ),
     );
-    if (t)
-      a.append(
-        button("Добавить тушу", () =>
-          commandForm(
-            "Снятие шкур",
-            input("Название", "car", "text", "", "required") +
-              input("Показатель опасности", "cr", "number", 1) +
-              pick(
-                "Тип",
-                "kind",
-                [
-                  ["beast", "Зверь"],
-                  ["fiend", "Исчадие"],
-                  ["dragon", "Дракон"],
-                ],
-                "beast",
-              ),
-            "carcass",
-            () => ({ name: val("car"), cr: num("cr"), kind: val("kind") }),
-          ),
-        ),
-      );
-    if (
-      t &&
-      S.company.staff.length &&
-      e.projects.some((j) => j.status === "active")
-    )
-      a.append(
-        button("Работа специалиста", () =>
-          commandForm(
-            "Проект лагеря",
-            pick("Специалист", "worker", pairs(S.company.staff), "") +
-              pick(
-                "Проект",
-                "project",
-                pairs(e.projects.filter((j) => j.status === "active")),
-                "",
-              ) +
-              input("Отработать часов", "time", "number", 1),
-            "staffWork",
-            () => ({
-              staff: val("worker"),
-              project: val("project"),
-              hours: num("time"),
-            }),
-          ),
-        ),
-      );
   }
   if (actor.role === "captain" && actor.travel && !t && !S.journey) {
     const routes = S.routes.filter(
@@ -5703,11 +5971,20 @@ openAffPerson = function (kind, id) {
   personView(kind, id);
   if (kind === "hero" && owned(actor, id)) {
     activeHero = id;
-    $("modalBody").append(
+    const links = document.createElement("div");
+    links.className = "hero-shortcuts";
+    links.append(
+      button("Характеристики", heroStats),
       button("Сумки", bagPage),
-      button("Профессии", professionPage),
+      button("Профессии", () => openCraftTab("professions")),
+      button("Рецепты", () => openCraftTab("recipes")),
+      button("Занятия", () => {
+        closeModal();
+        switchTab("stay");
+      }),
+      button("Достижения", () => openPersonalAchievements("hero:" + id)),
     );
-    if (!player) $("modalBody").append(button("Характеристики", profileForm));
+    $("modalBody").append(links);
   }
 };
 const legacyRecords = uxRecords;
@@ -5909,6 +6186,19 @@ function professionEditor() {
         "required " + (p ? "readonly" : ""),
       ) +
         input("Название", "pn", "text", p?.name || "", "required") +
+        pick(
+          "Тип",
+          "pkind",
+          [
+            ["gathering", "Добыча и исследование"],
+            ["production", "Производство"],
+          ],
+          p?.kind || "production",
+        ) +
+        input("Иконка", "picon", "text", p?.icon || "") +
+        area("Краткое описание", "psummary", p?.summary || "") +
+        area("Механика", "pdescription", p?.description || "") +
+        area("Особые правила", "pspecial", p?.special || "") +
         input(
           "Допустимые инструменты (хотя бы одно владение)",
           "pt",
@@ -5930,8 +6220,13 @@ function professionEditor() {
                 id: val("pk"),
                 name: val("pn"),
                 tools: listText("pt"),
-                skill: val("ps") || undefined,
-                source: { origin: "house" },
+                skill: val("ps"),
+                kind: val("pkind"),
+                icon: val("picon"),
+                summary: val("psummary"),
+                description: val("pdescription"),
+                special: val("pspecial"),
+                source: p?.source || { origin: "house" },
               },
             ],
           },
@@ -5971,8 +6266,7 @@ function rollHistory() {
             esc(r.mod) +
             " = " +
             esc(r.total) +
-            " · Сл " +
-            esc(r.dc) +
+            (!player || r.showDC !== false ? " · Сл " + esc(r.dc) : "") +
             "</p>",
         )
         .join("") +
@@ -5980,28 +6274,8 @@ function rollHistory() {
   );
 }
 actions.push((a, { gm, hero, t, box }) => {
-  if (tab === "bank" && gm)
-    a.append(button("Редактор профессий", professionEditor));
   if (hero && tab === "company")
     a.append(button("Журнал проверок", rollHistory));
-  if (t && tab === "camp") {
-    const image = safeImage(t.image);
-    if (image) {
-      const el = document.createElement("img");
-      el.src = image;
-      el.alt = t.name;
-      el.className = "record-image";
-      box.append(el);
-    }
-    const details = document.createElement("details");
-    details.innerHTML =
-      "<summary>Условия стоянки</summary><p>" +
-      esc(t.description || "Особых ограничений нет.") +
-      "</p><p>" +
-      esc((t.services || []).join(", ")) +
-      "</p>";
-    box.append(details);
-  }
 });
 function journalPanel() {
   const hero = chosen(),
@@ -6104,6 +6378,1119 @@ actions.push((a, { gm, e }) => {
       }),
     );
 });
+
+function gameIcon(symbol, image) {
+  const url = safeImage(image) || safeImage(symbol);
+  return (
+    '<span class="game-icon" aria-hidden="true">' +
+    (url ? '<img src="' + esc(url) + '" alt="">' : esc(symbol || "◆")) +
+    "</span>"
+  );
+}
+function gameHero(hero, stay) {
+  if (!hero)
+    return '<p class="muted">Назначенный герой появится здесь после привязки аккаунта.</p>';
+  const member = heroOf(S, hero),
+    p = profile(S, hero);
+  return (
+    '<div class="game-hero">' +
+    gameIcon("♙", member.image) +
+    "<div><strong>" +
+    esc(memberName(member)) +
+    '</strong><p class="muted">' +
+    esc(
+      [p.race, p.class, "Уровень " + p.level, "БВ +" + bv(p)]
+        .filter(Boolean)
+        .join(" · "),
+    ) +
+    '</p></div><div id="gameHeroSelect"></div></div>' +
+    (stay
+      ? '<div class="game-time"><label for="stayTime">Игровое время <strong>' +
+        timeLabel(remaining(S, hero)) +
+        " / " +
+        timeLabel(stay.hours * stay.days) +
+        "</strong></label>" +
+        '<progress id="stayTime" max="' +
+        stay.hours * stay.days +
+        '" value="' +
+        remaining(S, hero) +
+        '"></progress></div>'
+      : '<p class="muted">Игровое время появится с началом стоянки.</p>')
+  );
+}
+function bindGameHero(hero) {
+  const rows = heroRows();
+  if (rows.length < 2 || !$("gameHeroSelect")) return;
+  $("gameHeroSelect").innerHTML = pick(
+    "Активный персонаж",
+    "gameHero",
+    rows.map((m) => [m.id, memberName(m)]),
+    hero,
+  );
+  $("gameHero").onchange = () => {
+    activeHero = val("gameHero");
+    render();
+  };
+}
+function timeLabel(hours) {
+  const minutes = Math.round(hours * 60);
+  return [
+    minutes >= 60 || !minutes ? Math.floor(minutes / 60) + " ч." : "",
+    minutes % 60 ? (minutes % 60) + " мин." : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+function professionRequirements(p) {
+  return (
+    [
+      p.skill && "Навык «" + p.skill + "»",
+      p.tools?.length &&
+        (p.tools.length > 1 ? "Один из инструментов: " : "") +
+          p.tools.join(" / "),
+    ]
+      .filter(Boolean)
+      .join(" · ") || "Владение не требуется"
+  );
+}
+function stayAdmin() {
+  const stay = currentStay(S);
+  openModal(
+    "Управление стоянкой",
+    '<div class="actions" id="stayAdmin"></div>',
+  );
+  const box = $("stayAdmin");
+  if (stay)
+    box.append(
+      button("Параметры стоянки", () => stayForm(stay)),
+      button("Завершить стоянку", () =>
+        commandForm(
+          "Завершить стоянку",
+          "<p>Оставшееся время будет учтено как отдых.</p>",
+          "closeStay",
+          () => ({}),
+          "Завершить",
+        ),
+      ),
+      button("Добавить тушу", () =>
+        commandForm(
+          "Снятие шкур",
+          input("Название", "car", "text", "", "required") +
+            input("Показатель опасности", "cr", "number", 1) +
+            pick(
+              "Тип",
+              "kind",
+              [
+                ["beast", "Зверь"],
+                ["fiend", "Исчадие"],
+                ["dragon", "Дракон"],
+              ],
+              "beast",
+            ),
+          "carcass",
+          () => ({ name: val("car"), cr: num("cr"), kind: val("kind") }),
+        ),
+      ),
+    );
+  else if (!S.journey) box.append(button("Разбить стоянку", stayForm));
+  box.append(
+    button("Занятия и таблицы добычи", () => workshop("loot")),
+    button("Создать регион", () => regionForm()),
+  );
+  if (!stay && !S.journey)
+    box.append(
+      button("Сменить фазу", () =>
+        commandForm(
+          "Фаза кампании",
+          pick(
+            "Фаза",
+            "phase",
+            [
+              ["adventure", "Приключение"],
+              ["travel", "Путешествие"],
+            ],
+            S.engine.phase,
+          ),
+          "phase",
+          () => ({ phase: val("phase") }),
+        ),
+      ),
+    );
+}
+function activityState(hero, profession, stay) {
+  const payload = { hero, profession: profession.id };
+  if (profession.id === "skinning") {
+    const carcasses = (stay.carcasses || []).filter((c) => !c.used);
+    if (!carcasses.length) return { reason: "Нет подходящей туши" };
+    const eligible = carcasses.filter(
+      (c) =>
+        bv(profile(S, hero)) >=
+        (c.kind === "dragon" ? 5 : c.kind === "fiend" ? 3 : 2),
+    );
+    if (!eligible.length)
+      return { reason: "Недостаточный ранг для доступных туш" };
+    payload.carcass = eligible[0].id;
+    payload.carcasses = eligible;
+  }
+  try {
+    if (!eligibleProfession(S, profile(S, hero), profession.id))
+      return { reason: professionRequirements(profession) };
+    const details = gatheringDetails(S, payload);
+    return { payload, details };
+  } catch (error) {
+    return { reason: error.message };
+  }
+}
+function activityLoot(rows) {
+  return [...new Set(rows.flatMap((r) => [r.item_id, r.treasure_id]))]
+    .map((id) => S.engine.items.find((i) => i.id === id))
+    .filter((item) => item && (!player || !item.hidden));
+}
+function activityDialog(hero, profession, stay) {
+  const state = activityState(hero, profession, stay);
+  const { payload, details, reason } = state;
+  const ids = S.engine.loot.filter(
+    (r) => r.region_id === stay.region && r.profession_id === profession.id,
+  );
+  const loot = activityLoot(ids)
+    .map((item) => gameIcon(item.icon, item.image) + " " + esc(item.name))
+    .join(" · ");
+  const body =
+    "<p>" +
+    esc(
+      profession.description ||
+        profession.summary ||
+        "Проведите разведку по месту стоянки.",
+    ) +
+    "</p>" +
+    '<p class="muted">' +
+    esc(professionRequirements(profession)) +
+    "</p>" +
+    (loot ? "<p>Возможная добыча · " + loot + "</p>" : "");
+  if (reason) {
+    openModal(
+      profession.name,
+      body + '<p class="game-bad">' + esc(reason) + "</p>",
+    );
+    return;
+  }
+  const choice = payload.carcasses?.map((c) => [c.id, c.name]);
+  const key = crypto.randomUUID();
+  form(
+    profession.name,
+    body +
+      (choice ? pick("Туша", "activityCarcass", choice, payload.carcass) : "") +
+      '<div id="activityCheck"></div>',
+    async () => {
+      await execute(
+        "gather",
+        {
+          hero,
+          profession: profession.id,
+          carcass: $("activityCarcass")?.value,
+        },
+        key,
+      );
+      const result = currentStay(S).history.at(-1);
+      const roll = S.engine.rolls[0];
+      const item = S.engine.items.find((i) => i.id === result.item_id);
+      openModal(
+        profession.name,
+        "<p><strong>" +
+          esc(roll.success || item ? "Занятие удалось" : "Занятие не удалось") +
+          "</strong></p>" +
+          "<p>Бросок " +
+          esc(roll.raw.join(" / ")) +
+          " " +
+          esc(signed(roll.mod)) +
+          " = " +
+          esc(roll.total) +
+          (!player || stay.showDC !== false ? " · Сл " + esc(roll.dc) : "") +
+          "</p>" +
+          "<p>" +
+          (item
+            ? gameIcon(item.icon, item.image) +
+              esc(item.name) +
+              " × " +
+              esc(result.qty) +
+              " в сумках."
+            : esc(result.result || "На этот раз добычи не оказалось.")) +
+          '</p><p class="muted">Потрачено ' +
+          timeLabel(result.hours) +
+          "</p>",
+      );
+      $("modalBody").append(
+        button("Открыть сумки", bagPage),
+        button("К занятиям", closeModal),
+      );
+    },
+    "Начать занятие",
+  );
+  const show = () => {
+    const info = choice
+      ? gatheringDetails(S, { ...payload, carcass: val("activityCarcass") })
+      : details;
+    const { mod, raw } = ability(info.heroProfile, info.modifiers, () => 1);
+    $("activityCheck").innerHTML =
+      "<p>" +
+      esc(
+        [info.modifiers.skill, info.modifiers.tool].filter(Boolean).join(" · "),
+      ) +
+      " <strong>" +
+      esc(signed(mod)) +
+      "</strong>" +
+      (raw.length > 1 ? " · преимущество" : "") +
+      "</p>" +
+      "<p>" +
+      timeLabel(info.hours) +
+      (!player || stay.showDC !== false ? " · Сл " + esc(info.dc) : "") +
+      "</p>";
+  };
+  if (choice) $("activityCarcass").onchange = show;
+  show();
+}
+function signed(value) {
+  return value >= 0 ? "+" + value : String(value);
+}
+function staffWorkDialog() {
+  commandForm(
+    "Проект лагеря",
+    pick("Специалист", "worker", pairs(S.company.staff), "") +
+      pick(
+        "Проект",
+        "project",
+        pairs(S.engine.projects.filter((j) => j.status === "active")),
+        "",
+      ) +
+      input("Отработать часов", "time", "number", 1),
+    "staffWork",
+    () => ({
+      staff: val("worker"),
+      project: val("project"),
+      hours: num("time"),
+    }),
+  );
+}
+function renderStay() {
+  const stay = currentStay(S),
+    master = !player,
+    hero = chosen();
+  const root = $("main");
+  if (!stay) {
+    root.innerHTML =
+      '<div class="screen game-screen"><section class="card game-cover"><h2>Стоянка</h2><p>Сейчас · ' +
+      esc(phases[S.journey ? "travel" : S.engine.phase]) +
+      '</p><p class="muted">Добыча, отдых и местные поручения станут доступны, когда компания разобьёт стоянку.</p><div class="actions" id="stayActions"></div></section></div>';
+    $("stayActions").append(button("Открыть карту", () => switchTab("map")));
+    if (master && !S.journey)
+      $("stayActions").append(
+        button(
+          S.nodes.length ? "Разбить стоянку" : "Добавить место на карте",
+          S.nodes.length ? stayForm : () => switchTab("map"),
+        ),
+      );
+    if (master)
+      $("stayActions").append(button("Управление стоянкой", stayAdmin));
+    return;
+  }
+  const region = S.engine.regions.find((r) => r.id === stay.region),
+    place = node(stay.location);
+  const illustration = safeImage(stay.image) || safeImage(region?.image);
+  root.innerHTML =
+    '<div class="screen game-screen"><section class="card game-cover">' +
+    (illustration
+      ? '<img class="stay-illustration" src="' + esc(illustration) + '" alt="">'
+      : "") +
+    '<div class="game-intro"><div><p class="eyebrow">' +
+    esc(
+      [region?.continent, region?.name].filter(Boolean).join(" · ") ||
+        "Стоянка компании",
+    ) +
+    "</p>" +
+    "<h2>" +
+    esc(stay.name || (place && visibleNode(place) ? place.name : "Стоянка")) +
+    "</h2>" +
+    "<p>" +
+    esc(
+      stay.description ||
+        region?.description ||
+        "Компания остановилась, чтобы пополнить припасы и подготовиться к дороге.",
+    ) +
+    "</p>" +
+    '<p class="muted">' +
+    esc(
+      stay.days +
+        " дн. · начало в день " +
+        stay.start +
+        " · завершение в день " +
+        (stay.start + stay.days) +
+        " · " +
+        S.company.year +
+        " год",
+    ) +
+    (place && visibleNode(place) ? " · " + esc(place.name) : "") +
+    '</p></div><div id="stayAdminLink"></div></div>' +
+    (stay.limits ? '<p class="notice">' + esc(stay.limits) + "</p>" : "") +
+    gameHero(hero, stay) +
+    "</section>" +
+    '<section class="game-section"><h3>Добыча и исследование</h3><div id="activitiesGrid" class="activity-grid"></div></section>' +
+    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="game-task-list"></div></section></div>';
+  bindGameHero(hero);
+  if (master)
+    $("stayAdminLink").append(button("Управление стоянкой", stayAdmin));
+  const grid = $("activitiesGrid"),
+    tasks = $("stayTasks");
+  const professions = S.engine.professions.filter(
+    (p) =>
+      p.kind === "gathering" ||
+      S.engine.loot.some(
+        (r) => r.region_id === stay.region && r.profession_id === p.id,
+      ),
+  );
+  if (hero && owned(actor, hero))
+    for (const profession of professions) {
+      if (
+        profession.id === "skinning" &&
+        !(stay.carcasses || []).some((c) => !c.used)
+      )
+        continue;
+      const state = activityState(hero, profession, stay);
+      const rows = S.engine.loot.filter(
+        (r) => r.region_id === stay.region && r.profession_id === profession.id,
+      );
+      const loot = activityLoot(rows)
+        .map((i) => i.name)
+        .join(", ");
+      const card = button(profession.name, () =>
+        activityDialog(hero, profession, stay),
+      );
+      card.className = "activity-card";
+      card.innerHTML =
+        gameIcon(profession.icon) +
+        "<strong>" +
+        esc(profession.name) +
+        "</strong><span>" +
+        esc(profession.summary || "Региональное занятие") +
+        "</span>" +
+        (rows.length
+          ? "<small>" +
+            timeLabel(
+              profession.id === "skinning" ? 1 / 6 : rows[0].hours || 1,
+            ) +
+            (loot ? " · " + esc(loot) : "") +
+            "</small>"
+          : "") +
+        '<small class="' +
+        (state.reason ? "game-bad" : "game-good") +
+        '">' +
+        esc(state.reason || "Доступно") +
+        "</small>";
+      grid.append(card);
+    }
+  if (!grid.children.length)
+    grid.innerHTML =
+      '<p class="muted">Выберите героя, чтобы увидеть доступные занятия.</p>';
+  if (hero && owned(actor, hero)) {
+    tasks.append(
+      button("Заняться ремеслом", () => openCraftTab("recipes")),
+      button("Местные поручения", localBoard),
+      button("Расписание и история", plansPage),
+      button("Отдохнуть", () =>
+        commandForm(
+          "Отдых",
+          input(
+            "Часов",
+            "rh",
+            "number",
+            1,
+            'min="1" max="' + Math.floor(remaining(S, hero)) + '"',
+          ),
+          "rest",
+          () => ({ hero, hours: num("rh") }),
+        ),
+      ),
+    );
+    if (remaining(S, hero) < 1) tasks.lastElementChild.disabled = true;
+  }
+  if (
+    master &&
+    S.company.staff.length &&
+    S.engine.projects.some((j) => j.status === "active")
+  )
+    tasks.append(button("Работа специалистов", staffWorkDialog));
+  if (!tasks.children.length)
+    tasks.innerHTML =
+      '<p class="muted">Дела компании доступны назначенным героям.</p>';
+}
+
+let craftTab = "professions",
+  craftProfession = "",
+  craftRecipe = "",
+  craftQuery = "",
+  craftQuality = "",
+  craftFilter = "",
+  craftSort = "name";
+const professionRanks = [
+  "Ученик",
+  "Подмастерье",
+  "Эксперт",
+  "Искусник",
+  "Мастер",
+];
+function openCraftTab(section, profession = "") {
+  craftTab = section;
+  if (profession) {
+    craftProfession = profession;
+    craftRecipe = "";
+  }
+  closeModal();
+  switchTab("craft");
+}
+function professionRank(p, id) {
+  return S.engine.requireTrainer
+    ? Math.min(bv(p), p.trained?.[id] || 2)
+    : bv(p);
+}
+function sourceLabel(source) {
+  return source?.book === "wow"
+    ? "D&D: World of Warcraft · с. " + source.printed_page
+    : source?.origin === "house"
+      ? "Домашняя механика Атласа"
+      : "";
+}
+function knownRecipe(p, r) {
+  return !!(
+    r.basic ||
+    p.recipes.includes(r.id) ||
+    activeEffects(S).some((e) => e.recipes?.includes(r.id))
+  );
+}
+function recipeAvailability(hero, p, r, quote) {
+  const reasons = [];
+  const profession = S.engine.professions.find((v) => v.id === r.profession_id);
+  if (!knownRecipe(p, r)) reasons.push("Рецепт не изучен");
+  if (!profession) reasons.push("Профессия отсутствует в справочнике");
+  else if (!eligibleProfession(S, p, profession.id))
+    reasons.push(professionRequirements(profession));
+  if (professionRank(p, r.profession_id) < (r.rank || 2))
+    reasons.push("Требуется БВ +" + (r.rank || 2));
+  if (!currentStay(S)) reasons.push("Нужна активная стоянка");
+  else if (!facilities(S, r))
+    reasons.push("Недоступно нужное место или сооружение");
+  if (currentStay(S) && remaining(S, hero) <= 0)
+    reasons.push("Время стоянки исчерпано");
+  if (r.tools?.some((t) => !p.tools.includes(t)))
+    reasons.push("Нужно владение инструментами рецепта");
+  if (
+    r.equipment?.some(
+      (id) =>
+        !S.company.inventory.some(
+          (x) => x.owner === "member:" + hero && x.item_id === id && x.qty > 0,
+        ),
+    )
+  )
+    reasons.push("В сумках нет нужного оборудования");
+  if (r.conditions && !meetsConditions(S, hero, r.conditions))
+    reasons.push("Особые условия рецепта не выполнены");
+  if (!reasons.length && !canCraft(S, hero, r))
+    reasons.push("Условия изготовления не выполнены");
+  if (quote.wallet < quote.cost) reasons.push("Не хватает золота");
+  if (quote.materials.some((x) => x.have < x.qty))
+    reasons.push("Не хватает материалов");
+  return reasons;
+}
+function recipeQuality(item) {
+  const row = ITEM_QUAL.find(([key]) => key === item?.quality);
+  return row ? row[1] : "Обычный";
+}
+function renderCraft() {
+  const hero = chosen();
+  $("main").innerHTML =
+    '<div class="screen game-screen"><section class="card game-cover"><div class="game-intro"><h2>Ремесло</h2><div class="actions" id="craftHeroLinks"></div></div>' +
+    gameHero(hero, currentStay(S)) +
+    '</section><div class="actions game-tabs" id="craftTabs"></div><section id="craftBody"></section></div>';
+  bindGameHero(hero);
+  if (hero) $("craftHeroLinks").append(button("Личные сумки", bagPage));
+  if (!player)
+    $("craftHeroLinks").append(button("Редактор профессий", professionEditor));
+  for (const [id, label] of [
+    ["professions", "Профессии"],
+    ["recipes", "Книга рецептов"],
+    ["projects", "Проекты"],
+  ]) {
+    const b = button(label, () => {
+      craftTab = id;
+      renderCraft();
+    });
+    b.setAttribute("aria-pressed", String(craftTab === id));
+    $("craftTabs").append(b);
+  }
+  const root = $("craftBody");
+  if (craftTab === "professions") renderProfessionCards(root, hero);
+  if (craftTab === "recipes") renderRecipeList(root, hero);
+  if (craftTab === "projects") renderProjects(root, hero);
+}
+function renderProfessionCards(root, hero) {
+  const p = hero ? profile(S, hero) : null;
+  root.className = "activity-grid";
+  for (const profession of S.engine.professions) {
+    const eligible = p && eligibleProfession(S, p, profession.id);
+    const rank = eligible ? professionRank(p, profession.id) : 0;
+    const known = S.engine.recipes.filter(
+      (r) => r.profession_id === profession.id && p && knownRecipe(p, r),
+    );
+    const card = document.createElement("article");
+    card.className = "card profession-card";
+    card.innerHTML =
+      "<h3>" +
+      gameIcon(profession.icon) +
+      esc(profession.name) +
+      "</h3>" +
+      "<small>" +
+      esc(
+        (profession.kind === "gathering"
+          ? "Добыча и исследование"
+          : "Производство") +
+          (p
+            ? eligible
+              ? " · " + (professionRanks[rank - 2] || "БВ +" + rank)
+              : " · Недоступна герою"
+            : ""),
+      ) +
+      "</small>" +
+      "<p>" +
+      esc(profession.summary || "Краткое описание пока не добавлено.") +
+      "</p>" +
+      '<p class="muted">' +
+      esc(professionRequirements(profession)) +
+      "</p>" +
+      (profession.kind === "gathering"
+        ? ""
+        : "<small>Известных рецептов · " + known.length + "</small>") +
+      "<details><summary>Механика и источник</summary><p>" +
+      esc(profession.description || "Описание механики пока не добавлено.") +
+      "</p>" +
+      (profession.special ? "<p>" + esc(profession.special) + "</p>" : "") +
+      (sourceLabel(profession.source)
+        ? "<small>" + esc(sourceLabel(profession.source)) + "</small>"
+        : "") +
+      "</details>";
+    const controls = document.createElement("div");
+    controls.className = "actions";
+    if (profession.kind === "gathering")
+      controls.append(button("К занятиям", () => switchTab("stay")));
+    else
+      controls.append(
+        button("Рецепты", () => openCraftTab("recipes", profession.id)),
+      );
+    if (eligible && S.engine.requireTrainer && bv(p) > rank)
+      controls.append(
+        button("Обучиться", () =>
+          commandForm(
+            "Обучение",
+            "<p>" + esc(bv(p)) + " дн. · " + esc(bv(p) * 2) + " зм</p>",
+            "train",
+            () => ({ hero, profession: profession.id }),
+          ),
+        ),
+      );
+    card.append(controls);
+    root.append(card);
+  }
+}
+function renderRecipeList(root, hero) {
+  root.className = "";
+  if (!S.engine.recipes.length) {
+    root.innerHTML =
+      '<div class="card"><h3>Книга рецептов пока пуста</h3><p class="muted">Рецепты появятся после загрузки справочника мастером.</p></div>';
+    if (!player)
+      root.firstElementChild.append(
+        button("Открыть мастерскую", () => switchTab("workshop")),
+      );
+    return;
+  }
+  const p = hero ? profile(S, hero) : null;
+  root.innerHTML =
+    '<div class="card recipe-filters">' +
+    input("Поиск по рецептам", "recipeQuery", "search", craftQuery) +
+    pick(
+      "Профессия",
+      "recipeProfession",
+      [["", "Все"], ...pairs(S.engine.professions)],
+      craftProfession,
+    ) +
+    pick(
+      "Редкость",
+      "recipeQuality",
+      [["", "Все"], ...ITEM_QUAL.map(([id, label]) => [id, label])],
+      craftQuality,
+    ) +
+    pick(
+      "Доступность",
+      "recipeFilter",
+      [
+        ["", "Все"],
+        ["known", "Известные"],
+        ["ready", "Можно изготовить"],
+        ["missing", "Не хватает материалов"],
+        ["locked", "Недоступные"],
+      ],
+      craftFilter,
+    ) +
+    pick(
+      "Сортировка",
+      "recipeSort",
+      [
+        ["name", "По названию"],
+        ["time", "По времени"],
+        ["quality", "По редкости"],
+      ],
+      craftSort,
+    ) +
+    '</div><div class="recipe-layout"><div id="recipeList" class="recipe-list" aria-label="Рецепты"></div><article id="recipeDetail" class="card recipe-detail"></article></div>';
+  function refresh() {
+    craftQuery = val("recipeQuery");
+    craftProfession = val("recipeProfession");
+    craftQuality = val("recipeQuality");
+    craftFilter = val("recipeFilter");
+    craftSort = val("recipeSort");
+    const rows = S.engine.recipes
+      .map((r) => {
+        const item = S.engine.items.find((i) => i.id === r.item_id);
+        const quote = hero
+          ? projectQuote(S, { hero, recipe: r.id, qty: 1 })
+          : null;
+        const reasons = quote
+          ? recipeAvailability(hero, p, r, quote)
+          : ["Выберите героя"];
+        return { r, item, quote, reasons };
+      })
+      .filter(
+        ({ r, item, quote, reasons }) =>
+          (!craftProfession || r.profession_id === craftProfession) &&
+          (!craftQuality || item?.quality === craftQuality) &&
+          (r.name + " " + (item?.name || ""))
+            .toLocaleLowerCase("ru")
+            .includes(craftQuery.trim().toLocaleLowerCase("ru")) &&
+          (!craftFilter ||
+            (craftFilter === "known" && p && knownRecipe(p, r)) ||
+            (craftFilter === "ready" && !reasons.length) ||
+            (craftFilter === "missing" &&
+              quote?.materials.some((x) => x.have < x.qty)) ||
+            (craftFilter === "locked" && reasons.length)),
+      );
+    rows.sort(
+      (a, b) =>
+        (craftSort === "time"
+          ? a.r.hours - b.r.hours
+          : craftSort === "quality"
+            ? ITEM_QUAL.findIndex(([k]) => k === a.item?.quality) -
+              ITEM_QUAL.findIndex(([k]) => k === b.item?.quality)
+            : 0) || a.r.name.localeCompare(b.r.name, "ru"),
+    );
+    const list = $("recipeList"),
+      detail = $("recipeDetail");
+    list.replaceChildren();
+    const selected = rows.find((x) => x.r.id === craftRecipe) || rows[0];
+    detail.hidden = !selected;
+    if (!selected) {
+      list.textContent = "Рецепты по выбранным фильтрам не найдены.";
+      return;
+    }
+    craftRecipe = selected.r.id;
+    for (const row of rows) {
+      const b = button(row.r.name, () => {
+        craftRecipe = row.r.id;
+        refresh();
+        if (matchMedia("(max-width: 700px)").matches)
+          $("recipeDetail").scrollIntoView({ block: "start" });
+      });
+      b.className = "recipe-option";
+      b.setAttribute("aria-pressed", String(row === selected));
+      b.innerHTML =
+        gameIcon(row.item?.icon, row.item?.image) +
+        '<span><strong class="rarity-' +
+        esc(row.item?.quality || "common") +
+        '">' +
+        esc(row.r.name) +
+        "</strong><small>" +
+        timeLabel(row.quote?.work ?? row.r.hours) +
+        " · " +
+        esc(recipeQuality(row.item)) +
+        "</small></span>" +
+        '<small class="' +
+        (row.reasons.length ? "game-bad" : "game-good") +
+        '">' +
+        esc(row.reasons[0] || "Доступно") +
+        "</small>";
+      list.append(b);
+    }
+    renderRecipeDetail(detail, hero, p, selected.r, selected.item);
+  }
+  for (const id of [
+    "recipeQuery",
+    "recipeProfession",
+    "recipeQuality",
+    "recipeFilter",
+    "recipeSort",
+  ])
+    $(id).oninput = refresh;
+  refresh();
+}
+function renderRecipeDetail(root, hero, p, r, item) {
+  const names = (ids) =>
+    (ids || []).map(
+      (id) => S.engine.items.find((i) => i.id === id)?.name || id,
+    );
+  const profession = S.engine.professions.find((p) => p.id === r.profession_id);
+  const requirements = [
+    r.service,
+    ...(r.tools || []),
+    ...names(r.equipment),
+    ...(r.locations || []).map((id) => node(id)?.name || id),
+  ];
+  root.innerHTML =
+    "<h3>" +
+    gameIcon(item?.icon, item?.image) +
+    esc(r.name) +
+    '</h3><p class="rarity-' +
+    esc(item?.quality || "common") +
+    '">' +
+    esc(recipeQuality(item)) +
+    "</p><p>" +
+    esc(
+      r.description ||
+        r.desc ||
+        item?.desc ||
+        item?.description ||
+        "Описание предмета пока не добавлено.",
+    ) +
+    '</p><p class="muted">' +
+    esc(
+      (profession?.name || "Профессия не задана") + " · БВ +" + (r.rank || 2),
+    ) +
+    "</p>" +
+    (requirements.length
+      ? "<p>Место и оборудование · " + esc(requirements.join(" · ")) + "</p>"
+      : "") +
+    '<div id="craftInputs"></div><div id="craftCosts"></div><div class="actions" id="craftSubmit"></div>';
+  if (!hero) {
+    $("craftCosts").textContent =
+      "Выберите героя, чтобы сверить материалы и время.";
+    return;
+  }
+  $("craftInputs").innerHTML =
+    input(
+      "Количество",
+      "craftQty",
+      "number",
+      1,
+      'min="1" max="1000" step="1"',
+    ) +
+    (r.gold
+      ? "<details><summary>Оплатить часть стоимости ресурсом</summary>" +
+        pick(
+          "Ресурс",
+          "craftResource",
+          [
+            ["", "Монеты"],
+            ...pairs(
+              S.engine.items.filter(
+                (i) => i.profession_id === r.profession_id && i.value_gp > 0,
+              ),
+            ),
+          ],
+          "",
+        ) +
+        input("Стоимость ресурса, зм", "craftCredit", "number", 0, 'min="0"') +
+        "</details>"
+      : "");
+  const payload = () => ({
+    hero,
+    recipe: r.id,
+    qty: num("craftQty"),
+    resource: $("craftResource")?.value,
+    credit: $("craftCredit") ? num("craftCredit") : 0,
+  });
+  const create = button("Создать", async () => {
+    const chosenPayload = payload();
+    create.disabled = true;
+    try {
+      await execute("craft", chosenPayload);
+      const project = S.engine.projects.at(-1);
+      if (project.status === "active") openCraftTab("projects");
+      toast(
+        project.status === "done"
+          ? "Изготовлено: " + project.name
+          : project.status === "failed"
+            ? "Проверка изготовления не удалась"
+            : "Материалы зарезервированы. Проект можно продолжить на стоянке.",
+      );
+    } finally {
+      if (create.isConnected) refresh();
+    }
+  });
+  create.className = "primary";
+  $("craftSubmit").append(create);
+  function refresh() {
+    const box = $("craftCosts");
+    try {
+      const quote = projectQuote(S, payload());
+      const reasons = recipeAvailability(hero, p, r, quote);
+      create.disabled = !!reasons.length || !owned(actor, hero);
+      create.textContent =
+        quote.work > remaining(S, hero) && !create.disabled
+          ? "Начать проект"
+          : "Создать";
+      box.innerHTML =
+        "<h4>Необходимые материалы</h4>" +
+        (quote.materials.length
+          ? quote.materials
+              .map((x) => {
+                const material = S.engine.items.find((i) => i.id === x.item);
+                return (
+                  '<div class="material-line">' +
+                  gameIcon(material?.icon, material?.image) +
+                  "<span>" +
+                  esc(material?.name || x.item) +
+                  '</span><strong class="' +
+                  (x.have >= x.qty ? "game-good" : "game-bad") +
+                  '">' +
+                  esc(x.have + " / " + x.qty) +
+                  "</strong></div>"
+                );
+              })
+              .join("")
+          : '<p class="muted">Ингредиенты не требуются.</p>') +
+        "<p>Время · " +
+        timeLabel(quote.work) +
+        ' · <span class="' +
+        (quote.wallet >= quote.cost ? "game-good" : "game-bad") +
+        '">' +
+        esc(quote.cost + " зм") +
+        "</span> · Результат × " +
+        esc(payload().qty * r.quantity) +
+        "</p>" +
+        (reasons.length
+          ? '<p class="game-bad">' + esc(reasons.join(" · ")) + "</p>"
+          : quote.work > remaining(S, hero)
+            ? '<p class="muted">Материалы будут зарезервированы. Часы можно внести в разделе проектов.</p>'
+            : "");
+    } catch (error) {
+      create.disabled = true;
+      box.textContent = error.message;
+    }
+  }
+  for (const id of ["craftQty", "craftResource", "craftCredit"])
+    if ($(id)) $(id).oninput = refresh;
+  refresh();
+}
+function renderProjects(root, hero) {
+  root.className = "stack";
+  const groups = { active: [], paused: [], done: [] };
+  const labels = {
+    active: "Активные",
+    paused: "Приостановленные",
+    done: "Завершённые",
+  };
+  for (const j of S.engine.projects) {
+    if (player && !owned(actor, j.hero)) continue;
+    const canContinue =
+      hero &&
+      facilities(S, j.recipe) &&
+      remaining(S, hero) >= 1 &&
+      eligibleProfession(S, profile(S, hero), j.recipe.profession_id);
+    const key =
+      j.status === "active" ? (canContinue ? "active" : "paused") : "done";
+    groups[key].push(j);
+  }
+  for (const [key, rows] of Object.entries(groups)) {
+    const section = document.createElement("section");
+    section.className = "card game-section";
+    section.innerHTML = "<h3>" + labels[key] + "</h3>";
+    if (!rows.length)
+      section.insertAdjacentHTML(
+        "beforeend",
+        '<p class="muted">В этом списке пока нет проектов.</p>',
+      );
+    for (const j of rows) {
+      const row = document.createElement("article"),
+        member = S.company.members.find((m) => m.id === j.hero);
+      row.className = "project-row";
+      const reserved = j.reserve.map(
+        (line) =>
+          (S.engine.items.find((i) => i.id === line.item)?.name || line.item) +
+          " × " +
+          line.qty,
+      );
+      const workers = j.contributors.map((c) => {
+        const person = c.staff
+          ? S.company.staff.find((m) => m.id === c.staff)
+          : S.company.members.find((m) => m.id === c.hero);
+        return person ? memberName(person) : "Бывший участник";
+      });
+      const status = {
+        active: key === "paused" ? "Ожидает подходящей стоянки" : "В работе",
+        done: "Готово",
+        failed: "Неудача",
+        cancelled: "Отменён",
+      };
+      row.innerHTML =
+        "<h4>" +
+        esc(j.name) +
+        "</h4><p>" +
+        esc(
+          [
+            member ? memberName(member) : "Бывший участник",
+            status[j.status],
+            "Осталось " + timeLabel(j.left),
+          ].join(" · "),
+        ) +
+        '</p><progress aria-label="Ход проекта" max="' +
+        esc(j.work) +
+        '" value="' +
+        esc(j.work - j.left) +
+        '"></progress>' +
+        '<p class="muted">' +
+        (j.status === "active" ? "В резерве" : "Материалы проекта") +
+        " · " +
+        esc(reserved.join(", ") || "без материалов") +
+        "</p>" +
+        (workers.length
+          ? '<p class="muted">Участники · ' +
+            esc([...new Set(workers)].join(", ")) +
+            "</p>"
+          : "");
+      if (hero && j.status === "active") {
+        const max = Math.floor(Math.min(j.left, remaining(S, hero)));
+        if (
+          max > 0 &&
+          facilities(S, j.recipe) &&
+          eligibleProfession(S, profile(S, hero), j.recipe.profession_id)
+        )
+          row.append(
+            button("Продолжить", () =>
+              commandForm(
+                "Продолжить проект",
+                input(
+                  "Часов",
+                  "wh",
+                  "number",
+                  max,
+                  'min="1" max="' + max + '"',
+                ),
+                "work",
+                () => ({ hero, project: j.id, hours: num("wh") }),
+              ),
+            ),
+          );
+        if (hero === j.hero)
+          row.append(
+            button("Отменить проект", () =>
+              commandForm(
+                "Отмена проекта",
+                "<p>Возврат материалов · " +
+                  esc((S.engine.refund ?? 1) * 100) +
+                  "%</p>",
+                "cancelProject",
+                () => ({ hero, project: j.id }),
+              ),
+            ),
+          );
+      }
+      section.append(row);
+    }
+    root.append(section);
+  }
+  if (!S.engine.projects.length)
+    root.append(
+      button("Открыть книгу рецептов", () => openCraftTab("recipes")),
+    );
+}
+function heroStats() {
+  const id = chosen(),
+    p = profile(S, id);
+  const abilityRows = Object.entries(stats)
+    .map(
+      ([k, name]) =>
+        "<div><strong>" +
+        esc(name) +
+        " " +
+        esc(p.stats[k]) +
+        " (" +
+        signed(Math.floor((p.stats[k] - 10) / 2)) +
+        ')</strong><p class="muted">' +
+        esc(rulebook.abilityNotes[k]) +
+        "</p></div>",
+    )
+    .join("");
+  const skillRows = Object.entries(skills)
+    .map(
+      ([name, stat]) =>
+        "<div><strong>" +
+        esc(name) +
+        '</strong><p class="muted">' +
+        esc(
+          stats[stat] +
+            " · " +
+            ["Без владения", "Владение", "Компетентность"][p.skills[name] || 0],
+        ) +
+        "</p><p>" +
+        esc(rulebook.skillNotes[name] || "") +
+        "</p></div>",
+    )
+    .join("");
+  openModal(
+    "Характеристики · " + memberName(heroOf(S, id)),
+    "<p>Уровень " +
+      esc(p.level) +
+      " · БВ +" +
+      esc(bv(p)) +
+      '</p><div class="stat-grid">' +
+      abilityRows +
+      '</div><details><summary>Навыки</summary><div class="stat-grid">' +
+      skillRows +
+      "</div></details>" +
+      '<small>Книга игрока 2024 · с. 10, 14</small><div class="actions" id="statActions"></div>',
+  );
+  $("statActions").append(button("Сделать проверку", rollForm));
+  if (!player) $("statActions").append(button("Изменить профиль", profileForm));
+}
+function renderWorkshop() {
+  if (player) {
+    $("main").innerHTML =
+      '<div class="screen"><p>Мастерская доступна мастеру кампании.</p></div>';
+    return;
+  }
+  $("main").innerHTML =
+    '<div class="screen game-screen"><section class="card game-cover"><h2>Мастерская</h2><p>Справочники, шаблоны и импорт кампании.</p><div class="actions" id="workshopLinks"></div></section>' +
+    '<section class="card"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div>';
+  $("workshopLinks").append(
+    button("Мастерская данных", () => workshop()),
+    button("Редактор профессий", professionEditor),
+  );
+  $("demoLinks").append(
+    button("Скачать демонстрационный пакет", () =>
+      downloadText("atlas-demo.json", JSON.stringify(demoPack, null, 2)),
+    ),
+  );
+  if (!S.engine.demo)
+    $("demoLinks").append(
+      button("Добавить демонстрационный набор", () =>
+        commandForm(
+          "Добавить демонстрационный набор",
+          "<p>Добавить тестовые данные отдельными записями в текущую кампанию?</p>",
+          "demo",
+          () => ({}),
+          "Добавить",
+        ),
+      ),
+    );
+  else
+    $("demoLinks").append(
+      document.createTextNode("Демонстрационные данные добавлены."),
+    );
+}
 
 boot();
 </script></body></html>

@@ -206,6 +206,22 @@ register("stay", "master", (s, p) => {
     history: [],
   });
 });
+register("editStay", "master", (s, p) => {
+  const stay = currentStay(s);
+  requireThat(stay, "Стоянка закрыта");
+  integer(p.days, 1, 3650);
+  integer(p.hours, 1, 24);
+  requireThat(
+    Object.values(stay.spent).every((hours) => hours <= p.days * p.hours),
+    "Новый бюджет меньше уже потраченного времени",
+  );
+  const location = byId(s.nodes, p.location);
+  const region = p.region || regionAt(s, location)?.id || "";
+  if (region) byId(s.engine.regions, region);
+  const { startDay, ...settings } = p;
+  Object.assign(stay, settings, { region });
+  s.company.location = location.id;
+});
 register("rest", "hero", (s, p) => spend(s, p.hero, p.hours, "Отдых"));
 register("closeStay", "master", (s) => {
   const t = currentStay(s);

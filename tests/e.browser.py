@@ -1,4 +1,4 @@
-page.evaluate("switchTab('bank')")
+page.evaluate("switchTab('workshop')")
 page.get_by_role('button',name='Мастерская данных',exact=True).click()
 page.locator('#tableRaw').fill('{"regions":[{"id":"test","name":"Тестовый регион","dc":10}]}')
 page.get_by_role('button',name='Проверить и просмотреть').click()

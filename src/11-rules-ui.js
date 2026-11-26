@@ -131,18 +131,30 @@ function rollForm() {
     "Бросить",
   );
 }
-function stayForm() {
+function stayForm(edit = null) {
   commandForm(
-    "Разбить стоянку",
-    input("Название", "sn", "text", "Стоянка", "required") +
-      pick("Узел карты", "loc", pairs(S.nodes), S.company.location) +
+    edit ? "Настроить стоянку" : "Разбить стоянку",
+    input("Название", "sn", "text", edit?.name || "Стоянка", "required") +
+      pick(
+        "Узел карты",
+        "loc",
+        pairs(S.nodes),
+        edit?.location || S.company.location,
+      ) +
       pick(
         "Регион",
         "reg",
         [["", "Определить по карте"], ...pairs(S.engine.regions)],
-        "",
+        edit?.region || "",
       ) +
-      input("Начало (день кампании)", "startDay", "number", S.company.day) +
+      (edit
+        ? ""
+        : input(
+            "Начало (день кампании)",
+            "startDay",
+            "number",
+            S.company.day,
+          )) +
       input(
         "Иллюстрация стоянки",
         "stayImage",
@@ -150,15 +162,31 @@ function stayForm() {
         "",
         'accept="image/*"',
       ) +
-      input("Дней", "days", "number", 3) +
-      input("Часов в день", "hrs", "number", 8) +
-      input("Местные услуги через запятую", "services") +
-      area("Описание и ограничения", "notes") +
-      check("Разрешить отъезд с открытыми проектами", "early", true),
-    "stay",
+      input("Дней", "days", "number", edit?.days ?? 3) +
+      input("Часов в день", "hrs", "number", edit?.hours ?? 8) +
+      input(
+        "Местные услуги через запятую",
+        "services",
+        (edit?.services || []).join(", "),
+      ) +
+      area("Описание", "notes", edit?.description || "") +
+      area("Ограничения", "limits", edit?.limits || "") +
+      check(
+        "Показывать игрокам сложность занятий",
+        "showDC",
+        edit ? edit.showDC !== false : false,
+      ) +
+      check(
+        "Разрешить отъезд с открытыми проектами",
+        "early",
+        edit?.early ?? true,
+      ),
+    edit ? "editStay" : "stay",
     async () => ({
-      image: await readImage($("stayImage").files[0]),
-      startDay: num("startDay"),
+      image: (await readImage($("stayImage").files[0])) || edit?.image || "",
+      startDay: edit?.start ?? num("startDay"),
+      limits: val("limits"),
+      showDC: $("showDC").checked,
       name: val("sn"),
       location: val("loc"),
       region: val("reg"),
@@ -310,33 +338,8 @@ function phasePanel() {
     };
     a.append(select);
   }
-  if (gm && !t && !S.journey)
-    a.append(
-      button("Разбить стоянку", stayForm),
-      button("Сменить фазу", () =>
-        commandForm(
-          "Фаза кампании",
-          pick(
-            "Фаза",
-            "phase",
-            [
-              ["adventure", "Приключение"],
-              ["travel", "Путешествие"],
-            ],
-            e.phase,
-          ),
-          "phase",
-          () => ({ phase: val("phase") }),
-        ),
-      ),
-    );
-  if (t && gm)
-    a.append(
-      button("Закрыть стоянку", () => {
-        if (confirm("Учесть отдых и продвинуть календарь?"))
-          return execute("closeStay", {});
-      }),
-    );
+  if (["home", "camp"].includes(tab))
+    a.append(button("К стоянке", () => switchTab("stay")));
   if (gm && tab === "map")
     a.append(
       button("Создать регион", () => regionForm()),
@@ -345,17 +348,6 @@ function phasePanel() {
   if (hero && gm) a.append(button("Профиль героя", profileForm));
   if (hero && owned(actor, hero)) {
     a.append(button("Бросок", rollForm));
-    if (t)
-      a.append(
-        button("Отдых", () =>
-          commandForm(
-            "Отдых",
-            input("Часов", "rh", "number", 1),
-            "rest",
-            () => ({ hero, hours: num("rh") }),
-          ),
-        ),
-      );
     const last = e.rolls.find((r) => r.hero === hero);
     if (last) {
       const p = document.createElement("p");
@@ -367,8 +359,7 @@ function phasePanel() {
         last.mod +
         " = " +
         last.total +
-        " · Сл " +
-        last.dc;
+        (!player || last.showDC !== false ? " · Сл " + last.dc : "");
       box.append(p);
     }
   }

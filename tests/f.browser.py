@@ -10,6 +10,15 @@ def exported(pg):
     with pg.expect_download() as d: pg.locator('#exportBtn').click()
     return json.loads(Path(d.value.path()).read_text())
 campaign=exported(prototype)
+# A synthetic RC1 save reproduces the reported empty catalog shape.
+default_rules=json.loads((root/'data/rules.json').read_text())
+old_professions=[{key:row[key] for key in ('id','name','tools','skill','source')} for row in default_rules['professions']]
+old_professions[0]['desc']='Описание мастера о медных жилах.'
+old_professions[1]['description']=''
+campaign['engine']={'schemaVersion':1,'receipts':[],'professions':old_professions,
+                    'gathering':default_rules['gathering'],'items':[],'recipes':[],
+                    'ingredients':[],'loot':[],'regions':[]}
+campaign['settings']['navIcons']={'stay':img,'craft':img,'workshop':img}
 old.close()
 page.on('dialog',lambda dialog:dialog.accept())
 def import_campaign(data):
@@ -50,11 +59,21 @@ def profile_for(i):
 import_campaign(campaign)
 page.wait_for_function("S.company.inventory.some(x=>x.id==='old-item'&&x.item_id)")
 assert page.evaluate("S.company.inventory.find(x=>x.id==='old-item').image")==img
+assert page.evaluate("S.engine.professions[0].description")=='Описание мастера о медных жилах.'
+assert page.evaluate("S.engine.professions[1].description")==''
+assert page.evaluate("S.engine.professions[2].description.length>0")
+assert page.evaluate("S.worldBook.chapters.every(x=>!x.text)")
+tab('stay')
+assert 'станут доступны' in page.locator('#main').inner_text()
+tab('craft')
+btn('Книга рецептов')
+assert 'Книга рецептов пока пуста' in page.locator('#craftBody').inner_text()
 add_account('miner',0)
 add_account('smith',1)
+tab('company')
 miner=profile_for(0)
 smith=profile_for(1)
-tab('bank')
+tab('workshop')
 btn('Добавить демонстрационный набор')
 submit()
 btn('Мастерская данных')
@@ -66,9 +85,11 @@ btn('Проверить и просмотреть')
 assert 'ошибки: 0' in page.locator('#importReport').inner_text()
 btn('Подтвердить импорт')
 page.wait_for_function("S.engine.loot[0].min_quantity===4")
+tab('stay')
 btn('Разбить стоянку')
 page.locator('#reg').select_option('durotar')
 page.locator('#services').fill('Оружейная')
+page.locator('#showDC').uncheck()
 submit()
 day=page.evaluate('S.company.day')
 signout()
@@ -78,24 +99,35 @@ page.evaluate('uxSearch()')
 page.locator('#uxQuery').fill('СЕКРЕТ-ЛЕТА')
 assert 'СЕКРЕТ-ЛЕТА' not in page.locator('#modalBody').inner_text()
 page.evaluate('closeModal()')
-btn('Добыча')
-btn('Горное дело')
+tab('stay')
+assert page.locator('#gameHero').count()==0
+page.locator('#activitiesGrid button').filter(has_text='Горное дело').click()
+assert 'Сл ' not in page.locator('#activityCheck').inner_text()
 submit()
+assert 'Медная руда × 4' in page.locator('#modalBody').inner_text()
+assert 'Сл ' not in page.locator('#modalBody').inner_text()
 assert page.evaluate("currentStay(S).spent[actor.heroes[0]]")==1
-btn('Сумки')
+btn('Открыть сумки')
 btn('◆ Медная руда × 4')
 page.locator('#to').select_option(smith)
 page.locator('#qty').fill('2')
 submit()
 signout()
 signin('smith')
+tab('craft')
 btn('Книга рецептов')
-assert page.evaluate("canCraft(S,chosen(),S.engine.recipes[0])"),page.evaluate("[chosen(),S.engine.profiles,actor.heroes,S.engine.recipes[0],currentStay(S)]")
-btn('Медный слиток · 2 ч.')
-submit()
-btn('Книга рецептов')
-btn('Медный слиток · осталось 2 ч.')
-submit()
+page.locator('#recipeQuery').fill('медный слиток')
+assert page.locator('.material-line').get_by_text('2 / 1').is_visible()
+page.locator('#craftQty').fill('2')
+assert page.locator('.material-line').get_by_text('2 / 2').is_visible()
+btn('Создать')
+page.wait_for_function("S.engine.projects.at(-1)?.status==='done'")
+assert page.evaluate("currentStay(S).spent[actor.heroes[0]]")==4
+assert page.evaluate("S.company.inventory.filter(x=>x.item_id==='ore'&&x.owner==='member:'+chosen()).length")==0
+assert page.evaluate("S.company.inventory.find(x=>x.item_id==='bar').qty")==2
+btn('Проекты')
+assert page.locator('#craftBody').get_by_text('Медный слиток',exact=True).is_visible()
+tab('stay')
 btn('Местные поручения')
 btn('Помочь')
 submit()
@@ -103,7 +135,10 @@ assert page.evaluate("profile(S,actor.heroes[0]).wallet")==2
 signout()
 signin('gm')
 page.evaluate("(id)=>{S.company.members.find(h=>h.id===id).name='Мастер кузни';commit()}",smith)
-btn('Закрыть стоянку')
+tab('stay')
+btn('Управление стоянкой')
+btn('Завершить стоянку')
+submit()
 page.wait_for_function("!currentStay(S)")
 assert page.evaluate('S.company.day')==day+3
 tab('map')
@@ -116,12 +151,16 @@ assert any(x['item_id']=='bar' and x['owner']=='member:'+smith for x in before['
 import_campaign(before)
 page.wait_for_function("tab==='home'")
 after=exported(page)
+assert all(after['settings']['navIcons'][k]==img for k in ('stay','craft','workshop'))
 assert before['engine']==after['engine'] and before['company']==after['company'] and before['journey']==after['journey']
 for name in page.evaluate("NAV_BANDS.flatMap(b=>b[1].map(x=>x[0]))"):
     tab(name)
 page.set_viewport_size({'width':390,'height':844})
-tab('home')
+tab('craft')
+btn('Книга рецептов')
 assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth')
+assert page.locator('#recipeDetail').is_visible()
+assert page.locator('#nav .nav-scroll').count()==2
 # Verify that the authoritative store is written before reloading.
 wait_for_db(page,"async()=>!!(await dbGet())?.journey")
 assert page.evaluate("async()=>!!(await dbGet())?.journey")

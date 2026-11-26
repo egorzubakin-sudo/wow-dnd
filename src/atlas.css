@@ -113,3 +113,304 @@ body:has(.modalwrap.open) .ux-ach-popup {
 .ux-ach-popup button {
   pointer-events: auto;
 }
+
+.game-screen {
+  --game-gold: #e1c184;
+  --game-border: #706044;
+  --game-surface: #242b22;
+  display: grid;
+  gap: 1.15rem;
+}
+.game-screen h2,
+.game-screen h3,
+.game-screen h4 {
+  color: var(--game-gold);
+}
+.game-screen h2 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+}
+.game-screen h3 {
+  font-size: 1.18rem;
+}
+.game-screen .card {
+  border-color: #504c38;
+  min-width: 0;
+}
+.game-cover {
+  display: grid;
+  gap: 1rem;
+  background:
+    radial-gradient(ellipse at 90% 0%, #393821, transparent 60%), #1f2820;
+}
+.game-intro {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.25rem;
+  align-items: start;
+}
+.game-intro > div:first-child {
+  flex: 1 1 26rem;
+}
+.game-intro p {
+  margin-top: 0.45rem;
+}
+.stay-illustration {
+  width: 100%;
+  aspect-ratio: 3 / 1;
+  object-fit: cover;
+  border-radius: 7px;
+}
+.game-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  border-top: 1px solid #4d5040;
+  padding-top: 0.85rem;
+}
+#gameHeroSelect {
+  margin-inline-start: auto;
+}
+.game-time label {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.game-time strong {
+  color: var(--game-gold);
+}
+.game-cover progress,
+.project-row progress {
+  display: block;
+  width: 100%;
+  accent-color: #a0bc76;
+  margin-top: 0.35rem;
+}
+.game-section > h3 {
+  margin-bottom: 0.7rem;
+}
+.activity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 235px), 1fr));
+  gap: 0.65rem;
+}
+.activity-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.35rem 0.65rem;
+  text-align: left;
+  padding: 0.95rem;
+  align-content: start;
+}
+.activity-card > span:not(.game-icon),
+.activity-card > small {
+  grid-column: 2;
+}
+.activity-card > .game-icon {
+  grid-row: span 2;
+}
+.activity-card,
+.recipe-option {
+  background: var(--game-surface);
+  border: 1px solid #595941;
+  border-radius: 6px;
+}
+.activity-card:hover,
+.recipe-option:hover,
+.recipe-option[aria-pressed="true"] {
+  border-color: #b79a60;
+  background: #3e3827;
+}
+.game-icon {
+  display: inline-grid;
+  place-items: center;
+  vertical-align: middle;
+  flex: 0 0 auto;
+  width: 2.15rem;
+  aspect-ratio: 1;
+  color: #ebcb8b;
+  background: #3c392a;
+  border: 1px solid #746243;
+  border-radius: 5px;
+  font-size: 1.15rem;
+  overflow: hidden;
+}
+.game-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.game-hero .game-icon {
+  width: 3rem;
+}
+.game-good {
+  color: #abcf86;
+}
+.game-bad {
+  color: #f5a78e;
+}
+.game-task-list {
+  display: grid;
+  border-top: 1px solid #49503f;
+}
+.game-task-list button {
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  border: 0;
+  border-bottom: 1px solid #49503f;
+  border-radius: 0;
+  background: #202821;
+  padding: 0.9rem 1rem;
+}
+.game-task-list button:not(:disabled)::after {
+  content: "";
+  align-self: center;
+  width: 0.45rem;
+  height: 0.45rem;
+  border: solid #dfbf7f;
+  border-width: 1px 1px 0 0;
+  transform: rotate(45deg);
+}
+.game-task-list button:hover {
+  background: #343a2b;
+}
+.game-tabs button[aria-pressed="true"] {
+  border-color: #bb9c62;
+  background: #493f29;
+}
+.profession-card {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+.profession-card h3,
+.recipe-detail h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.profession-card details,
+.recipe-detail details {
+  border-top: 1px solid #4f503d;
+  padding-top: 0.4rem;
+}
+.profession-card details p {
+  margin: 0.4rem 0;
+}
+.recipe-filters {
+  display: grid;
+  grid-template-columns: minmax(12rem, 1.5fr) repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.8rem;
+}
+.recipe-filters .field {
+  margin: 0;
+}
+.recipe-layout {
+  display: grid;
+  grid-template-columns: minmax(230px, 2fr) minmax(0, 3fr);
+  align-items: start;
+  gap: 0.9rem;
+}
+.recipe-list {
+  display: grid;
+  gap: 0.45rem;
+}
+.recipe-option {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  text-align: left;
+  min-width: 0;
+}
+.recipe-option > span > small {
+  display: block;
+}
+.recipe-option > small {
+  text-align: end;
+  max-width: 10rem;
+}
+.recipe-detail p,
+.recipe-detail h4 {
+  margin: 0.55rem 0;
+}
+.recipe-detail #craftInputs {
+  max-width: 22rem;
+}
+.material-line {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #3e4638;
+}
+.material-line strong {
+  margin-inline-start: auto;
+  white-space: nowrap;
+}
+.rarity-common {
+  color: #f0e8d4;
+}
+.rarity-uncommon {
+  color: #a8d883;
+}
+.rarity-rare {
+  color: #81bafe;
+}
+.rarity-epic {
+  color: #d6a5f8;
+}
+.rarity-legendary {
+  color: #efad62;
+}
+.project-row {
+  border-top: 1px solid #50513f;
+  padding: 0.7rem 0;
+}
+.project-row h4 {
+  margin: 0 0 0.25rem;
+}
+.project-row button {
+  margin: 0.5rem 0.5rem 0 0;
+}
+.hero-shortcuts,
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: 0.55rem;
+  margin-block: 0.8rem;
+}
+.stat-grid > div {
+  padding: 0.6rem;
+  border: 1px solid #4f543e;
+  border-radius: 5px;
+}
+@media (max-width: 1000px) {
+  .recipe-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .recipe-filters .field:first-child {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 700px) {
+  .recipe-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .recipe-list {
+    max-height: 48vh;
+    overflow: auto;
+  }
+  #gameHeroSelect {
+    width: 100%;
+  }
+  .stay-illustration {
+    aspect-ratio: 16 / 9;
+  }
+  .recipe-option > small {
+    max-width: 6.75rem;
+  }
+}
