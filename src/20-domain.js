@@ -45,9 +45,13 @@ function byId(rows, id) {
   requireThat(x, "Не найдена запись " + id);
   return x;
 }
+function learnedProfession(profile, id) {
+  return !profile.professionsLimited || profile.professions.includes(id);
+}
 function eligibleProfession(s, h, id) {
   const p = byId(economy(s).professions, id);
   return (
+    learnedProfession(h, id) &&
     (!p.skill || !!h.skills[p.skill]) &&
     (!p.tools?.length || p.tools.some((t) => h.tools.includes(t)))
   );

@@ -91,9 +91,49 @@ function ability(p, { stat, skill, tool, mode, dc }, die = dice) {
     success: natural + mod >= dc,
   };
 }
-register("profile", "master", (s, p) => {
+register("profile", "hero", (s, p, actor) => {
+  const master = actor?.role === "master";
+  let member = s.company.members.find((m) => m.id === p.hero);
+  if (p.create) {
+    requireThat(
+      master && !member && validId(p.hero),
+      "Создавать героев может мастер",
+    );
+    member = { id: p.hero, active: true, mod: 0 };
+    s.company.members.push(member);
+  }
   const h = profile(s, p.hero),
     v = p.value;
+  const catalog = economy(s);
+  for (const values of [v.tools, v.professions, v.recipes])
+    requireThat(
+      Array.isArray(values) &&
+        values.every((value) => typeof value === "string" && value.trim()),
+      "Неверное значение справочника",
+    );
+  const professions = [...new Set(v.professions)];
+  const existingProfessions = new Set(h.professions);
+  requireThat(
+    professions.length <= 2 ||
+      (!h.professionsLimited &&
+        professions.every((id) => existingProfessions.has(id))),
+    "Выберите не больше двух профессий",
+  );
+  requireThat(
+    professions.every(
+      (id) =>
+        existingProfessions.has(id) ||
+        catalog.professions.some((row) => row.id === id),
+    ),
+    "Профессия отсутствует в справочнике",
+  );
+  requireThat(
+    v.recipes.every(
+      (id) =>
+        h.recipes.includes(id) || catalog.recipes.some((row) => row.id === id),
+    ),
+    "Рецепт отсутствует в справочнике",
+  );
   integer(v.level, 1, 20);
   for (const k of Object.keys(stats)) integer(v.stats[k], 1, 30);
   for (const [k, n] of Object.entries(v.skills)) {
@@ -109,11 +149,27 @@ register("profile", "master", (s, p) => {
     stats: v.stats,
     skills: v.skills,
     tools: v.tools,
-    professions: v.professions,
+    professions,
     recipes: v.recipes,
-    bonus: v.bonus,
-    proficiency: v.proficiency,
+    professionsLimited: professions.length <= 2,
+    bonus: master ? v.bonus : h.bonus,
+    proficiency: master ? v.proficiency : h.proficiency,
   });
+  if (p.member) {
+    const { name, role, bio, image } = p.member;
+    requireThat(
+      [name, role, bio, image].every((field) => typeof field === "string"),
+      "Проверьте поля героя",
+    );
+    requireThat(name.trim() || role.trim(), "Укажите имя или роль героя");
+    Object.assign(member, { name: name.trim(), role: role.trim(), bio, image });
+    if (master) {
+      const { active, mod, faction, factionRank } = p.member;
+      if (mod != null) integer(mod, -10, 30);
+      if (faction) byId(s.factions, faction);
+      Object.assign(member, { active: !!active, mod, faction, factionRank });
+    }
+  }
 });
 register("roll", "hero", (s, p) => {
   const h = profile(s, p.hero);

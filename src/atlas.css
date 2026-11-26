@@ -414,3 +414,40 @@ body:has(.modalwrap.open) .ux-ach-popup {
     max-width: 6.75rem;
   }
 }
+
+.hero-form {
+  display: grid;
+  gap: 0.6rem;
+}
+.hero-form details {
+  border: 1px solid #554d36;
+  border-radius: 6px;
+  margin: 0;
+}
+.hero-form summary {
+  padding: 0.75rem;
+  color: #e1c184;
+}
+.hero-form-fields {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0 0.75rem 0.75rem;
+}
+.hero-field-grid,
+.hero-checklist {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+.hero-field-grid .field {
+  margin: 0;
+}
+.hero-checklist .checkline {
+  display: flex;
+  align-items: baseline;
+  margin: 0;
+  gap: 0.42rem;
+}
+.hero-checklist input {
+  flex: none;
+}

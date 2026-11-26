@@ -21,70 +21,314 @@ function commandForm(title, fields, name, get, label) {
   const key = crypto.randomUUID();
   form(title, fields, async () => execute(name, await get(), key), label);
 }
-function profileForm() {
-  const hero = chosen(),
-    p = profile(S, hero);
-  const group = (name, body) =>
-    "<details><summary>" + name + "</summary>" + body + "</details>";
-  commandForm(
-    "Профиль героя",
-    input("Уровень", "lvl", "number", p.level, 'min="1" max="20"') +
-      input("Раса", "race", "text", p.race || "") +
-      input("Класс", "heroClass", "text", p.class || "") +
-      group(
-        "Характеристики",
-        opts(stats)
-          .map(([k, l]) =>
-            input(l, k, "number", p.stats[k], 'min="1" max="30"'),
-          )
-          .join(""),
-      ) +
-      group(
-        "Владения навыками",
-        Object.keys(skills)
-          .map((k, i) =>
-            pick(
-              k,
-              "sk" + i,
-              [
-                [0, "Нет"],
-                [1, "Владение"],
-                [2, "Компетентность"],
-              ],
-              p.skills[k] || 0,
-            ),
-          )
-          .join(""),
-      ) +
-      input("Инструменты через запятую", "tools", "text", p.tools.join(", ")) +
-      input("Профессии (ID)", "prof", "text", p.professions.join(", ")) +
-      input("Рецепты (ID)", "rec", "text", p.recipes.join(", ")) +
-      input("Поправка к проверкам", "bonus", "number", p.bonus) +
-      input(
-        "Бонус владения (пусто — по уровню)",
-        "bv",
-        "number",
-        p.proficiency ?? "",
-      ),
-    "profile",
-    () => ({
-      hero,
-      value: {
-        race: val("race"),
-        class: val("heroClass"),
-        level: num("lvl"),
-        stats: Object.fromEntries(Object.keys(stats).map((k) => [k, num(k)])),
-        skills: Object.fromEntries(
-          Object.keys(skills).map((k, i) => [k, num("sk" + i)]),
-        ),
-        tools: listText("tools"),
-        professions: listText("prof"),
-        recipes: listText("rec"),
-        bonus: num("bonus"),
-        proficiency: val("bv") === "" ? null : num("bv"),
-      },
-    }),
+const heroToolChoices = [
+  "Набор для грима",
+  "Набор для фальсификации",
+  "Набор травника",
+  "Инструменты навигатора",
+  "Инструменты отравителя",
+  "Воровские инструменты",
+];
+function heroFormSection(id, title, fields, expanded = false) {
+  return (
+    '<details id="' +
+    id +
+    '"' +
+    (expanded ? " open" : "") +
+    "><summary>" +
+    esc(title) +
+    '</summary><div class="hero-form-fields">' +
+    fields +
+    "</div></details>"
   );
+}
+function heroChecklist(name, choices, selected) {
+  return (
+    '<div class="hero-checklist">' +
+    choices
+      .map(
+        ([value, label]) =>
+          '<label class="checkline"><input type="checkbox" name="' +
+          name +
+          '" value="' +
+          esc(value) +
+          '"' +
+          (selected.includes(value) ? " checked" : "") +
+          ">" +
+          esc(label) +
+          "</label>",
+      )
+      .join("") +
+    "</div>"
+  );
+}
+function editMember(id, focusSection) {
+  const master = actor?.role === "master";
+  if (!actor || (id ? !owned(actor, id) : !master)) return;
+  const member = id ? heroOf(S, id) : {};
+  const p = id
+    ? profile(S, id)
+    : {
+        level: 1,
+        stats: Object.fromEntries(Object.keys(stats).map((k) => [k, 10])),
+        skills: {},
+        tools: [],
+        professions: [],
+        recipes: [],
+        bonus: 0,
+      };
+  const catalog = economy(S);
+  const hero = id || uid(),
+    key = crypto.randomUUID();
+  const byName = (a, b) => a[1].localeCompare(b[1], "ru");
+  const unlisted = (rows, selected) =>
+    selected.filter((value) => !rows.some(([key]) => key === value));
+  const professions = pairs(catalog.professions).sort(byName);
+  const recipes = pairs(catalog.recipes).sort(byName);
+  const tools = [
+    ...new Set([
+      ...heroToolChoices,
+      ...p.tools,
+      ...catalog.professions.flatMap((entry) => entry.tools || []),
+      ...catalog.recipes.flatMap((entry) => entry.tools || []),
+    ]),
+  ].sort((a, b) => a.localeCompare(b, "ru"));
+  const oldProfessions = unlisted(professions, p.professions);
+  const oldRecipes = unlisted(recipes, p.recipes);
+  const describeMissing = (values) =>
+    values.map((value, index) => [
+      value,
+      "Запись из сохранения " + (index + 1),
+    ]);
+  const professionOptions = (kind) =>
+    professions.filter(
+      ([key]) => (byId(catalog.professions, key).kind || "production") === kind,
+    );
+  form(
+    id ? "Настройка героя" : "Создание героя",
+    '<div class="hero-form">' +
+      heroFormSection(
+        "heroIdentity",
+        "Герой",
+        '<div class="hero-field-grid">' +
+          input("Имя", "mn", "text", member.name || "") +
+          input("Роль в компании", "mr", "text", member.role || "") +
+          input("Раса", "race", "text", p.race || "") +
+          input("Класс", "heroClass", "text", p.class || "") +
+          input(
+            "Уровень",
+            "lvl",
+            "number",
+            p.level,
+            'min="1" max="20" required',
+          ) +
+          "</div>",
+        true,
+      ) +
+      heroFormSection(
+        "heroStatsSection",
+        "Характеристики",
+        '<div class="hero-field-grid">' +
+          opts(stats)
+            .map(([k, label]) =>
+              input(
+                label,
+                k,
+                "number",
+                p.stats[k],
+                'min="1" max="30" required',
+              ),
+            )
+            .join("") +
+          "</div>",
+        true,
+      ) +
+      heroFormSection(
+        "heroSkills",
+        "Навыки",
+        '<div class="hero-field-grid">' +
+          Object.keys(skills)
+            .map((label, i) =>
+              pick(
+                label,
+                "sk" + i,
+                [
+                  [0, "Без владения"],
+                  [1, "Владение"],
+                  [2, "Компетентность"],
+                ],
+                p.skills[label] || 0,
+              ),
+            )
+            .join("") +
+          "</div>",
+      ) +
+      heroFormSection(
+        "heroProfessions",
+        "Профессии",
+        '<p id="heroProfessionCount" class="muted" aria-live="polite"></p>' +
+          "<h3>Добывающие</h3>" +
+          heroChecklist(
+            "heroProfession",
+            professionOptions("gathering"),
+            p.professions,
+          ) +
+          "<h3>Производственные</h3>" +
+          heroChecklist(
+            "heroProfession",
+            professionOptions("production"),
+            p.professions,
+          ) +
+          (oldProfessions.length
+            ? "<h3>Нет в справочнике</h3>" +
+              heroChecklist(
+                "heroProfession",
+                describeMissing(oldProfessions),
+                p.professions,
+              )
+            : ""),
+      ) +
+      heroFormSection(
+        "heroTraining",
+        "Инструменты и известные рецепты",
+        "<h3>Владение инструментами</h3>" +
+          heroChecklist(
+            "heroTool",
+            tools.map((name) => [name, name]),
+            p.tools,
+          ) +
+          "<h3>Известные рецепты</h3>" +
+          (recipes.length || oldRecipes.length
+            ? heroChecklist(
+                "heroRecipe",
+                [...recipes, ...describeMissing(oldRecipes)],
+                p.recipes,
+              )
+            : '<p class="muted">Рецепты появятся после заполнения книги рецептов.</p>'),
+      ) +
+      heroFormSection(
+        "heroPortrait",
+        "Портрет и биография",
+        area("Биография", "mb", member.bio || "") +
+          input("Портрет", "mi", "file", "", "accept=image/*") +
+          (safeImage(member.image)
+            ? check("Удалить портрет", "mir", false)
+            : ""),
+      ) +
+      (master
+        ? heroFormSection(
+            "heroMaster",
+            "Настройки мастера",
+            affiliationFields("maff", "mrank", member) +
+              input(
+                "Выживание для переходов (пусто — из характеристик)",
+                "mm",
+                "number",
+                member.mod ?? "",
+                'min="-10" max="30"',
+              ) +
+              input(
+                "Поправка к проверкам",
+                "bonus",
+                "number",
+                p.bonus,
+                'min="-100" max="100" required',
+              ) +
+              input(
+                "Бонус владения (пусто — по уровню)",
+                "bv",
+                "number",
+                p.proficiency ?? "",
+                'min="0" max="20"',
+              ) +
+              check(
+                "Участвует в путешествиях и жребии",
+                "ma",
+                member.active ?? true,
+              ),
+          )
+        : "") +
+      "</div>",
+    async () => {
+      const fields = $("engineForm");
+      const checklist = (name) =>
+        [...fields.querySelectorAll('input[name="' + name + '"]:checked')].map(
+          (el) => el.value,
+        );
+      let image = $("mir")?.checked ? "" : member.image || "";
+      if ($("mi").files[0]) image = await readImage($("mi").files[0]);
+      if (fields !== $("engineForm")) return;
+      await execute(
+        "profile",
+        {
+          hero,
+          create: !id,
+          member: {
+            name: val("mn"),
+            role: val("mr"),
+            bio: val("mb"),
+            image,
+            ...(master
+              ? {
+                  ...readAffiliation("maff", "mrank"),
+                  mod: val("mm") === "" ? null : num("mm"),
+                  active: $("ma").checked,
+                }
+              : {}),
+          },
+          value: {
+            race: val("race"),
+            class: val("heroClass"),
+            level: num("lvl"),
+            stats: Object.fromEntries(
+              Object.keys(stats).map((k) => [k, num(k)]),
+            ),
+            skills: Object.fromEntries(
+              Object.keys(skills).map((k, i) => [k, num("sk" + i)]),
+            ),
+            tools: checklist("heroTool"),
+            professions: checklist("heroProfession"),
+            recipes: checklist("heroRecipe"),
+            bonus: master ? num("bonus") : p.bonus,
+            proficiency: master
+              ? val("bv") === ""
+                ? null
+                : num("bv")
+              : p.proficiency,
+          },
+        },
+        key,
+      );
+      activeHero = hero;
+      render();
+    },
+    id ? "Сохранить героя" : "Создать героя",
+  );
+  if (master) bindAffiliation("maff", "mrank");
+  const checks = [
+    ...$("heroProfessions").querySelectorAll('input[type="checkbox"]'),
+  ];
+  const sync = () => {
+    const count = checks.filter((el) => el.checked).length;
+    for (const el of checks) el.disabled = !el.checked && count >= 2;
+    $("heroProfessionCount").textContent =
+      count > 2
+        ? "Ранее изучено " +
+          count +
+          " профессий. Чтобы добавить новую, сначала освободите место."
+        : "Выбрано " + count + " из 2";
+  };
+  for (const el of checks) el.onchange = sync;
+  sync();
+  if (focusSection && $(focusSection)) {
+    $(focusSection).open = true;
+    $(focusSection).scrollIntoView({ block: "nearest" });
+  }
+}
+function guideModifier(member) {
+  if (member.mod != null) return n(member.mod);
+  const p = profile(S, member.id);
+  return ability(p, { skill: "Выживание" }, () => 1).mod;
 }
 function rollForm() {
   const hero = chosen(),
@@ -345,7 +589,7 @@ function phasePanel() {
       button("Создать регион", () => regionForm()),
       button("Нарисовать границу", drawRegion),
     );
-  if (hero && gm) a.append(button("Профиль героя", profileForm));
+
   if (hero && owned(actor, hero)) {
     a.append(button("Бросок", rollForm));
     const last = e.rolls.find((r) => r.hero === hero);
@@ -366,3 +610,43 @@ function phasePanel() {
   for (const fn of actions) fn(a, { gm, hero, t, e, box });
 }
 onRender.push(phasePanel);
+
+function companyHeroRows() {
+  const members = S.company.members.filter(
+    (m) => !player || !m.hidden || owned(actor, m.id),
+  );
+  if (!player) return members;
+  return [
+    ...members.filter((m) => owned(actor, m.id)),
+    ...members.filter((m) => !owned(actor, m.id)),
+  ];
+}
+function companyHeroActions(member) {
+  if (!owned(actor, member.id)) return "";
+  const id = jsid(member.id);
+  return (
+    '<div class="actions">' +
+    (chosen() === member.id
+      ? '<span class="tag">Активный герой</span>'
+      : '<button onclick="selectCompanyHero(' +
+        id +
+        ')">Сделать активным</button>') +
+    '<button class="primary" onclick="editMember(' +
+    id +
+    ')">Настроить героя</button>' +
+    "<button onclick=\"openAffPerson('hero'," +
+    id +
+    ')">Карточка</button>' +
+    (!player
+      ? '<button class="danger ghost" onclick="removeMember(' +
+        id +
+        ')">Удалить</button>'
+      : "") +
+    "</div>"
+  );
+}
+function selectCompanyHero(id) {
+  if (!owned(actor, id)) return;
+  activeHero = id;
+  render();
+}

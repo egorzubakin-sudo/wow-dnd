@@ -374,6 +374,14 @@ function manageUsers() {
 const baseAccountMenu = accountMenu;
 accountMenu = function () {
   baseAccountMenu();
+  if (heroRows().length || actor.role === "master")
+    $("accountActions").append(
+      button(actor.role === "master" ? "Герои компании" : "Мои герои", () => {
+        closeModal();
+        switchTab("company");
+        $("companyHeroes")?.scrollIntoView({ block: "start" });
+      }),
+    );
   if (actor.role === "master")
     $("accountActions").append(
       button("Управление пользователями", manageUsers),
@@ -625,7 +633,6 @@ onRender.push(() => {
   if (!feed) return;
   const extras = [...feed.querySelectorAll("button")].filter((b) =>
     [
-      "Профиль героя",
       "Разбить стоянку",
       "Сменить фазу",
       "Последствия сессии",

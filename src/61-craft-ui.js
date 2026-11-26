@@ -45,6 +45,8 @@ function recipeAvailability(hero, p, r, quote) {
   const profession = S.engine.professions.find((v) => v.id === r.profession_id);
   if (!knownRecipe(p, r)) reasons.push("Рецепт не изучен");
   if (!profession) reasons.push("Профессия отсутствует в справочнике");
+  else if (!learnedProfession(p, profession.id))
+    reasons.push("Профессия не изучена");
   else if (!eligibleProfession(S, p, profession.id))
     reasons.push(professionRequirements(profession));
   if (professionRank(p, r.profession_id) < (r.rank || 2))
@@ -105,10 +107,35 @@ function renderCraft() {
   if (craftTab === "recipes") renderRecipeList(root, hero);
   if (craftTab === "projects") renderProjects(root, hero);
 }
+let professionGroup = "gathering";
 function renderProfessionCards(root, hero) {
+  root.replaceChildren();
   const p = hero ? profile(S, hero) : null;
-  root.className = "activity-grid";
+  root.className = "stack";
+  const tabs = document.createElement("div");
+  tabs.className = "actions game-tabs";
+  const grid = document.createElement("div");
+  grid.className = "activity-grid";
+  root.append(tabs, grid);
+  for (const [kind, label] of [
+    ["gathering", "Добывающие"],
+    ["production", "Производственные"],
+  ]) {
+    const tab = button(label, () => {
+      professionGroup = kind;
+      renderProfessionCards(root, hero);
+    });
+    tab.setAttribute("aria-pressed", String(kind === professionGroup));
+    tabs.append(tab);
+  }
+  if (hero && owned(actor, hero))
+    tabs.append(
+      button("Настроить профессии героя", () =>
+        editMember(hero, "heroProfessions"),
+      ),
+    );
   for (const profession of S.engine.professions) {
+    if ((profession.kind || "production") !== professionGroup) continue;
     const eligible = p && eligibleProfession(S, p, profession.id);
     const rank = eligible ? professionRank(p, profession.id) : 0;
     const known = S.engine.recipes.filter(
@@ -129,7 +156,9 @@ function renderProfessionCards(root, hero) {
           (p
             ? eligible
               ? " · " + (professionRanks[rank - 2] || "БВ +" + rank)
-              : " · Недоступна герою"
+              : learnedProfession(p, profession.id)
+                ? " · Не хватает владения"
+                : " · Не изучена"
             : ""),
       ) +
       "</small>" +
@@ -170,8 +199,10 @@ function renderProfessionCards(root, hero) {
         ),
       );
     card.append(controls);
-    root.append(card);
+    grid.append(card);
   }
+  if (!grid.children.length)
+    grid.textContent = "В этой группе пока нет профессий.";
 }
 function renderRecipeList(root, hero) {
   root.className = "";
@@ -629,7 +660,8 @@ function heroStats() {
       '<small>Книга игрока 2024 · с. 10, 14</small><div class="actions" id="statActions"></div>',
   );
   $("statActions").append(button("Сделать проверку", rollForm));
-  if (!player) $("statActions").append(button("Изменить профиль", profileForm));
+  if (owned(actor, id))
+    $("statActions").append(button("Настроить героя", () => editMember(id)));
 }
 function renderWorkshop() {
   if (player) {

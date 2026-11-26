@@ -435,6 +435,43 @@ body:has(.modalwrap.open) .ux-ach-popup {
     max-width: 6.75rem;
   }
 }
+
+.hero-form {
+  display: grid;
+  gap: 0.6rem;
+}
+.hero-form details {
+  border: 1px solid #554d36;
+  border-radius: 6px;
+  margin: 0;
+}
+.hero-form summary {
+  padding: 0.75rem;
+  color: #e1c184;
+}
+.hero-form-fields {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0 0.75rem 0.75rem;
+}
+.hero-field-grid,
+.hero-checklist {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+.hero-field-grid .field {
+  margin: 0;
+}
+.hero-checklist .checkline {
+  display: flex;
+  align-items: baseline;
+  margin: 0;
+  gap: 0.42rem;
+}
+.hero-checklist input {
+  flex: none;
+}
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
 <header class="header"><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div class="head-actions"><button id="navIconBtn" onclick="editNavIcons()" title="Настроить иконки меню">⚙ Иконки меню</button><button id="modeBtn" onclick="toggleMode()">Режим игроков</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxTools" class="ux-tools"></div><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
 <nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · локальная версия 0.8 · D&D 2024 / домашние правила Вольной компании</footer>
@@ -497,19 +534,18 @@ function renderSidebar(){const el=$('sidebar');if(!el)return;let h='<div class="
 function loadDemo(){if(player||S.nodes.length)return;const points=[['Терамор','port','f4',.70,.78],['Кабестан','port','f7',.76,.39],['Перекрёсток','village','',.44,.43],['Астранаар','village','f6',.23,.16],['Скрытые руины','ruin','',.29,.72]];S.nodes=points.map(p=>({id:uid(),name:p[0],type:p[1],faction:p[2],x:p[3],y:p[4],visibility:p[0]==='Скрытые руины'?'hidden':'known',desc:'Демонстрационная точка; положение и сведения условны.',notes:''}));const [a,b,c,d,e]=S.nodes.map(a=>a.id);const r=(a,b,name,kind,min,max,risk,events=DEF_EVENTS,visibility='known')=>({id:uid(),a,b,name,kind,min,max,risk,events:[...events],visibility,status:'open',cost:0,desc:'Демонстрационный маршрут.',notes:''});S.routes=[r(a,b,'Большой тракт','road',6,6,1,['Торговец предлагает редкий товар','Спокойная дорога','Спокойная дорога','Встречный караван','Патруль требует хартию','Мост разрушен диверсантами']),r(a,b,'Через Пылевые топи','wild',9,9,2,['Редкие алхимические растения','Спокойная дорога','Спокойная дорога','Хижина травницы','Заболоченная переправа','Логово чёрного дракона']),r(a,b,'Торговое судно','sea',3,5,0,['Выгодная сделка','Спокойное плавание','Спокойное плавание','Встречное судно','Шторм','Пиратские паруса']),r(b,c,'Караванный путь','road',2,2,1),r(c,d,'Северная дорога','road',4,4,1),r(c,e,'Забытая тропа','secret',3,3,2,DEF_EVENTS,'hidden')];S.company.location=a;selected={type:'node',id:a};commit();toast('Добавлены демонстрационные точки и маршруты')}
 function log(kind,title,text='',hidden=false,day=S.company.day){S.journal.unshift({id:uid(),kind,title,text,hidden,day,year:S.company.year})}
 function beginJourney(id){if(!canTravel()||S.journey||currentStay(S))return;const r=route(id),from=S.company.location;if(!r||r.status==='closed'||![r.a,r.b].includes(from))return;const to=from===r.a?r.b:r.a;const roster=S.company.members.filter(m=>m.active);openModal('Подготовка к путешествию',`<p class="muted">${esc(nameOf(from))} → ${esc(nameOf(to))} · ${duration(r)} · ${RISKS[r.risk]} опасность</p>${r.status==='conditional'?'<div class="notice">Путь доступен с условиями. Мастер должен подтвердить их выполнение.</div>':''}${r.desc?`<p style="margin-top:8px">${esc(r.desc)}</p>`:''}<form id="startForm">${selectField('Проводник','jg',[['random','Определить жребием (d'+(roster.length||1)+')'],...(roster.length?[['physical','Ввести физический жребий']]:[]),['','Без проводника'],...roster.map(m=>[m.id,memberName(m)])],'random')}<div id="manualGuide" class="hidden">${field('Номер на кубике (от 1 до '+roster.length+')','jgd',1,'number','min="1" max="'+Math.max(1,roster.length)+'"') }<small>${roster.map((m,i)=>`${i+1} — ${esc(memberName(m))}`).join(' · ')}</small></div>${field('Стоимость перехода для компании, зм','jc',r.cost,'number','min="0" step="0.01"')}${controls('Отправиться в путь')}</form>`);$('jg').onchange=()=>{$('manualGuide').classList.toggle('hidden',val('jg')!=='physical')};$('startForm').onsubmit=e=>{e.preventDefault();if(!canTravel()||S.journey||currentStay(S))return;const g=val('jg'),cost=player?r.cost:Math.max(0,n(val('jc')));if(cost>S.company.gold){toast('Недостаточно золота в казне');return}let guideDie=g==='random'&&roster.length?roll(roster.length):g==='physical'&&roster.length?int(val('jgd'),1,roster.length):null;let guide=['random','physical'].includes(g)?(guideDie?roster[guideDie-1]?.id:''):g;const days=r.min===r.max?r.min:r.min+roll(r.max-r.min+1)-1;S.company.gold=Math.round((S.company.gold-cost)*100)/100;S.engine.phase='travel';S.journey={routeId:id,from,to,routeName:routeLabel(r),start:S.company.day,days,risk:r.risk,events:[...r.events],guide,guideDie,guideSides:roster.length,cost,rolls:[],outcome:null,guideCheck:null};log('travel','Выход в путь',`${nameOf(from)} → ${nameOf(to)} · ${routeLabel(r)}. Проводник: ${memberName(S.company.members.find(m=>m.id===guide))}. ${days} дн. по плану.`);closeModal();commit()}}
-function journeyPanel(){const j=S.journey;if(!j)return '';const g=S.company.members.find(m=>m.id===j.guide);let h=`<section class="section stack"><div class="eyebrow">Путешествие в процессе</div><h3>${esc(nameOf(j.from))} → ${esc(nameOf(j.to))}</h3><p>${esc(j.routeName)} · ${j.days} дн. · ${RISKS[j.risk]} опасность</p><p class="muted">Проводник: <strong style="color:var(--ink)">${esc(memberName(g))}</strong>${j.guideDie?` (жребий d${j.guideSides}: ${j.guideDie})`:''}</p>`;if(j.guideCheck!==null&&j.guideCheck!==undefined)h+=`<p>Выживание: <strong>${j.guideCheck.total}</strong> (${j.guideCheck.roll}${j.guideCheck.mod>=0?'+':''}${j.guideCheck.mod})</p>`;else if(g&&canTravel())h+=`<button onclick="guideCheck()">Бросок Выживания d20 ${n(g.mod)>=0?'+':''}${n(g.mod)}</button>`;if(j.outcome===null){if(canTravel())h+=`<button class="primary" onclick="rollJourney()">Бросить ${j.risk===1?'1d6':'2d6'} ${j.risk===0?'· меньший':j.risk===2?'· больший':''}</button><button class="ghost" onclick="manualRoll()">Ввести результат физических кубиков</button>`}else{h+=`<div class="dice">${j.rolls.map(v=>`<div class="die ${v===j.outcome?'chosen':''}">${v}</div>`).join('')}</div><div class="notice"><small>Событие · ${j.outcome}</small><h3>${esc(j.events[j.outcome-1])}</h3><p>${j.outcome>=5?'Разыграйте сцену перед завершением перехода.':j.outcome===4?'Решите, как компания взаимодействует со встречей.':'Путь продолжается.'}</p></div>${!player?'<button class="primary" onclick="finishJourney()">Завершить переход</button>':''}`}if(!player)h+='<button class="ghost danger" onclick="cancelJourney()">Отменить / прервать путь</button>';return h+'</section>'}
-function guideCheck(){const j=S.journey;if(!j||j.guideCheck!=null)return;const g=S.company.members.find(m=>m.id===j.guide);if(!g)return;const d=roll(20),mod=n(g.mod);j.guideCheck={roll:d,mod,total:d+mod};commit()}
+function journeyPanel(){const j=S.journey;if(!j)return '';const g=S.company.members.find(m=>m.id===j.guide);let h=`<section class="section stack"><div class="eyebrow">Путешествие в процессе</div><h3>${esc(nameOf(j.from))} → ${esc(nameOf(j.to))}</h3><p>${esc(j.routeName)} · ${j.days} дн. · ${RISKS[j.risk]} опасность</p><p class="muted">Проводник: <strong style="color:var(--ink)">${esc(memberName(g))}</strong>${j.guideDie?` (жребий d${j.guideSides}: ${j.guideDie})`:''}</p>`;if(j.guideCheck!==null&&j.guideCheck!==undefined)h+=`<p>Выживание: <strong>${j.guideCheck.total}</strong> (${j.guideCheck.roll}${j.guideCheck.mod>=0?'+':''}${j.guideCheck.mod})</p>`;else if(g&&canTravel())h+=`<button onclick="guideCheck()">Бросок Выживания d20 ${signed(guideModifier(g))}</button>`;if(j.outcome===null){if(canTravel())h+=`<button class="primary" onclick="rollJourney()">Бросить ${j.risk===1?'1d6':'2d6'} ${j.risk===0?'· меньший':j.risk===2?'· больший':''}</button><button class="ghost" onclick="manualRoll()">Ввести результат физических кубиков</button>`}else{h+=`<div class="dice">${j.rolls.map(v=>`<div class="die ${v===j.outcome?'chosen':''}">${v}</div>`).join('')}</div><div class="notice"><small>Событие · ${j.outcome}</small><h3>${esc(j.events[j.outcome-1])}</h3><p>${j.outcome>=5?'Разыграйте сцену перед завершением перехода.':j.outcome===4?'Решите, как компания взаимодействует со встречей.':'Путь продолжается.'}</p></div>${!player?'<button class="primary" onclick="finishJourney()">Завершить переход</button>':''}`}if(!player)h+='<button class="ghost danger" onclick="cancelJourney()">Отменить / прервать путь</button>';return h+'</section>'}
+function guideCheck(){const j=S.journey;if(!j||j.guideCheck!=null)return;const g=S.company.members.find(m=>m.id===j.guide);if(!g)return;const d=roll(20),mod=guideModifier(g);j.guideCheck={roll:d,mod,total:d+mod};commit()}
 function applyRoll(vals){const j=S.journey;if(!j||j.outcome!==null)return;j.rolls=vals;j.outcome=j.risk===0?Math.min(...vals):j.risk===2?Math.max(...vals):vals[0];commit()}
 function rollJourney(){const j=S.journey;if(!j||j.outcome!==null)return;applyRoll(Array.from({length:j.risk===1?1:2},()=>roll(6)))}
 function manualRoll(){const j=S.journey;if(!j||j.outcome!==null)return;openModal('Физические кубики',`<form id="diceForm">${field('Первый d6','d1',1,'number','min="1" max="6" required')}${j.risk===1?'':field('Второй d6','d2',1,'number','min="1" max="6" required')}${controls('Принять результат')}</form>`);$('diceForm').onsubmit=e=>{e.preventDefault();const a=[int(val('d1'),1,6)];if(j.risk!==1)a.push(int(val('d2'),1,6));closeModal();applyRoll(a)}}
 function finishJourney(){if(player||!S.journey||S.journey.outcome===null)return;const j=S.journey;openModal('Завершение перехода',`<form id="finishForm"><p>${esc(nameOf(j.from))} → ${esc(nameOf(j.to))}</p>${field('Итоговое время в пути, дней','fd',j.days,'number','min="0" max="3650" required')}${area('Как разрешилось событие?','fn','','Например: капитан предъявил хартию, патруль пропустил компанию.')}${controls('Прибыть и записать в журнал')}</form>`);$('finishForm').onsubmit=e=>{e.preventDefault();const days=int(val('fd'),0,3650);S.company.day+=days;S.company.location=j.to;const dest=node(j.to);if(dest&&dest.visibility!=='known')dest.visibility='known';const travelled=route(j.routeId);if(travelled&&travelled.visibility!=='known')travelled.visibility='known';log('travel','Прибытие: '+nameOf(j.to),`${nameOf(j.from)} → ${nameOf(j.to)}. ${days} дн. Проводник: ${memberName(S.company.members.find(m=>m.id===j.guide))}. Кубики: ${j.rolls.join(', ')} → ${j.outcome}. ${j.events[j.outcome-1]}${j.guideCheck?` Выживание: ${j.guideCheck.total}.`:''}${val('fn').trim()?'\n'+val('fn').trim():''}`);S.journey=null;S.engine.phase='adventure';selected={type:'node',id:j.to};closeModal();commit();toast('Компания прибыла в '+nameOf(j.to))}}
 function cancelJourney(){if(player||!S.journey)return;const j=S.journey;openModal('Прервать путешествие',`<form id="cancelForm"><p>Компания останется в исходном узле. Укажите потраченное время; стоимость перехода не возвращается автоматически.</p>${field('Потрачено дней','cd',0,'number','min="0" max="3650" required')}${area('Причина','cn')}${controls('Прервать путь')}</form>`);$('cancelForm').onsubmit=e=>{e.preventDefault();const days=int(val('cd'),0,3650);S.company.day+=days;log('travel','Путь прерван',`${nameOf(j.from)} → ${nameOf(j.to)}. Потрачено ${days} дн. ${j.outcome?j.events[j.outcome-1]+' ':''}${val('cn')}`);S.journey=null;S.engine.phase='adventure';closeModal();commit()}}
 function deleteFaction(id){if(player||!confirm('Удалить фракцию? Связанные узлы станут нейтральными, а её персонажи — независимыми.'))return;S.factions=S.factions.filter(f=>f.id!==id);S.nodes.forEach(a=>{if(a.faction===id)a.faction=''});S.contracts.forEach(c=>{if(c.faction===id)c.faction=''});for(const x of allCharacters())if(x.record.faction===id){x.record.faction='';x.record.factionRank='independent'};for(const rows of Object.values(S.portal))for(const x of rows)if(x.faction===id)x.faction='';commit()}
-function renderCompany(){const c=S.company;$('main').innerHTML=`<div class="screen">${header('Хартия Вольной компании','Состав, казна, календарь и место стоянки.',!player?'<button class="primary" onclick="editCompany()">Изменить компанию</button>':'')}<div class="split"><div class="card"><div class="eyebrow">Хартия</div><h2>${esc(c.name)} ${!player?'<button class="ghost quick-pencil" title="Переименовать отряд" onclick="renameCompany()">✎</button>':''}</h2><p>${esc(dayLabel())}</p><p>Казна: <strong style="color:var(--gold)">${esc(c.gold)} зм</strong></p><p>Стоянка: ${esc(c.location&&(!player||node(c.location)?.visibility!=='hidden')?nameOf(c.location):'Не установлена')}</p><p style="white-space:pre-wrap">${esc(c.notes)}</p>${!player?'<div class="actions"><button onclick="switchTab(&quot;camp&quot;)">Развитие лагеря</button><button onclick="treasury()">Операция с казной</button><button onclick="advanceTime()" '+(S.journey?'disabled':'')+'>Пропустить дни</button></div>':''}</div><div class="card"><h3>Верительные грамоты</h3>${S.factions.filter(f=>visibleFaction(f)&&f.charter).map(f=>`<p>✦ <strong>${esc(f.name)}</strong><br>${esc(f.charter)}</p>`).join('')||'<p class="muted">Внесите грамоты на вкладке «Фракции».</p>'}</div></div><div class="pagehead" style="margin-top:24px"><h2>Состав компании</h2>${!player?'<button onclick="editMember()">＋ Персонаж</button>':''}</div><div class="cards">${c.members.map(m=>`<article class="card"><div class="eyebrow">${esc(m.role||'Участник')}</div>${safeImage(m.image)?`<img class="portal-image portrait" style="border-radius:5px;margin:8px 0" src="${esc(safeImage(m.image))}" alt="Портрет">`:''}<h3>${esc(memberName(m))} ${!player?`<button class="ghost quick-pencil" title="Переименовать персонажа" onclick="renameHero(${jsid(m.id)})">✎</button>`:''}</h3>${affiliationBadge(m)}${personAchievements('hero',m.id)}${m.bio?`<p class="record-body">${esc(m.bio)}</p>`:''}<p>Выживание: ${n(m.mod)>=0?'+':''}${n(m.mod)}</p><span class="tag">${m.active?'В отряде':'Не участвует в переходах'}</span>${!player?`<div class="actions"><button onclick="editMember(${jsid(m.id)})">Изменить</button><button class="danger ghost" onclick="removeMember(${jsid(m.id)})">Удалить</button></div>`:''}</article>`).join('')}</div></div>`}
+function renderCompany(){const c=S.company;$('main').innerHTML=`<div class="screen">${header('Хартия Вольной компании','Состав, казна, календарь и место стоянки.',!player?'<button class="primary" onclick="editCompany()">Изменить компанию</button>':'')}<div class="split"><div class="card"><div class="eyebrow">Хартия</div><h2>${esc(c.name)} ${!player?'<button class="ghost quick-pencil" title="Переименовать отряд" onclick="renameCompany()">✎</button>':''}</h2><p>${esc(dayLabel())}</p><p>Казна: <strong style="color:var(--gold)">${esc(c.gold)} зм</strong></p><p>Стоянка: ${esc(c.location&&(!player||node(c.location)?.visibility!=='hidden')?nameOf(c.location):'Не установлена')}</p><p style="white-space:pre-wrap">${esc(c.notes)}</p>${!player?'<div class="actions"><button onclick="switchTab(&quot;camp&quot;)">Развитие лагеря</button><button onclick="treasury()">Операция с казной</button><button onclick="advanceTime()" '+(S.journey?'disabled':'')+'>Пропустить дни</button></div>':''}</div><div class="card"><h3>Верительные грамоты</h3>${S.factions.filter(f=>visibleFaction(f)&&f.charter).map(f=>`<p>✦ <strong>${esc(f.name)}</strong><br>${esc(f.charter)}</p>`).join('')||'<p class="muted">Внесите грамоты на вкладке «Фракции».</p>'}</div></div><div class="pagehead" style="margin-top:24px"><h2 id="companyHeroes">Герои компании</h2>${!player?'<button onclick="editMember()">Создать героя</button>':''}</div><div class="cards">${companyHeroRows().map(m=>`<article class="card" data-hero="${esc(m.id)}"><div class="eyebrow">${esc(m.role||'Участник')}</div>${safeImage(m.image)?`<img class="portal-image portrait" style="border-radius:5px;margin:8px 0" src="${esc(safeImage(m.image))}" alt="Портрет">`:''}<h3>${esc(memberName(m))} ${!player?`<button class="ghost quick-pencil" title="Переименовать персонажа" onclick="renameHero(${jsid(m.id)})">✎</button>`:''}</h3>${affiliationBadge(m)}${personAchievements('hero',m.id)}${m.bio?`<p class="record-body">${esc(m.bio)}</p>`:''}<p>Выживание: ${signed(guideModifier(m))}</p><span class="tag">${m.active?'В отряде':'Не участвует в переходах'}</span>${companyHeroActions(m)}</article>`).join('')||'<p class="muted">Героев пока нет.</p>'}</div></div>`}
 function editCompany(){if(player)return;const c=S.company;openModal('Вольная компания',`<form id="cForm">${field('Название','cn',c.name,'text','required')}${field('Год после открытия Тёмного портала','cy',c.year,'number','min="1" required')}${field('День кампании','cday',c.day,'number','min="1" required')}${field('Казна, зм','cg',c.gold,'number','min="0" step="0.01" required')}${area('Описание хартии','cnotes',c.notes)}${controls()}</form>`);$('cForm').onsubmit=e=>{e.preventDefault();c.name=val('cn').trim()||'Вольная компания';if(!S.journey){c.year=int(val('cy'),1);c.day=int(val('cday'),1)}c.gold=Math.max(0,n(val('cg')));c.notes=val('cnotes');closeModal();commit()}}
 function treasury(){if(player)return;openModal('Казна компании',`<form id="trForm">${field('Изменение, зм (отрицательное — расход)','ta',0,'number','step="0.01" required')}${field('Назначение','tt','','text','required')}${controls('Записать операцию')}</form>`);$('trForm').onsubmit=e=>{e.preventDefault();const a=n(val('ta'));if(S.company.gold+a<0){toast('Недостаточно средств');return}S.company.gold=Math.round((S.company.gold+a)*100)/100;log('gold',val('tt'),`${a>=0?'+':''}${a} зм. Остаток: ${S.company.gold} зм.`);closeModal();commit()}}
 function advanceTime(){if(player||S.journey)return;openModal('Течение времени',`<form id="timeForm">${field('Дней','td',1,'number','min="1" required')}${field('Причина','tn','Отдых и дела в лагере')}${controls('Продвинуть календарь')}</form>`);$('timeForm').onsubmit=e=>{e.preventDefault();const days=int(val('td'),1);S.company.day+=days;log('time',val('tn')||'Течение времени',`Прошло ${days} дн.`);closeModal();commit()}}
-function editMember(id){if(player)return;const m=id?S.company.members.find(m=>m.id===id):{name:'',role:'',mod:0,active:true,bio:'',image:''};if(!m)return;openModal('Участник компании',`<form id="mForm">${field('Имя персонажа','mn',m.name)}${field('Нарративная роль','mr',m.role)}${affiliationFields('maff','mrank',m)}${field('Модификатор Выживания','mm',m.mod,'number','min="-10" max="30" required')}${area('Короткая биография / заметка о герое','mb',m.bio||'')}<div class="field"><label>Портрет героя</label><input id="mi" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif">${safeImage(m.image)?check('Удалить портрет','mir',false):''}</div>${check('Участвует в путешествиях и жребии','ma',m.active)}${controls()}</form>`);bindAffiliation('maff','mrank');$('mForm').onsubmit=async e=>{e.preventDefault();const form=$('mForm');let image=$('mir')?.checked?'':m.image||'';try{if($('mi').files[0])image=await readImage($('mi').files[0])}catch(err){return toast(err.message)}if($('mForm')!==form)return;const obj={...m,image,bio:val('mb'),id:id||uid(),name:val('mn').trim(),role:val('mr').trim(),mod:int(val('mm'),-10,30),active:$('ma').checked,...readAffiliation('maff','mrank')};if(id)Object.assign(m,obj);else S.company.members.push(obj);closeModal();commit()}}
 function removeMember(id){if(player)return;if(accounts.some(a=>a.heroes.includes(id))||S.company.inventory.some(x=>x.owner==='member:'+id&&x.qty>0)||S.engine.profiles?.[id]?.wallet||S.engine.projects?.some(j=>j.hero===id&&j.status==='active'))return toast('Перед удалением переназначьте аккаунт, имущество и открытые проекты героя.');if(S.journey?.guide===id){toast('Проводник сейчас в пути');return}if(confirm('Удалить участника?')){S.company.members=S.company.members.filter(m=>m.id!==id);commit()}}
 function renderCamp(){$('main').innerHTML=`<div class="screen">${header('Лагерь компании','Четыре ветки развития. Отметки отражают решения за игровым столом.')}<div class="cards">${TALENTS.map(([branch,items])=>`<div class="card"><h3>${esc(branch)}</h3>${items.map((t,i)=>`<div class="row rule"><span class="tag">${i+1}</span><div style="flex:1"><strong>${esc(t)}</strong><br><small>${[100,300,750][i]} зм · ориентировочная стоимость</small></div>${player?`<span class="tag">${S.company.talents[t]?'Открыто':'Закрыто'}</span>`:`<button class="${S.company.talents[t]?'active':''}" onclick="toggleTalent(${jsid(t)})">${S.company.talents[t]?'Открыто':'Отметить'}</button>`}</div>`).join('')}</div>`).join('')}</div><div class="pagehead" style="margin-top:24px"><h2>Специалисты лагеря</h2>${!player?'<button onclick="editStaff()">＋ Специалист</button>':''}</div><div class="cards">${S.company.staff.map(s=>`<div class="card"><h3>${esc(s.name)}</h3><small>${esc(s.role)}</small>${affiliationBadge(s)}<p>${esc(s.desc)}</p>${!player?`<div class="actions"><button onclick="editStaff(${jsid(s.id)})">Изменить</button><button class="danger ghost" onclick="removeStaff(${jsid(s.id)})">Удалить</button></div>`:''}</div>`).join('')||'<div class="empty">Специалистов пока нет.</div>'}</div></div>`}
 function toggleTalent(t){if(player)return;const branch=TALENTS.find(b=>b[1].includes(t))?.[1];if(!branch)return;const i=branch.indexOf(t),v=!!S.company.talents[t];if(!v&&i>0&&!S.company.talents[branch[i-1]]){toast('Сначала откройте предыдущую ступень');return}if(v&&branch.slice(i+1).some(x=>S.company.talents[x])){toast('Сначала закройте следующие ступени');return}if(!confirm(v?'Закрыть талант?':'Отметить улучшение полученным? Казна автоматически не изменится.'))return;S.company.talents[t]=!v;log('camp',v?'Улучшение закрыто: '+t:'Улучшение лагеря: '+t);commit()}
@@ -1342,9 +1378,49 @@ function ability(p, { stat, skill, tool, mode, dc }, die = dice) {
     success: natural + mod >= dc,
   };
 }
-register("profile", "master", (s, p) => {
+register("profile", "hero", (s, p, actor) => {
+  const master = actor?.role === "master";
+  let member = s.company.members.find((m) => m.id === p.hero);
+  if (p.create) {
+    requireThat(
+      master && !member && validId(p.hero),
+      "Создавать героев может мастер",
+    );
+    member = { id: p.hero, active: true, mod: 0 };
+    s.company.members.push(member);
+  }
   const h = profile(s, p.hero),
     v = p.value;
+  const catalog = economy(s);
+  for (const values of [v.tools, v.professions, v.recipes])
+    requireThat(
+      Array.isArray(values) &&
+        values.every((value) => typeof value === "string" && value.trim()),
+      "Неверное значение справочника",
+    );
+  const professions = [...new Set(v.professions)];
+  const existingProfessions = new Set(h.professions);
+  requireThat(
+    professions.length <= 2 ||
+      (!h.professionsLimited &&
+        professions.every((id) => existingProfessions.has(id))),
+    "Выберите не больше двух профессий",
+  );
+  requireThat(
+    professions.every(
+      (id) =>
+        existingProfessions.has(id) ||
+        catalog.professions.some((row) => row.id === id),
+    ),
+    "Профессия отсутствует в справочнике",
+  );
+  requireThat(
+    v.recipes.every(
+      (id) =>
+        h.recipes.includes(id) || catalog.recipes.some((row) => row.id === id),
+    ),
+    "Рецепт отсутствует в справочнике",
+  );
   integer(v.level, 1, 20);
   for (const k of Object.keys(stats)) integer(v.stats[k], 1, 30);
   for (const [k, n] of Object.entries(v.skills)) {
@@ -1360,11 +1436,27 @@ register("profile", "master", (s, p) => {
     stats: v.stats,
     skills: v.skills,
     tools: v.tools,
-    professions: v.professions,
+    professions,
     recipes: v.recipes,
-    bonus: v.bonus,
-    proficiency: v.proficiency,
+    professionsLimited: professions.length <= 2,
+    bonus: master ? v.bonus : h.bonus,
+    proficiency: master ? v.proficiency : h.proficiency,
   });
+  if (p.member) {
+    const { name, role, bio, image } = p.member;
+    requireThat(
+      [name, role, bio, image].every((field) => typeof field === "string"),
+      "Проверьте поля героя",
+    );
+    requireThat(name.trim() || role.trim(), "Укажите имя или роль героя");
+    Object.assign(member, { name: name.trim(), role: role.trim(), bio, image });
+    if (master) {
+      const { active, mod, faction, factionRank } = p.member;
+      if (mod != null) integer(mod, -10, 30);
+      if (faction) byId(s.factions, faction);
+      Object.assign(member, { active: !!active, mod, faction, factionRank });
+    }
+  }
 });
 register("roll", "hero", (s, p) => {
   const h = profile(s, p.hero);
@@ -1531,70 +1623,314 @@ function commandForm(title, fields, name, get, label) {
   const key = crypto.randomUUID();
   form(title, fields, async () => execute(name, await get(), key), label);
 }
-function profileForm() {
-  const hero = chosen(),
-    p = profile(S, hero);
-  const group = (name, body) =>
-    "<details><summary>" + name + "</summary>" + body + "</details>";
-  commandForm(
-    "Профиль героя",
-    input("Уровень", "lvl", "number", p.level, 'min="1" max="20"') +
-      input("Раса", "race", "text", p.race || "") +
-      input("Класс", "heroClass", "text", p.class || "") +
-      group(
-        "Характеристики",
-        opts(stats)
-          .map(([k, l]) =>
-            input(l, k, "number", p.stats[k], 'min="1" max="30"'),
-          )
-          .join(""),
-      ) +
-      group(
-        "Владения навыками",
-        Object.keys(skills)
-          .map((k, i) =>
-            pick(
-              k,
-              "sk" + i,
-              [
-                [0, "Нет"],
-                [1, "Владение"],
-                [2, "Компетентность"],
-              ],
-              p.skills[k] || 0,
-            ),
-          )
-          .join(""),
-      ) +
-      input("Инструменты через запятую", "tools", "text", p.tools.join(", ")) +
-      input("Профессии (ID)", "prof", "text", p.professions.join(", ")) +
-      input("Рецепты (ID)", "rec", "text", p.recipes.join(", ")) +
-      input("Поправка к проверкам", "bonus", "number", p.bonus) +
-      input(
-        "Бонус владения (пусто — по уровню)",
-        "bv",
-        "number",
-        p.proficiency ?? "",
-      ),
-    "profile",
-    () => ({
-      hero,
-      value: {
-        race: val("race"),
-        class: val("heroClass"),
-        level: num("lvl"),
-        stats: Object.fromEntries(Object.keys(stats).map((k) => [k, num(k)])),
-        skills: Object.fromEntries(
-          Object.keys(skills).map((k, i) => [k, num("sk" + i)]),
-        ),
-        tools: listText("tools"),
-        professions: listText("prof"),
-        recipes: listText("rec"),
-        bonus: num("bonus"),
-        proficiency: val("bv") === "" ? null : num("bv"),
-      },
-    }),
+const heroToolChoices = [
+  "Набор для грима",
+  "Набор для фальсификации",
+  "Набор травника",
+  "Инструменты навигатора",
+  "Инструменты отравителя",
+  "Воровские инструменты",
+];
+function heroFormSection(id, title, fields, expanded = false) {
+  return (
+    '<details id="' +
+    id +
+    '"' +
+    (expanded ? " open" : "") +
+    "><summary>" +
+    esc(title) +
+    '</summary><div class="hero-form-fields">' +
+    fields +
+    "</div></details>"
   );
+}
+function heroChecklist(name, choices, selected) {
+  return (
+    '<div class="hero-checklist">' +
+    choices
+      .map(
+        ([value, label]) =>
+          '<label class="checkline"><input type="checkbox" name="' +
+          name +
+          '" value="' +
+          esc(value) +
+          '"' +
+          (selected.includes(value) ? " checked" : "") +
+          ">" +
+          esc(label) +
+          "</label>",
+      )
+      .join("") +
+    "</div>"
+  );
+}
+function editMember(id, focusSection) {
+  const master = actor?.role === "master";
+  if (!actor || (id ? !owned(actor, id) : !master)) return;
+  const member = id ? heroOf(S, id) : {};
+  const p = id
+    ? profile(S, id)
+    : {
+        level: 1,
+        stats: Object.fromEntries(Object.keys(stats).map((k) => [k, 10])),
+        skills: {},
+        tools: [],
+        professions: [],
+        recipes: [],
+        bonus: 0,
+      };
+  const catalog = economy(S);
+  const hero = id || uid(),
+    key = crypto.randomUUID();
+  const byName = (a, b) => a[1].localeCompare(b[1], "ru");
+  const unlisted = (rows, selected) =>
+    selected.filter((value) => !rows.some(([key]) => key === value));
+  const professions = pairs(catalog.professions).sort(byName);
+  const recipes = pairs(catalog.recipes).sort(byName);
+  const tools = [
+    ...new Set([
+      ...heroToolChoices,
+      ...p.tools,
+      ...catalog.professions.flatMap((entry) => entry.tools || []),
+      ...catalog.recipes.flatMap((entry) => entry.tools || []),
+    ]),
+  ].sort((a, b) => a.localeCompare(b, "ru"));
+  const oldProfessions = unlisted(professions, p.professions);
+  const oldRecipes = unlisted(recipes, p.recipes);
+  const describeMissing = (values) =>
+    values.map((value, index) => [
+      value,
+      "Запись из сохранения " + (index + 1),
+    ]);
+  const professionOptions = (kind) =>
+    professions.filter(
+      ([key]) => (byId(catalog.professions, key).kind || "production") === kind,
+    );
+  form(
+    id ? "Настройка героя" : "Создание героя",
+    '<div class="hero-form">' +
+      heroFormSection(
+        "heroIdentity",
+        "Герой",
+        '<div class="hero-field-grid">' +
+          input("Имя", "mn", "text", member.name || "") +
+          input("Роль в компании", "mr", "text", member.role || "") +
+          input("Раса", "race", "text", p.race || "") +
+          input("Класс", "heroClass", "text", p.class || "") +
+          input(
+            "Уровень",
+            "lvl",
+            "number",
+            p.level,
+            'min="1" max="20" required',
+          ) +
+          "</div>",
+        true,
+      ) +
+      heroFormSection(
+        "heroStatsSection",
+        "Характеристики",
+        '<div class="hero-field-grid">' +
+          opts(stats)
+            .map(([k, label]) =>
+              input(
+                label,
+                k,
+                "number",
+                p.stats[k],
+                'min="1" max="30" required',
+              ),
+            )
+            .join("") +
+          "</div>",
+        true,
+      ) +
+      heroFormSection(
+        "heroSkills",
+        "Навыки",
+        '<div class="hero-field-grid">' +
+          Object.keys(skills)
+            .map((label, i) =>
+              pick(
+                label,
+                "sk" + i,
+                [
+                  [0, "Без владения"],
+                  [1, "Владение"],
+                  [2, "Компетентность"],
+                ],
+                p.skills[label] || 0,
+              ),
+            )
+            .join("") +
+          "</div>",
+      ) +
+      heroFormSection(
+        "heroProfessions",
+        "Профессии",
+        '<p id="heroProfessionCount" class="muted" aria-live="polite"></p>' +
+          "<h3>Добывающие</h3>" +
+          heroChecklist(
+            "heroProfession",
+            professionOptions("gathering"),
+            p.professions,
+          ) +
+          "<h3>Производственные</h3>" +
+          heroChecklist(
+            "heroProfession",
+            professionOptions("production"),
+            p.professions,
+          ) +
+          (oldProfessions.length
+            ? "<h3>Нет в справочнике</h3>" +
+              heroChecklist(
+                "heroProfession",
+                describeMissing(oldProfessions),
+                p.professions,
+              )
+            : ""),
+      ) +
+      heroFormSection(
+        "heroTraining",
+        "Инструменты и известные рецепты",
+        "<h3>Владение инструментами</h3>" +
+          heroChecklist(
+            "heroTool",
+            tools.map((name) => [name, name]),
+            p.tools,
+          ) +
+          "<h3>Известные рецепты</h3>" +
+          (recipes.length || oldRecipes.length
+            ? heroChecklist(
+                "heroRecipe",
+                [...recipes, ...describeMissing(oldRecipes)],
+                p.recipes,
+              )
+            : '<p class="muted">Рецепты появятся после заполнения книги рецептов.</p>'),
+      ) +
+      heroFormSection(
+        "heroPortrait",
+        "Портрет и биография",
+        area("Биография", "mb", member.bio || "") +
+          input("Портрет", "mi", "file", "", "accept=image/*") +
+          (safeImage(member.image)
+            ? check("Удалить портрет", "mir", false)
+            : ""),
+      ) +
+      (master
+        ? heroFormSection(
+            "heroMaster",
+            "Настройки мастера",
+            affiliationFields("maff", "mrank", member) +
+              input(
+                "Выживание для переходов (пусто — из характеристик)",
+                "mm",
+                "number",
+                member.mod ?? "",
+                'min="-10" max="30"',
+              ) +
+              input(
+                "Поправка к проверкам",
+                "bonus",
+                "number",
+                p.bonus,
+                'min="-100" max="100" required',
+              ) +
+              input(
+                "Бонус владения (пусто — по уровню)",
+                "bv",
+                "number",
+                p.proficiency ?? "",
+                'min="0" max="20"',
+              ) +
+              check(
+                "Участвует в путешествиях и жребии",
+                "ma",
+                member.active ?? true,
+              ),
+          )
+        : "") +
+      "</div>",
+    async () => {
+      const fields = $("engineForm");
+      const checklist = (name) =>
+        [...fields.querySelectorAll('input[name="' + name + '"]:checked')].map(
+          (el) => el.value,
+        );
+      let image = $("mir")?.checked ? "" : member.image || "";
+      if ($("mi").files[0]) image = await readImage($("mi").files[0]);
+      if (fields !== $("engineForm")) return;
+      await execute(
+        "profile",
+        {
+          hero,
+          create: !id,
+          member: {
+            name: val("mn"),
+            role: val("mr"),
+            bio: val("mb"),
+            image,
+            ...(master
+              ? {
+                  ...readAffiliation("maff", "mrank"),
+                  mod: val("mm") === "" ? null : num("mm"),
+                  active: $("ma").checked,
+                }
+              : {}),
+          },
+          value: {
+            race: val("race"),
+            class: val("heroClass"),
+            level: num("lvl"),
+            stats: Object.fromEntries(
+              Object.keys(stats).map((k) => [k, num(k)]),
+            ),
+            skills: Object.fromEntries(
+              Object.keys(skills).map((k, i) => [k, num("sk" + i)]),
+            ),
+            tools: checklist("heroTool"),
+            professions: checklist("heroProfession"),
+            recipes: checklist("heroRecipe"),
+            bonus: master ? num("bonus") : p.bonus,
+            proficiency: master
+              ? val("bv") === ""
+                ? null
+                : num("bv")
+              : p.proficiency,
+          },
+        },
+        key,
+      );
+      activeHero = hero;
+      render();
+    },
+    id ? "Сохранить героя" : "Создать героя",
+  );
+  if (master) bindAffiliation("maff", "mrank");
+  const checks = [
+    ...$("heroProfessions").querySelectorAll('input[type="checkbox"]'),
+  ];
+  const sync = () => {
+    const count = checks.filter((el) => el.checked).length;
+    for (const el of checks) el.disabled = !el.checked && count >= 2;
+    $("heroProfessionCount").textContent =
+      count > 2
+        ? "Ранее изучено " +
+          count +
+          " профессий. Чтобы добавить новую, сначала освободите место."
+        : "Выбрано " + count + " из 2";
+  };
+  for (const el of checks) el.onchange = sync;
+  sync();
+  if (focusSection && $(focusSection)) {
+    $(focusSection).open = true;
+    $(focusSection).scrollIntoView({ block: "nearest" });
+  }
+}
+function guideModifier(member) {
+  if (member.mod != null) return n(member.mod);
+  const p = profile(S, member.id);
+  return ability(p, { skill: "Выживание" }, () => 1).mod;
 }
 function rollForm() {
   const hero = chosen(),
@@ -1855,7 +2191,7 @@ function phasePanel() {
       button("Создать регион", () => regionForm()),
       button("Нарисовать границу", drawRegion),
     );
-  if (hero && gm) a.append(button("Профиль героя", profileForm));
+
   if (hero && owned(actor, hero)) {
     a.append(button("Бросок", rollForm));
     const last = e.rolls.find((r) => r.hero === hero);
@@ -1876,6 +2212,46 @@ function phasePanel() {
   for (const fn of actions) fn(a, { gm, hero, t, e, box });
 }
 onRender.push(phasePanel);
+
+function companyHeroRows() {
+  const members = S.company.members.filter(
+    (m) => !player || !m.hidden || owned(actor, m.id),
+  );
+  if (!player) return members;
+  return [
+    ...members.filter((m) => owned(actor, m.id)),
+    ...members.filter((m) => !owned(actor, m.id)),
+  ];
+}
+function companyHeroActions(member) {
+  if (!owned(actor, member.id)) return "";
+  const id = jsid(member.id);
+  return (
+    '<div class="actions">' +
+    (chosen() === member.id
+      ? '<span class="tag">Активный герой</span>'
+      : '<button onclick="selectCompanyHero(' +
+        id +
+        ')">Сделать активным</button>') +
+    '<button class="primary" onclick="editMember(' +
+    id +
+    ')">Настроить героя</button>' +
+    "<button onclick=\"openAffPerson('hero'," +
+    id +
+    ')">Карточка</button>' +
+    (!player
+      ? '<button class="danger ghost" onclick="removeMember(' +
+        id +
+        ')">Удалить</button>'
+      : "") +
+    "</div>"
+  );
+}
+function selectCompanyHero(id) {
+  if (!owned(actor, id)) return;
+  activeHero = id;
+  render();
+}
 
 const rulebook = {
   "professions": [
@@ -3412,9 +3788,13 @@ function byId(rows, id) {
   requireThat(x, "Не найдена запись " + id);
   return x;
 }
+function learnedProfession(profile, id) {
+  return !profile.professionsLimited || profile.professions.includes(id);
+}
 function eligibleProfession(s, h, id) {
   const p = byId(economy(s).professions, id);
   return (
+    learnedProfession(h, id) &&
     (!p.skill || !!h.skills[p.skill]) &&
     (!p.tools?.length || p.tools.some((t) => h.tools.includes(t)))
   );
@@ -6090,6 +6470,14 @@ function manageUsers() {
 const baseAccountMenu = accountMenu;
 accountMenu = function () {
   baseAccountMenu();
+  if (heroRows().length || actor.role === "master")
+    $("accountActions").append(
+      button(actor.role === "master" ? "Герои компании" : "Мои герои", () => {
+        closeModal();
+        switchTab("company");
+        $("companyHeroes")?.scrollIntoView({ block: "start" });
+      }),
+    );
   if (actor.role === "master")
     $("accountActions").append(
       button("Управление пользователями", manageUsers),
@@ -6341,7 +6729,6 @@ onRender.push(() => {
   if (!feed) return;
   const extras = [...feed.querySelectorAll("button")].filter((b) =>
     [
-      "Профиль героя",
       "Разбить стоянку",
       "Сменить фазу",
       "Последствия сессии",
@@ -6533,7 +6920,10 @@ function activityState(hero, profession, stay) {
     payload.carcasses = eligible;
   }
   try {
-    if (!eligibleProfession(S, profile(S, hero), profession.id))
+    const heroProfile = profile(S, hero);
+    if (!learnedProfession(heroProfile, profession.id))
+      return { reason: "Профессия не изучена" };
+    if (!eligibleProfession(S, heroProfile, profession.id))
       return { reason: professionRequirements(profession) };
     const details = gatheringDetails(S, payload);
     return { payload, details };
@@ -6870,6 +7260,8 @@ function recipeAvailability(hero, p, r, quote) {
   const profession = S.engine.professions.find((v) => v.id === r.profession_id);
   if (!knownRecipe(p, r)) reasons.push("Рецепт не изучен");
   if (!profession) reasons.push("Профессия отсутствует в справочнике");
+  else if (!learnedProfession(p, profession.id))
+    reasons.push("Профессия не изучена");
   else if (!eligibleProfession(S, p, profession.id))
     reasons.push(professionRequirements(profession));
   if (professionRank(p, r.profession_id) < (r.rank || 2))
@@ -6930,10 +7322,35 @@ function renderCraft() {
   if (craftTab === "recipes") renderRecipeList(root, hero);
   if (craftTab === "projects") renderProjects(root, hero);
 }
+let professionGroup = "gathering";
 function renderProfessionCards(root, hero) {
+  root.replaceChildren();
   const p = hero ? profile(S, hero) : null;
-  root.className = "activity-grid";
+  root.className = "stack";
+  const tabs = document.createElement("div");
+  tabs.className = "actions game-tabs";
+  const grid = document.createElement("div");
+  grid.className = "activity-grid";
+  root.append(tabs, grid);
+  for (const [kind, label] of [
+    ["gathering", "Добывающие"],
+    ["production", "Производственные"],
+  ]) {
+    const tab = button(label, () => {
+      professionGroup = kind;
+      renderProfessionCards(root, hero);
+    });
+    tab.setAttribute("aria-pressed", String(kind === professionGroup));
+    tabs.append(tab);
+  }
+  if (hero && owned(actor, hero))
+    tabs.append(
+      button("Настроить профессии героя", () =>
+        editMember(hero, "heroProfessions"),
+      ),
+    );
   for (const profession of S.engine.professions) {
+    if ((profession.kind || "production") !== professionGroup) continue;
     const eligible = p && eligibleProfession(S, p, profession.id);
     const rank = eligible ? professionRank(p, profession.id) : 0;
     const known = S.engine.recipes.filter(
@@ -6954,7 +7371,9 @@ function renderProfessionCards(root, hero) {
           (p
             ? eligible
               ? " · " + (professionRanks[rank - 2] || "БВ +" + rank)
-              : " · Недоступна герою"
+              : learnedProfession(p, profession.id)
+                ? " · Не хватает владения"
+                : " · Не изучена"
             : ""),
       ) +
       "</small>" +
@@ -6995,8 +7414,10 @@ function renderProfessionCards(root, hero) {
         ),
       );
     card.append(controls);
-    root.append(card);
+    grid.append(card);
   }
+  if (!grid.children.length)
+    grid.textContent = "В этой группе пока нет профессий.";
 }
 function renderRecipeList(root, hero) {
   root.className = "";
@@ -7454,7 +7875,8 @@ function heroStats() {
       '<small>Книга игрока 2024 · с. 10, 14</small><div class="actions" id="statActions"></div>',
   );
   $("statActions").append(button("Сделать проверку", rollForm));
-  if (!player) $("statActions").append(button("Изменить профиль", profileForm));
+  if (owned(actor, id))
+    $("statActions").append(button("Настроить героя", () => editMember(id)));
 }
 function renderWorkshop() {
   if (player) {

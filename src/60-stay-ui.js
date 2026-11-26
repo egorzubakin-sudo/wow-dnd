@@ -152,7 +152,10 @@ function activityState(hero, profession, stay) {
     payload.carcasses = eligible;
   }
   try {
-    if (!eligibleProfession(S, profile(S, hero), profession.id))
+    const heroProfile = profile(S, hero);
+    if (!learnedProfession(heroProfile, profession.id))
+      return { reason: "Профессия не изучена" };
+    if (!eligibleProfession(S, heroProfile, profession.id))
       return { reason: professionRequirements(profession) };
     const details = gatheringDetails(S, payload);
     return { payload, details };
