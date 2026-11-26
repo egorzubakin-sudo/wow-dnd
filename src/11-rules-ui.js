@@ -569,19 +569,9 @@ function phasePanel() {
         "</p>"
       : "") +
     '<div id="engineActions" class="actions"></div>';
-  $("main").prepend(box);
+  if (tab === "map") $("main").prepend(box);
+  else $("main").append(box);
   const a = $("engineActions");
-  if (hero) {
-    const select = document.createElement("select");
-    select.ariaLabel = "Герой";
-    for (const m of heroRows())
-      select.add(new Option(memberName(m), m.id, false, m.id === hero));
-    select.onchange = () => {
-      activeHero = select.value;
-      render();
-    };
-    a.append(select);
-  }
   if (["home", "camp"].includes(tab))
     a.append(button("К стоянке", () => switchTab("stay")));
   if (gm && tab === "map")

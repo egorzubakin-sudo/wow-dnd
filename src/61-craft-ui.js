@@ -205,6 +205,11 @@ function renderProfessionCards(root, hero) {
     grid.textContent = "В этой группе пока нет профессий.";
 }
 function renderRecipeList(root, hero) {
+  function showRecipeView(open) {
+    root.classList.toggle("mobile-recipe-open", open);
+    if (open) $("recipeBack").focus();
+    else $("recipeList").querySelector('[aria-pressed="true"]')?.focus();
+  }
   root.className = "";
   if (!S.engine.recipes.length) {
     root.innerHTML =
@@ -300,6 +305,7 @@ function renderRecipeList(root, hero) {
     const selected = rows.find((x) => x.r.id === craftRecipe) || rows[0];
     detail.hidden = !selected;
     if (!selected) {
+      root.classList.remove("mobile-recipe-open");
       list.textContent = "Рецепты по выбранным фильтрам не найдены.";
       return;
     }
@@ -308,8 +314,7 @@ function renderRecipeList(root, hero) {
       const b = button(row.r.name, () => {
         craftRecipe = row.r.id;
         refresh();
-        if (matchMedia("(max-width: 700px)").matches)
-          $("recipeDetail").scrollIntoView({ block: "start" });
+        if (matchMedia("(max-width: 700px)").matches) showRecipeView(true);
       });
       b.className = "recipe-option";
       b.setAttribute("aria-pressed", String(row === selected));
@@ -332,6 +337,10 @@ function renderRecipeList(root, hero) {
       list.append(b);
     }
     renderRecipeDetail(detail, hero, p, selected.r, selected.item);
+    const back = button("К списку рецептов", () => showRecipeView(false));
+    back.className = "recipe-back";
+    back.id = "recipeBack";
+    detail.prepend(back);
   }
   for (const id of [
     "recipeQuery",

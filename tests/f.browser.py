@@ -7,6 +7,9 @@ prototype.wait_for_function("document.querySelector('#main').children.length>0")
 img='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+rRFkAAAAASUVORK5CYII='
 prototype.evaluate("""(image)=>{loadDemo();S.company.members[0].name='Рудокоп';S.company.members[1].name='Кузнец';S.company.members[0].image=image;S.company.inventory.push({id:'old-item',name:'Старая кирка',quality:'common',category:'Снаряжение',qty:2,image,owner:'member:'+S.company.members[0].id});S.portal.codex.push({id:'secret',title:'СЕКРЕТ-ЛЕТА',hidden:true});commit()}""",img)
 def exported(pg):
+    operations=pg.locator('#atlasOperations')
+    if operations.count() and not pg.locator('#exportBtn').is_visible():
+        operations.locator('summary').click()
     with pg.expect_download() as d: pg.locator('#exportBtn').click()
     return json.loads(Path(d.value.path()).read_text())
 campaign=exported(prototype)
@@ -131,6 +134,14 @@ page.locator('#uxQuery').fill('СЕКРЕТ-ЛЕТА')
 assert 'СЕКРЕТ-ЛЕТА' not in page.locator('#modalBody').inner_text()
 page.evaluate('closeModal()')
 tab('stay')
+import os
+if os.environ.get('ATLAS_REVIEW_DIR'):
+    page.evaluate("window.scrollTo(0,0);$('toast').classList.add('hidden')")
+    review_size=page.viewport_size
+    for width in (1280,390):
+        page.set_viewport_size({'width':width,'height':920})
+        page.screenshot(path=f"{os.environ['ATLAS_REVIEW_DIR']}/active-stay-{width}.png",animations='disabled')
+    page.set_viewport_size(review_size)
 assert page.locator('#gameHero').count()==0
 page.locator('#activitiesGrid button').filter(has_text='Горное дело').click()
 assert 'Сл ' not in page.locator('#activityCheck').inner_text()
@@ -139,7 +150,8 @@ assert 'Медная руда × 4' in page.locator('#modalBody').inner_text()
 assert 'Сл ' not in page.locator('#modalBody').inner_text()
 assert page.evaluate("currentStay(S).spent[actor.heroes[0]]")==1
 btn('Открыть сумки')
-btn('◆ Медная руда × 4')
+btn('Медная руда × 4')
+btn('Передать или разделить')
 page.locator('#to').select_option(smith)
 page.locator('#qty').fill('2')
 submit()
@@ -167,6 +179,7 @@ signout()
 signin('gm')
 page.evaluate("(id)=>{S.company.members.find(h=>h.id===id).name='Мастер кузни';commit()}",smith)
 tab('stay')
+page.locator('#stayAdminLink summary').click()
 btn('Управление стоянкой')
 btn('Завершить стоянку')
 submit()
@@ -190,7 +203,10 @@ page.set_viewport_size({'width':390,'height':844})
 tab('craft')
 btn('Книга рецептов')
 assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth')
+page.locator('#recipeList .recipe-option').first.click()
 assert page.locator('#recipeDetail').is_visible()
+btn('К списку рецептов')
+assert page.locator('#recipeList').is_visible() and not page.locator('#recipeDetail').is_visible()
 assert page.locator('#nav .nav-scroll').count()==2
 # Verify that the authoritative store is written before reloading.
 wait_for_db(page,"async()=>!!(await dbGet())?.journey")

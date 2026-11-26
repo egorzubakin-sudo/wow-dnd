@@ -472,9 +472,1215 @@ body:has(.modalwrap.open) .ux-ach-popup {
 .hero-checklist input {
   flex: none;
 }
+
+/* Atlas portal */
+:root {
+  --scene-gold: #eed199;
+  --scene-accent: #bda268;
+  --scene-ink: #ebe4d4;
+  --scene-muted: #b9bdac;
+  --scene-green: #18241e;
+  --scene-panel: #202b23;
+  --scene-line: #84714c67;
+  --scene-radius: 0.62rem;
+  --scene-space: clamp(0.8rem, 2.4vw, 1.6rem);
+  --scene-title: Georgia, "Times New Roman", serif;
+}
+body {
+  background: radial-gradient(
+    ellipse at 48% 0%,
+    #202c22 0,
+    #151d18 48rem,
+    #101813 100%
+  );
+  color: var(--scene-ink);
+  font-size: 0.95rem;
+}
+.header {
+  max-width: 1380px;
+  margin: auto;
+  padding: 0.75rem clamp(0.8rem, 3vw, 2rem);
+  gap: 0.7rem;
+  background: transparent;
+  border: 0;
+}
+.brand {
+  min-width: 0;
+}
+.brand .eyebrow {
+  color: var(--scene-accent);
+}
+.brand h1 {
+  font-family: var(--scene-title);
+}
+.head-actions {
+  flex: 0 1 auto;
+  align-items: center;
+}
+.head-actions #modeBtn {
+  background: #252d23;
+  color: var(--scene-gold);
+}
+#uxTools {
+  max-width: 1380px;
+  margin-inline: auto;
+  border: 0;
+  background: transparent;
+  padding: 0.15rem clamp(0.8rem, 3vw, 2rem) 0.5rem;
+  align-items: center;
+}
+#uxTools button {
+  font-size: 0.83rem;
+  min-height: 2.3rem;
+  padding-inline: 0.74rem;
+}
+#status {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0.6rem clamp(0.8rem, 3vw, 2rem);
+  background: #1e2b23;
+  border: 0;
+  border-bottom: 1px solid var(--scene-line);
+  align-items: center;
+}
+.status-campaign,
+.status-location,
+.status-hero {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.7rem;
+  align-items: center;
+}
+.status-campaign strong {
+  color: var(--scene-gold);
+}
+.status-hero {
+  margin-inline-start: auto;
+}
+.status-hero .field {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0;
+}
+.status-hero .field select {
+  width: auto;
+  max-width: min(150px, 42vw);
+}
+.phase-indicator {
+  display: inline-flex;
+  font-weight: 650;
+  color: #e6ddb9;
+  background: #554627;
+  border-radius: 2rem;
+  padding: 0.15rem 0.56rem;
+}
+.phase-stay {
+  background: #354b33;
+  color: #d7e6b3;
+}
+.phase-travel {
+  background: #2b4350;
+  color: #c7e5ee;
+}
+#nav {
+  max-width: 1380px;
+  margin: 0 auto;
+  position: relative;
+  background: transparent;
+}
+#nav[hidden],
+[hidden] {
+  display: none !important;
+}
+.nav-band {
+  background: #202e26;
+}
+.nav-band:last-child {
+  background: #302a1e;
+}
+.nav-band-label {
+  flex-basis: 6.6rem;
+  color: #b8c7ad;
+  font-size: 0.72rem;
+  letter-spacing: 0.09em;
+}
+.nav-band-label small {
+  display: none;
+}
+.nav-scroll {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.nav-tab {
+  min-height: 3.05rem;
+  font-size: 0.78rem;
+}
+.nav-tab[aria-current] {
+  color: #f3ddaf;
+  box-shadow: inset 0 -2px #c2a15d;
+  background: #65503366;
+}
+.scene-empty {
+  padding: var(--scene-space);
+  color: var(--scene-muted);
+  text-align: left;
+  border-left: 2px solid var(--scene-line);
+}
+.scene-empty .actions,
+.scene-empty button {
+  margin-top: 0.5rem;
+}
+.visual-screen {
+  display: grid;
+  align-content: start;
+  gap: var(--scene-space);
+  min-height: 0;
+}
+.section-cover {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem 1.5rem;
+  align-items: end;
+  justify-content: space-between;
+  isolation: isolate;
+  padding: clamp(1rem, 3vw, 2.5rem) var(--scene-space);
+  border-bottom: 1px solid var(--scene-line);
+  background: linear-gradient(110deg, #293527, #202c233e 64%, #1f291a73);
+  border-radius: var(--scene-radius) var(--scene-radius) 0 0;
+}
+.section-cover > .section-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  height: 100%;
+  width: 100%;
+  aspect-ratio: auto;
+  border-radius: inherit;
+}
+.section-cover:has(> .has-art)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0d1713ee, #17241aa0 65%, #101b14b0);
+}
+.section-cover h2 {
+  color: var(--scene-gold);
+  margin: 0;
+  font: 500 clamp(1.8rem, 4.2vw, 3.55rem) / 1.06 var(--scene-title);
+}
+.section-cover p {
+  margin: 0.45rem 0 0;
+  color: var(--scene-muted);
+}
+.section-cover-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.section-art {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #d0b678;
+  background:
+    radial-gradient(ellipse at 58% 24%, #50604799, #1d2b219e 70%),
+    linear-gradient(145deg, #252b22, #18231b);
+}
+.section-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.section-art > span {
+  font: 500 clamp(1.5rem, 5vw, 4.3rem) / 1 var(--scene-title);
+  opacity: 0.65;
+}
+.art-portrait {
+  aspect-ratio: 3 / 4;
+}
+.art-portrait img {
+  object-position: 50% 32%;
+}
+.art-cover {
+  aspect-ratio: 16 / 9;
+}
+.art-emblem {
+  aspect-ratio: 1;
+}
+.visual-menu {
+  position: relative;
+  display: inline-block;
+  flex: 0 0 auto;
+}
+.visual-menu[open] {
+  z-index: 5;
+}
+.visual-menu summary {
+  display: grid;
+  place-items: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0 0.45rem;
+  list-style: none;
+  font-size: 1.24rem;
+  line-height: 1;
+  color: var(--scene-gold);
+  background: #19241eea;
+  border: 1px solid var(--scene-line);
+  border-radius: 0.37rem;
+  cursor: pointer;
+}
+.visual-menu summary::-webkit-details-marker {
+  display: none;
+}
+.visual-menu summary:hover,
+.visual-menu[open] summary {
+  background: #453d28;
+}
+.visual-menu-panel {
+  position: absolute;
+  inset-inline-end: 0;
+  top: calc(100% + 0.25rem);
+  z-index: 5;
+  display: grid;
+  min-width: max-content;
+  max-width: min(78vw, 300px);
+  gap: 0.18rem;
+  padding: 0.3rem;
+  border: 1px solid #8f7951;
+  border-radius: 0.4rem;
+  background: #1c2820;
+  box-shadow: 0 8px 27px #070d0abe;
+}
+.visual-menu-panel button {
+  display: block;
+  text-align: start;
+  white-space: normal;
+  font-size: 0.88rem;
+  border-color: transparent;
+  background: transparent;
+}
+.visual-menu-panel button:hover {
+  background-color: #51462e;
+}
+.visual-card:has(.visual-menu[open]) {
+  z-index: 3;
+}
+.visual-card-menu {
+  position: absolute;
+  top: 0.5rem;
+  inset-inline-end: 0.5rem;
+}
+.visual-filters {
+  display: flex;
+  gap: 0.55rem 0.7rem;
+  flex-wrap: wrap;
+  align-items: end;
+}
+.visual-filters > input {
+  flex: 1 1 12rem;
+  max-width: 28rem;
+}
+.visual-filters .field {
+  flex: 1 1 8rem;
+  min-width: 0;
+  max-width: 16rem;
+  margin: 0;
+}
+.visual-filters .field label {
+  margin: 0 0 0.22rem;
+}
+.visual-filters .visual-switch {
+  margin-inline-start: auto;
+}
+.visual-card {
+  position: relative;
+  min-width: 0;
+  border: 1px solid var(--scene-line);
+  border-radius: var(--scene-radius);
+  background: var(--scene-panel);
+}
+.visual-card:has(.visual-open:hover) {
+  border-color: #a58a55;
+  background: #293328;
+}
+.visual-open {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  color: inherit;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  text-align: start;
+}
+.visual-open:hover {
+  background: transparent;
+}
+.visual-open > .section-art {
+  border-radius: var(--scene-radius) var(--scene-radius) 0 0;
+}
+.visual-open strong {
+  color: var(--scene-gold);
+  font: 500 1.28rem/1.2 var(--scene-title);
+}
+.visual-open small {
+  display: block;
+  color: var(--scene-muted);
+  line-height: 1.4;
+}
+.people-gallery,
+.faction-gallery,
+.codex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 178px), 1fr));
+  align-items: start;
+  gap: clamp(0.55rem, 1.8vw, 1.1rem);
+}
+.person-card {
+  background: #1c291f;
+}
+.person-open {
+  height: auto;
+}
+.person-info {
+  display: grid;
+  padding: 0.75rem;
+  gap: 0.2rem;
+}
+.person-info > span {
+  color: #e5dbc4;
+}
+.people-gallery.is-list {
+  grid-template-columns: minmax(0, 1fr);
+}
+.people-gallery.is-list .person-open {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr);
+  align-items: center;
+}
+.people-gallery.is-list .section-art {
+  border-radius: var(--scene-radius) 0 0 var(--scene-radius);
+}
+.people-gallery.is-list .person-info {
+  padding-inline-end: 3.3rem;
+}
+.dossier {
+  display: grid;
+  grid-template-columns: minmax(155px, 2fr) minmax(0, 5fr);
+  gap: var(--scene-space);
+}
+.dossier aside {
+  display: grid;
+  gap: 0.55rem;
+  align-content: start;
+  min-width: 0;
+}
+.dossier aside .section-art {
+  border-radius: var(--scene-radius);
+}
+.dossier-copy {
+  display: grid;
+  gap: 1rem;
+}
+.dossier-copy h3,
+.reader h3 {
+  color: var(--scene-gold);
+  margin: 0.6rem 0 0.4rem;
+}
+.dossier .actions,
+.reader .actions {
+  justify-content: flex-start;
+}
+.reader {
+  max-width: 70ch;
+  margin-inline: auto;
+  width: 100%;
+  line-height: 1.65;
+}
+.reader .record-body {
+  font-size: 1rem;
+  line-height: 1.68;
+  margin-block: 0.5rem;
+}
+.reader .section-art {
+  border-radius: var(--scene-radius);
+  margin-bottom: 1rem;
+}
+.reader-meta {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
+}
+.reader-toc {
+  display: grid;
+  align-content: start;
+  justify-items: start;
+  gap: 0.15rem;
+  border-left: 2px solid #a38a55;
+  margin-block: 1rem;
+  padding-left: 0.65rem;
+}
+.reader-toc button {
+  text-align: start;
+}
+.modal-tools {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.4rem;
+}
+.modal:has(.dossier, .faction-dossier, .codex-reader, .quest-paper) {
+  width: min(850px, 100%);
+}
+.modal .modal-head {
+  gap: 0.75rem;
+}
+.modal .modal-head h2 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.modal .modal-head button {
+  font-size: 1.3rem;
+  min-width: 2.6rem;
+  min-height: 2.6rem;
+}
+.faction-gallery {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 235px), 1fr));
+}
+.faction-overview .art-cover {
+  aspect-ratio: 16/9;
+}
+.faction-overview:nth-child(3n + 1) .art-cover:not(.has-art) {
+  background: radial-gradient(ellipse at 70% 22%, #75664d, #383426 72%);
+}
+.faction-overview:nth-child(3n + 2) .art-cover:not(.has-art) {
+  background: radial-gradient(ellipse at 65% 20%, #436267, #253d40 74%);
+}
+.faction-overview .visual-open {
+  height: auto;
+}
+.faction-overview .art-cover > span {
+  color: #e3c68f;
+}
+.faction-card-title,
+.item-dossier-title {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.8rem;
+  background: #272f245e;
+}
+.faction-card-title small,
+.item-dossier-title small {
+  display: block;
+  color: var(--scene-muted);
+}
+.faction-card-title .art-emblem,
+.item-dossier-title .art-emblem {
+  width: 3.2rem;
+  flex: none;
+  border: 1px solid var(--scene-line);
+  border-radius: 0.35rem;
+  margin: 0;
+}
+.faction-card-title .art-emblem > span,
+.item-dossier-title .art-emblem > span {
+  font-size: 1.5rem;
+}
+.faction-card-title > .visual-menu,
+.item-dossier-title > .visual-menu {
+  margin-inline-start: auto;
+}
+.faction-region > h3,
+.quest-chapter > h3 {
+  font: 500 1.45rem/1.25 var(--scene-title);
+  color: var(--scene-gold);
+  margin: 0 0 0.7rem;
+}
+.faction-card-copy {
+  padding: 0 0.9rem 0.85rem;
+}
+.faction-card-copy p {
+  margin-block: 0.6rem;
+}
+.faction-dossier {
+  display: grid;
+  gap: 0.8rem;
+}
+.faction-dossier > .art-cover {
+  aspect-ratio: 3/1;
+  border-radius: var(--scene-radius);
+}
+.faction-links {
+  display: grid;
+  gap: 0.45rem;
+}
+.faction-links button {
+  text-align: start;
+}
+.faction-links .section-art {
+  width: 2.6rem;
+}
+.faction-links small {
+  display: block;
+}
+.visual-guide {
+  padding: 0.75rem;
+  background: #2c352940;
+  border-radius: 0.42rem;
+}
+.visual-guide summary {
+  cursor: pointer;
+  color: var(--scene-gold);
+}
+.codex-category .visual-open > span {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.65rem 0.75rem;
+}
+.codex-category:nth-child(even) .art-cover:not(.has-art) {
+  background: radial-gradient(ellipse at 50% 22%, #66593d, #373222 74%);
+}
+.codex-articles,
+.gazette-feed,
+.chronicle-timeline {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+}
+.codex-articles {
+  max-width: 62rem;
+}
+.editorial-copy {
+  display: grid;
+  gap: 0.32rem;
+  padding: 0.85rem 1rem;
+}
+.editorial-card:has(.visual-card-menu summary) .editorial-copy {
+  padding-inline-end: 3.25rem;
+}
+.editorial-card:not(.featured-story) > .visual-open:has(.section-art) {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 3fr;
+}
+.editorial-card:not(.featured-story) .section-art {
+  height: 100%;
+  border-radius: var(--scene-radius) 0 0 var(--scene-radius);
+}
+.gazette-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 0.9rem;
+}
+.featured-story .visual-open strong {
+  font-size: clamp(1.6rem, 3vw, 2.75rem);
+}
+.chronicle-timeline {
+  border-inline-start: 1px solid #94805a;
+  margin-inline-start: 0.45rem;
+  padding-inline-start: 1.3rem;
+  max-width: 64rem;
+}
+.chronicle-timeline .editorial-card::before {
+  content: "";
+  width: 0.58rem;
+  height: 0.58rem;
+  position: absolute;
+  inset-inline-start: -1.65rem;
+  top: 1.3rem;
+  border: 1px solid #dbba79;
+  border-radius: 50%;
+  background: #a28653;
+}
+.quest-chapter {
+  display: grid;
+  gap: 0.58rem;
+  max-width: 66rem;
+}
+.quest-entry .visual-open {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.9rem;
+  height: auto;
+  padding: 0.8rem 0.9rem;
+}
+.quest-entry:has(.visual-card-menu summary) .visual-open {
+  padding-inline-end: 3.25rem;
+}
+.quest-entry .visual-open > span + span {
+  display: grid;
+  gap: 0.2rem;
+}
+.quest-seal {
+  padding: 0.3rem 0.55rem;
+  background: #524223;
+  border: 1px solid #ad8b4a;
+  border-radius: 0.32rem;
+  color: #f5d469;
+  font-size: 1.75rem;
+  line-height: 1;
+}
+.quest-done .quest-seal {
+  color: #b4d394;
+  background: #2b432b;
+  border-color: #537349;
+}
+.quest-active .quest-seal {
+  color: #e8d4af;
+}
+.quest-failed .quest-seal {
+  color: #e6aa97;
+  background: #562d26;
+  border-color: #86584b;
+}
+.quest-entry-actions:not(:empty) {
+  padding: 0 0.8rem 0.8rem 3.4rem;
+}
+.quest-paper {
+  background: radial-gradient(ellipse at top, #e9d8a8, #d3bd8d 100%);
+  color: #302619;
+  border: 1px solid #987447;
+  border-radius: 0.5rem;
+  padding: clamp(0.85rem, 3vw, 1.7rem);
+}
+.quest-paper header {
+  display: flex;
+  gap: 0.65rem;
+  align-items: start;
+  margin-bottom: 1rem;
+}
+.quest-paper header .visual-menu {
+  margin-inline-start: auto;
+}
+.quest-paper h3,
+.quest-paper h4 {
+  color: #49321f;
+}
+.quest-paper .quest-reward {
+  background: #755b3420;
+  border-color: #8e71396b;
+}
+.quest-paper .quest-reward p,
+.quest-paper .quest-reward small {
+  color: #49351f;
+}
+.quest-paper .actions button:not(.primary) {
+  background: #ece0ba;
+  color: #392917;
+  border-color: #8b7549;
+}
+.structured-loot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0.6rem 0;
+}
+.structured-loot > span {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.storage-chest {
+  background: #242d23;
+  padding: var(--scene-space);
+  border-radius: var(--scene-radius);
+  border-top: 1px solid var(--scene-line);
+}
+.storage-chest h3 {
+  margin: 0 0 0.8rem;
+  color: var(--scene-gold);
+}
+.inventory-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(3.25rem, 4.1rem));
+  gap: 0.5rem;
+}
+.inventory-slots .inventory-slot {
+  inline-size: 100%;
+  block-size: auto;
+  aspect-ratio: 1;
+  border: 2px solid var(--quality);
+  font-size: 1.45rem;
+}
+.inventory-slot b {
+  font-size: 0.87rem;
+  text-shadow: 0 1px 2px black;
+}
+.item-values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+}
+.item-values dt {
+  color: var(--scene-muted);
+}
+.item-values dd {
+  margin: 0;
+  font-weight: 600;
+}
+.treasury-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  border-bottom: 1px solid var(--scene-line);
+  padding: 0.1rem 0.2rem 1rem;
+}
+.treasury-strip > span {
+  color: #e8c369;
+  font-size: 2rem;
+}
+.treasury-strip small,
+.treasury-strip strong {
+  display: block;
+}
+.treasury-strip strong {
+  font: 500 1.7rem/1 var(--scene-title);
+  color: var(--scene-gold);
+}
+.treasury-strip button {
+  margin-inline-start: auto;
+}
+.storage-table {
+  overflow: auto;
+  max-width: 100%;
+}
+.storage-table table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+}
+.storage-table td,
+.storage-table th {
+  padding: 0.55rem;
+  border-bottom: 1px solid var(--scene-line);
+  text-align: start;
+}
+.collection-meter {
+  width: min(100%, 38rem);
+  accent-color: #bd9c59;
+}
+.achievement-category {
+  max-width: 15rem;
+}
+.achievement-open {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: 0.66rem;
+  height: auto;
+  padding: 0.85rem;
+}
+.achievement:has(.visual-card-menu summary) .achievement-open {
+  padding-inline-end: 3.3rem;
+}
+.achievement-open .section-art {
+  border: 1px solid var(--scene-line);
+  border-radius: 0.36rem;
+}
+.achievement-open .section-art span {
+  font-size: 1.45rem;
+}
+.achievement-open > span {
+  display: grid;
+  gap: 0.3rem;
+}
+.achievement.earned {
+  background: #2c3928;
+  border-color: #817453;
+}
+.achievement.locked .section-art {
+  filter: saturate(0.35);
+}
+.achievement-recipients {
+  color: #c4dfa7 !important;
+}
+.camp-visual .camp-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 245px), 1fr));
+}
+.camp-visual .branch {
+  --branch-line: #b1935f;
+  border-top: 2px solid var(--branch-line);
+}
+.camp-visual .branch-1 {
+  --branch-line: #85b8b6;
+}
+.camp-visual .branch-2 {
+  --branch-line: #90ab70;
+}
+.camp-visual .branch-3 {
+  --branch-line: #a899c2;
+}
+.camp-visual .talent {
+  position: relative;
+  margin-inline-start: 0.45rem;
+  border-left: 2px solid var(--branch-line);
+  padding-left: 0.76rem;
+}
+.camp-visual .talent:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -2px;
+  height: 1rem;
+  bottom: -0.85rem;
+  border-left: 2px solid var(--branch-line);
+}
+.camp-visual .talent.locked {
+  opacity: 0.72;
+}
+.camp-visual .talent.unlocked {
+  background: #31402b;
+}
+.book-visual .world-chapter {
+  max-width: 72ch;
+  margin-inline: auto;
+  line-height: 1.75;
+}
+.home-hero {
+  min-height: clamp(285px, 42vw, 470px);
+}
+.home-hero .hero-copy {
+  padding-right: 1rem;
+}
+.home-appearance {
+  position: absolute;
+  inset-inline-end: 0.65rem;
+  top: 0.65rem;
+  z-index: 4;
+}
+.home-situation {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0.8rem;
+  margin: 0.75rem 0 1.1rem;
+}
+.home-situation > div {
+  padding: 0.85rem 1rem;
+  border-left: 2px solid #a38b56;
+  background: linear-gradient(115deg, #303a2a, #28312685);
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+  justify-items: start;
+}
+.home-situation strong {
+  color: var(--scene-gold);
+  font: 500 1.23rem/1.25 var(--scene-title);
+}
+.home-situation small {
+  color: var(--scene-muted);
+}
+.context-panel {
+  margin: 0.6rem auto;
+  border: 0;
+  border-left: 2px solid var(--scene-line);
+  background: #2430269c;
+  padding: 0.55rem 0.8rem;
+}
+.context-panel > h3 {
+  font-size: 0.88rem;
+}
+.context-panel p {
+  margin: 0.2rem 0;
+  font-size: 0.86rem;
+}
+.context-panel button {
+  min-height: 2.2rem;
+}
+.stay-illustration {
+  aspect-ratio: 3.4/1;
+  border-radius: 0.45rem;
+}
+.stay-professions,
+.activity-reason {
+  color: #c0bdab;
+}
+.activity-unavailable {
+  background: #222c25a2;
+  border-color: #6f715348;
+  color: #d1d4c6;
+}
+.activity-unavailable .game-icon {
+  background: #30352a;
+  color: #baac89;
+}
+.stay-task-grid .activity-card > strong {
+  align-self: center;
+}
+.stay-task-grid .activity-card > small {
+  color: var(--scene-muted);
+}
+.recipe-back {
+  display: none;
+}
+.project-row {
+  padding: 0.8rem;
+  border: 1px solid var(--scene-line);
+  border-radius: var(--scene-radius);
+  background: #263125;
+}
+.project-row + .project-row {
+  margin-top: 0.6rem;
+}
+@media (max-width: 700px) {
+  .visual-screen {
+    padding-inline: 0.8rem;
+    gap: 0.85rem;
+  }
+  .section-cover {
+    align-items: start;
+    padding: 0.9rem 0.8rem;
+  }
+  .nav-band-label {
+    flex-basis: 4.35rem;
+  }
+  .nav-tab {
+    min-height: 2.75rem;
+    padding: 0.18rem 0.48rem;
+  }
+  .nav-tab .menu-icon {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+  #status {
+    gap: 0.35rem 0.55rem;
+  }
+  .status-hero {
+    margin-inline-start: 0;
+  }
+  #status .save {
+    display: none;
+  }
+  .header .brand .eyebrow {
+    display: none;
+  }
+  .brand h1 {
+    font-size: 1.18rem;
+  }
+  .header .sigil {
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 2rem;
+  }
+  .head-actions #modeBtn {
+    font-size: 0.8rem;
+    padding-inline: 0.55rem;
+  }
+  .visual-filters .field {
+    flex-basis: calc(50% - 0.7rem);
+    max-width: none;
+  }
+  .visual-filters > input {
+    max-width: none;
+  }
+  .people-gallery,
+  .codex-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dossier {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dossier aside .art-portrait {
+    width: min(55%, 12rem);
+  }
+  .modalwrap {
+    padding: 0.6rem;
+    align-items: start;
+  }
+  .modal {
+    max-height: calc(100dvh - 1.2rem);
+    padding: 0.9rem;
+  }
+  .gazette-layout,
+  .home-situation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .recipe-back {
+    display: inline-block;
+    margin-bottom: 0.7rem;
+  }
+  #craftBody:not(.mobile-recipe-open) #recipeDetail,
+  .mobile-recipe-open #recipeList,
+  .mobile-recipe-open .recipe-filters {
+    display: none;
+  }
+  #recipeList {
+    max-height: none;
+  }
+  .stay-illustration {
+    aspect-ratio: 16/9;
+  }
+}
+@media (max-width: 390px) {
+  .head-actions #modeBtn {
+    max-width: 8rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .editorial-card:not(.featured-story) > .visual-open:has(.section-art) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .editorial-card:not(.featured-story) .section-art {
+    height: auto;
+  }
+}
+.place-dossier > .section-art {
+  aspect-ratio: 2.5/1;
+  border-radius: var(--scene-radius);
+  margin-bottom: 0.75rem;
+}
+.place-dossier > .visual-menu {
+  margin-block: 0.5rem;
+}
+.place-dossier > .visual-menu .visual-menu-panel {
+  inset-inline: 0 auto;
+}
+.profession-card .game-icon {
+  width: 3.15rem;
+}
+.visual-screen .game-cover h2 {
+  font-family: var(--scene-title);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+}
+#uxTools {
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+#status .status-hero label {
+  font-size: 0.73rem;
+}
+#status .status-hero .field {
+  display: flex;
+}
+.faction-overview .art-cover:not(.has-art) {
+  aspect-ratio: 2.65/1;
+}
+.record-private {
+  color: #dcb89d !important;
+}
+@media (max-width: 700px) {
+  .header {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    padding-block: 0.5rem;
+    gap: 0.35rem 0.55rem;
+  }
+  .header .head-actions {
+    grid-column: 3;
+    grid-row: 1;
+    justify-content: end;
+    gap: 0.3rem;
+    margin: 0;
+  }
+  .header .head-actions > .visual-menu summary {
+    min-width: 2rem;
+    min-height: 2.125rem;
+  }
+  .header #uxTools {
+    grid-column: 1/-1;
+    grid-row: 2;
+    padding-block: 0.12rem;
+    gap: 0.33rem;
+  }
+  .header #uxTools button {
+    min-height: 2rem;
+    font-size: 0.77rem;
+    padding-inline: 0.55rem;
+  }
+  .header #uxTools .visual-menu summary {
+    min-height: 2rem;
+    min-width: 2rem;
+  }
+  .header .brand h1 {
+    font-size: clamp(1rem, 4.25vw, 1.2rem);
+  }
+  #status {
+    padding-block: 0.4rem;
+    gap: 0.2rem 0.45rem;
+  }
+  #status .status-campaign,
+  #status .status-location,
+  #status .status-hero {
+    font-size: 0.75rem;
+  }
+  #status .status-hero .field select {
+    padding: 0.28rem 0.35rem;
+    min-height: 2rem;
+  }
+  .nav-band-label {
+    flex-basis: 3.8rem;
+    font-size: 0.65rem;
+    padding: 0.35rem;
+  }
+  .nav-tab {
+    min-height: 2.5rem;
+  }
+  .nav-tab .menu-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+}
+.featured-story > button {
+  position: relative;
+  display: grid;
+  align-items: end;
+  isolation: isolate;
+  min-height: clamp(245px, 33vw, 430px);
+}
+.featured-story .section-art {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  height: 100%;
+  z-index: -2;
+  border-radius: inherit;
+}
+.featured-story .section-art > span {
+  align-self: start;
+  margin-top: 2rem;
+}
+.featured-story > button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(0deg, #121d15 3%, #122219d0 40%, #15271b18 100%);
+  border-radius: inherit;
+}
+.featured-story .editorial-copy {
+  padding: clamp(0.85rem, 3vw, 1.7rem);
+}
+.featured-story .editorial-copy small {
+  color: #ded1b3;
+}
+.game-cover-art {
+  aspect-ratio: 3.4/1;
+  border-radius: 0.45rem;
+}
+@media (max-width: 700px) {
+  .game-cover-art {
+    aspect-ratio: 16/9;
+  }
+}
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
-<header class="header"><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div class="head-actions"><button id="navIconBtn" onclick="editNavIcons()" title="Настроить иконки меню">⚙ Иконки меню</button><button id="modeBtn" onclick="toggleMode()">Режим игроков</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxTools" class="ux-tools"></div><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
-<nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · локальная версия 0.8 · D&D 2024 / домашние правила Вольной компании</footer>
+<header class="header"><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div id="uxTools" class="ux-tools"></div><div class="head-actions"><button id="modeBtn" onclick="toggleMode()">Профиль</button><details class="visual-menu" id="atlasOperations" data-context-menu><summary aria-label="Настройки Атласа" title="Настройки Атласа">⋯</summary><div class="visual-menu-panel"><button id="navIconBtn" onclick="editNavIcons()">Иконки меню</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button></div></details><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
+<nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · D&D 2024 / домашние правила Вольной компании</footer>
 <div class="modalwrap" id="modalwrap" onclick="if(event.target===this)closeModal()"><div class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h2 id="modalTitle"></h2><button class="ghost" onclick="closeModal()" aria-label="Закрыть">×</button></div><div id="modalBody"></div></div></div><input id="mapFile" type="file" accept="image/*" hidden><div id="toast" class="toast hidden" role="status"></div>
 <input id="navIconFile" type="file" accept="image/*" hidden><input id="bookImport" class="hidden" type="file" accept=".json,.html,application/json,text/html">
 <script>
@@ -595,11 +1801,11 @@ function portalDate(x){return 'День '+n(x.day,1)+' · '+n(x.year,S.company.y
 function readImage(file){return new Promise((ok,fail)=>{if(!file)return ok('');if(!/^image\/(png|jpeg|webp|gif|bmp|avif)$/i.test(file.type)||file.size>12*1024*1024)return fail(Error('Выберите PNG, JPEG, WebP, GIF, BMP или AVIF до 12 МБ.'));const r=new FileReader();r.onload=()=>ok(safeImage(r.result));r.onerror=()=>fail(Error('Не удалось прочитать изображение'));r.readAsDataURL(file)})}
 function renderHome(){portalData();const c=S.company,here=locLabel(c.location),ach=publicItems('achievements').filter(x=>hasGrant(x,'company')),done=Object.values(c.talents).filter(Boolean).length,active=S.contracts.filter(x=>!x.archived&&!x.hidden&&x.status==='active'),available=S.contracts.filter(x=>!x.archived&&!x.hidden&&x.status==='available');const cards=[['news','▤','Вестник',publicItems('news').length+publicItems('rumors').length,'записей'],['worldbook','▥','Хроники Азерота',S.worldBook.chapters.length,'глав'],['diplomacy','⚖','Дипломатия',S.diplomacy.filter(visibleDiplomacy).length,'отношений'],['contracts','!','Доска заданий',available.length,'доступно'],['bank','◆','Хранилище',c.inventory.filter(x=>!x.hidden).length,'позиций'],['mail','✉','Почта',publicItems('mail').filter(x=>!x.read).length,'непрочитанных'],['chronicle','✒','Летопись',publicItems('chronicle').length,'записей'],['achievements','♜','Достижения',ach.length,'у отряда']];
 const homePrefs=getHomePrefs();const recent=(k,limit=3)=>(k==='news'?[...publicItems('news').map(x=>({...x,feedKind:'news'})),...publicItems('rumors').map(x=>({...x,feedKind:'rumors'}))]:publicItems(k)).slice().sort((a,b)=>n(b.day)-n(a.day)).slice(0,limit).map(x=>`<button class="home-entry" onclick="switchTab('${k}');openPortalRecord('${x.feedKind||k}',${jsid(x.id)})"><small>${esc(portalDate(x))} · ${x.feedKind==='rumors'?'Слух · ':''}${esc(x.category||'')}</small><strong>${esc(x.title)}</strong><span>${esc((x.body||'').slice(0,135))}${(x.body||'').length>135?'…':''}</span></button>`).join('')||'<p class="muted">Пока нет записей.</p>';
-$('main').innerHTML=`<div class="screen portal-home"><section class="home-hero"><div class="hero-copy"><div class="eyebrow">${esc(dayLabel())} · Хроники расколотого мира</div><h2>С возвращением,<br>путешественник.</h2><p>${esc(c.name)} ${!player?'<button class="ghost quick-pencil" title="Переименовать отряд" onclick="renameCompany()">✎</button>':''} · ${here?esc(here):'Место стоянки ещё не определено'}</p><div class="actions" ${homePrefs.hero?'':'hidden'}><button class="primary" onclick="switchTab('map')">Открыть атлас →</button><button onclick="switchTab('company')">Хартия компании</button>${!player&&!S.map?'<button onclick="$(\'mapFile\').click()">Загрузить карту</button>':''}</div></div><div class="hero-emblem">✥<small>ATLAS · AZEROTH</small></div></section>${homeSettingsPanel(homePrefs)}<div class="home-stats" ${homePrefs.stats?'':'hidden'}>${[['Казна',c.gold+' зм','bank'],['Герои',c.members.filter(m=>m.active).length,'company'],['Улучшения лагеря',done+'/12','camp'],['Достижения',ach.length,'achievements']].map(([l,v,t])=>`<button onclick="switchTab('${t}')"><small>${l}</small><strong>${esc(v)}</strong></button>`).join('')}</div>${S.journey?'<div class="notice" style="margin-bottom:16px">Компания в пути. <button onclick="switchTab(\'map\')">Продолжить путешествие</button></div>':''}<div class="home-links" ${homePrefs.shortcuts?'':'hidden'}>${cards.filter(([k])=>homePrefs.tiles[k]!==false).map(([k,i,l,v,s])=>`<button onclick="switchTab('${k}')"><span class="link-icon">${navIcon(k,i)}</span><span><strong>${l}</strong><small>${v} ${s}</small></span><span class="muted">→</span></button>`).join('')}</div><div class="home-columns" ${homePrefs.feed?'':'hidden'}><section class="card stack"><div class="row"><h2>Вестник Азерота</h2><button class="ghost" style="margin-left:auto" onclick="switchTab('news')">Все новости и слухи →</button></div>${recent('news')}</section><section class="card stack"><div class="row"><h2>Дела компании</h2></div>${active.map(x=>`<button class="home-entry" onclick="switchTab('contracts')"><small>Действующий контракт</small><strong>${esc(x.title)}</strong><span>${esc(x.employer||'')}</span></button>`).join('')||'<p class="muted">Нет действующих контрактов.</p>'}<div class="rule"><h3>Развитие лагеря</h3><p>${done} из 12 улучшений · ${c.development} возможностей развития</p><div class="progress"><i style="width:${done/12*100}%"></i></div><button style="margin-top:10px" onclick="switchTab('camp')">Открыть лагерь →</button></div><div class="rule"><h3>Последняя глава</h3>${recent('chronicle',1)}</div></section></div><div class="row" style="margin-top:20px" ${homePrefs.footer?'':'hidden'}><button onclick="switchTab('people')">Книга знакомств</button><button onclick="switchTab('factions')">Фракции</button><button onclick="switchTab('codex')">Кодекс</button><button onclick="switchTab('journal')">Технический журнал</button></div></div>`}
+$('main').innerHTML=`<div class="screen portal-home"><section class="home-hero"><div class="hero-copy"><div class="eyebrow">${esc(dayLabel())} · Хроники расколотого мира</div><h2>С возвращением,<br>путешественник.</h2><p>${esc(c.name)} ${!player?'<button class="ghost quick-pencil" title="Переименовать отряд" onclick="renameCompany()">✎</button>':''} · ${here?esc(here):'Место стоянки ещё не определено'}</p><div class="actions" ${homePrefs.hero?'':'hidden'}><button class="primary" onclick="switchTab('map')">Открыть атлас →</button><button onclick="switchTab('company')">Хартия компании</button>${!player&&!S.map?'<button onclick="$(\'mapFile\').click()">Загрузить карту</button>':''}</div></div><div class="hero-emblem">✥<small>ATLAS · AZEROTH</small></div></section>${homeSettingsPanel(homePrefs)}<div class="home-stats" ${homePrefs.stats?'':'hidden'}>${[['Казна',c.gold+' зм','bank'],['Герои',c.members.filter(m=>m.active).length,'company'],['Улучшения лагеря',done+'/12','camp'],['Достижения',ach.length,'achievements']].map(([l,v,t])=>`<button onclick="switchTab('${t}')"><small>${l}</small><strong>${esc(v)}</strong></button>`).join('')}</div><div class="home-links" ${homePrefs.shortcuts?'':'hidden'}>${cards.filter(([k])=>homePrefs.tiles[k]!==false).map(([k,i,l,v,s])=>`<button onclick="switchTab('${k}')"><span class="link-icon">${navIcon(k,i)}</span><span><strong>${l}</strong><small>${v} ${s}</small></span><span class="muted">→</span></button>`).join('')}</div><div class="home-columns" ${homePrefs.feed?'':'hidden'}><section class="card stack"><div class="row"><h2>Вестник Азерота</h2><button class="ghost" style="margin-left:auto" onclick="switchTab('news')">Все новости и слухи →</button></div>${recent('news')}</section><section class="card stack"><div class="row"><h2>Дела компании</h2></div>${active.map(x=>`<button class="home-entry" onclick="switchTab('contracts')"><small>Действующий контракт</small><strong>${esc(x.title)}</strong><span>${esc(x.employer||'')}</span></button>`).join('')||'<p class="muted">Нет действующих контрактов.</p>'}<div class="rule"><h3>Развитие лагеря</h3><p>${done} из 12 улучшений · ${c.development} возможностей развития</p><div class="progress"><i style="width:${done/12*100}%"></i></div><button style="margin-top:10px" onclick="switchTab('camp')">Открыть лагерь →</button></div><div class="rule"><h3>Последняя глава</h3>${recent('chronicle',1)}</div></section></div><div class="row" style="margin-top:20px" ${homePrefs.footer?'':'hidden'}><button onclick="switchTab('people')">Книга знакомств</button><button onclick="switchTab('factions')">Фракции</button><button onclick="switchTab('codex')">Кодекс</button><button onclick="switchTab('journal')">Технический журнал</button></div></div>`}
 function portalCard(k,x){const cfg=PORTAL[k],a=k==='achievements',img=safeImage(x.image),meta=[x.category,k==='people'?x.source:portalDate(x),locLabel(x.location),faction(x.faction)&&visibleFaction(faction(x.faction))?faction(x.faction).name:''].filter(Boolean).join(' · ');return `<article class="card portal-card ${a?'achievement '+(shownGrants(x).length?'earned':'locked'):''}">${img?`<img class="portal-image ${a?'achievement-image':k==='people'?'portrait':''}" src="${esc(img)}" alt="${esc(x.title)}" loading="lazy">`:a?'<div class="achievement-symbol">♜</div>':''}<div class="portal-content"><div class="eyebrow">${k==='rumors'?'<span class="tag">Слух</span> ':k==='news'?'<span class="tag">Новость</span> ':''}${esc(meta)}</div><h3>${esc(x.title)}</h3>${k==='people'?affiliationBadge(x)+personAchievements('npc',x.id):''}${a?achievementSummary(x):''}${k==='mail'&&!x.read?'<span class="tag med">Не прочитано</span>':''}<p class="excerpt">${esc((x.body||'').slice(0,200))}${(x.body||'').length>200?'…':''}</p>${!player?`<div class="row">${x.hidden?'<span class="tag high">Скрыто</span>':''}${n(x.day)>S.company.day&&['news','rumors','mail'].includes(k)?'<span class="tag">Запланировано</span>':''}${k==='rumors'?`<span class="tag">${esc(TRUTH.find(t=>t[0]===x.truth)?.[1]||'Не определено')}</span>`:''}${a&&x.secret?'<span class="tag">Секретное</span>':''}</div>`:''}<div class="actions"><button onclick="openPortalRecord('${k}',${jsid(x.id)})">Подробнее</button>${!player?`<button onclick="editPortal('${k}',${jsid(x.id)})">Изменить</button>${a?`<button class="primary" onclick="awardAchievement(${jsid(x.id)})">Вручить</button>`:''}`:''}</div></div></article>`}
 function renderPortalGeneric(k){const cfg=PORTAL[k];let items=portalData()[k].filter(x=>seen(k,x));const q=searchText.toLowerCase();if(q)items=items.filter(x=>[x.title,x.body,x.category,x.source,...(k==='people'?[affiliationText(x)]:[])].some(v=>String(v||'').toLowerCase().includes(q)));if(k==='achievements')items.sort((a,b)=>Number(!!b.earned)-Number(!!a.earned));else if(!['people','codex'].includes(k))items.sort((a,b)=>n(b.day)-n(a.day));const a=k==='achievements',unlocked=publicItems(k).filter(x=>x.earned);$('main').innerHTML=`<div class="screen">${header(cfg.title,cfg.desc,!player?`<button class="primary" onclick="editPortal('${k}')">＋ ${cfg.singular}</button>`:'')}${a?`<div class="home-stats achievement-stats"><div><small>Получено</small><strong>${unlocked.length} / ${publicItems(k).length}</strong></div><div><small>Очки достижений</small><strong>${unlocked.reduce((s,x)=>s+n(x.points),0)}</strong></div></div>${!player?'<div class="row" style="margin-bottom:12px"><button onclick="seedAchievements()">Добавить стартовые шаблоны</button><small>Автоматические и ручные условия. Шаблоны можно изменить.</small></div>':''}`:''}<div class="row" style="margin-bottom:15px"><input class="search" id="portalSearch" value="${esc(searchText)}" placeholder="Поиск по разделу"><small>${items.length} записей</small></div><div class="cards portal-cards ${a?'ach-grid':''}">${items.map(x=>portalCard(k,x)).join('')||'<div class="empty">Здесь пока нет записей.</div>'}</div></div>`;$('portalSearch').oninput=e=>{searchText=e.target.value;const pos=e.target.selectionStart;renderPortal(k);$('portalSearch').focus();$('portalSearch').setSelectionRange(pos,pos)}}
 function openPortalRecord(k,id){const x=portalData()[k].find(x=>x.id===id);if(!x||!seen(k,x))return;const cfg=PORTAL[k],img=safeImage(x.image);openModal(x.title,`<div class="stack"><div class="eyebrow">${esc(x.category||'')} · ${esc(portalDate(x))}</div>${img?`<img class="record-image" src="${esc(img)}" alt="${esc(x.title)}">`:''}${x.source?`<p class="muted">${esc(cfg.source)}: ${esc(x.source)}</p>`:''}${locLabel(x.location)?`<p>Место: <button onclick="closeModal();selected={type:'node',id:${jsid(x.location)}};switchTab('map')">${esc(locLabel(x.location))} →</button></p>`:''}${k==='people'?affiliationBadge(x):faction(x.faction)&&visibleFaction(faction(x.faction))?`<p>Фракция: ${esc(faction(x.faction).name)}</p>`:''}<div class="record-body">${esc(x.body||'')}</div>${k==='people'?personAchievements('npc',x.id):''}${k==='people'?`<p><strong>Отношение:</strong> ${esc(x.attitude||'Не определено')}</p><p class="record-body"><strong>Обещания:</strong> ${esc(x.promises||'—')}</p>`:''}${k==='achievements'?achievementDetail(x):''}${!player&&k==='rumors'?`<div class="notice">Истинность: ${esc(TRUTH.find(t=>t[0]===x.truth)?.[1]||'Не определено')}</div>`:''}${!player&&x.notes?`<div class="notice record-body">Мастер: ${esc(x.notes)}</div>`:''}<div class="actions">${k==='mail'&&!player&&!x.read?`<button onclick="markMail(${jsid(id)})">Отметить прочитанным</button>`:''}${!player?`<button onclick="editPortal('${k}',${jsid(id)})">Изменить</button>`:''}<button onclick="closeModal()">Закрыть</button></div></div>`)}
-function editPortal(k,id,seed={}){if(player)return;const cfg=PORTAL[k],x=id?portalData()[k].find(x=>x.id===id):{title:'',category:cfg.cats[0],source:'',body:'',day:S.company.day,year:S.company.year,location:'',faction:'',hidden:false,notes:'',truth:'unknown',attitude:'',promises:'',image:'',points:10,auto:'',target:1,secret:false,earned:false,read:false,...seed};if(!x)return;const a=k==='achievements';openModal(cfg.singular,`<form id="portalForm">${field(k==='people'?'Имя':'Заголовок','pt',x.title,'text','required')}${selectField('Категория','pc',cfg.cats.map(v=>[v,v]),x.category)}${field(cfg.source,'ps',x.source)}<div class="cols">${field('День кампании','pd',x.day,'number','min="1" required')}${field('Год','py',x.year,'number','min="1" required')}</div>${selectField('Связанное место','pl',[['','Не указано'],...S.nodes.map(v=>[v.id,v.name])],x.location)}${k==='people'?affiliationFields('pf','prank',x):selectField('Связанная фракция','pf',[['','Не указана'],...S.factions.map(v=>[v.id,v.name])],x.faction)}${area(cfg.body,'pb',x.body)}${k==='people'?field('Отношение к компании','pa',x.attitude)+area('Обещания и обязательства','pp',x.promises):''}${k==='rumors'?selectField('Истинность (только мастер)','ptr',TRUTH,x.truth):''}${a?field('Очки','pap',x.points,'number','min="0" max="10000"')+selectField('Автоматическое условие','pau',AUTO_RULES,x.auto)+field('Количество для получения','pat',x.target,'number','min="1" max="100000"')+check('Секретное до получения','pas',x.secret)+'<p class="muted">Автоматические условия действуют для отряда. Личные достижения выдаются вручную через кнопку «Вручить».</p>':''}${k==='mail'?check('Прочитано','pmr',x.read):''}<div class="field"><label>Изображение / портрет / готовая плашка WoW</label>${safeImage(x.image)?'<p class="muted">Изображение уже загружено.</p>':''}<input id="pi" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif">${safeImage(x.image)?check('Удалить текущее изображение','pir',false):''}</div>${area('Заметки мастера','pn',x.notes)}${check('Скрыть от игроков','ph',x.hidden)}${id?`<button type="button" class="danger ghost" onclick="deletePortal('${k}',${jsid(id)})">В архив</button>`:''}${controls()}</form>`);if(k==='people')bindAffiliation('pf','prank');$('portalForm').onsubmit=async e=>{e.preventDefault();const form=$('portalForm');try{let image=$('pir')?.checked?'':x.image||'';if($('pi').files[0])image=await readImage($('pi').files[0]);if($('portalForm')!==form)return;const o={...x,id:id||uid(),title:val('pt').trim(),category:val('pc'),source:val('ps'),body:val('pb'),day:int(val('pd'),1),year:int(val('py'),1),location:val('pl'),faction:val('pf'),image,notes:val('pn'),hidden:$('ph').checked};if(!o.title)return toast('Введите заголовок');if(k==='people'){Object.assign(o,readAffiliation('pf','prank'));o.attitude=val('pa');o.promises=val('pp')}if(k==='rumors')o.truth=val('ptr');if(k==='mail')o.read=$('pmr').checked;if(a){o.points=int(val('pap'),0,10000);o.auto=val('pau');o.target=int(val('pat'),1);o.secret=$('pas').checked;o.grants=Array.isArray(x.grants)?x.grants:[]}if(id)Object.assign(x,o);else portalData()[k].push(o);closeModal();commit()}catch(err){toast(err.message)}}}
+function editPortal(k,id,seed={}){if(player)return;const cfg=PORTAL[k],x=id?portalData()[k].find(x=>x.id===id):{title:'',category:cfg.cats[0],source:'',body:'',day:S.company.day,year:S.company.year,location:'',faction:'',hidden:false,notes:'',truth:'unknown',attitude:'',promises:'',image:'',points:10,auto:'',target:1,secret:false,earned:false,read:false,...seed};if(!x)return;const a=k==='achievements';openModal(cfg.singular,`<form id="portalForm">${field(k==='people'?'Имя':'Заголовок','pt',x.title,'text','required')}${selectField('Категория','pc',(k==='codex'?codexCategories():[...new Set([...cfg.cats,x.category].filter(Boolean))]).map(v=>[v,v]),x.category)}${field(cfg.source,'ps',x.source)}<div class="cols">${field('День кампании','pd',x.day,'number','min="1" required')}${field('Год','py',x.year,'number','min="1" required')}</div>${selectField('Связанное место','pl',[['','Не указано'],...S.nodes.map(v=>[v.id,v.name])],x.location)}${k==='people'?affiliationFields('pf','prank',x):selectField('Связанная фракция','pf',[['','Не указана'],...S.factions.map(v=>[v.id,v.name])],x.faction)}${area(cfg.body,'pb',x.body)}${k==='people'?field('Отношение к компании','pa',x.attitude)+area('Обещания и обязательства','pp',x.promises):''}${k==='rumors'?selectField('Истинность (только мастер)','ptr',TRUTH,x.truth):''}${a?field('Очки','pap',x.points,'number','min="0" max="10000"')+selectField('Автоматическое условие','pau',AUTO_RULES,x.auto)+field('Количество для получения','pat',x.target,'number','min="1" max="100000"')+check('Секретное до получения','pas',x.secret)+'<p class="muted">Автоматические условия действуют для отряда. Личные достижения выдаются вручную через кнопку «Вручить».</p>':''}${k==='mail'?check('Прочитано','pmr',x.read):''}<div class="field"><label>Изображение / портрет / готовая плашка WoW</label>${safeImage(x.image)?'<p class="muted">Изображение уже загружено.</p>':''}<input id="pi" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif">${safeImage(x.image)?check('Удалить текущее изображение','pir',false):''}</div>${area('Заметки мастера','pn',x.notes)}${check('Скрыть от игроков','ph',x.hidden)}${id?`<button type="button" class="danger ghost" onclick="deletePortal('${k}',${jsid(id)})">В архив</button>`:''}${controls()}</form>`);if(k==='people')bindAffiliation('pf','prank');$('portalForm').onsubmit=async e=>{e.preventDefault();const form=$('portalForm');try{let image=$('pir')?.checked?'':x.image||'';if($('pi').files[0])image=await readImage($('pi').files[0]);if($('portalForm')!==form)return;const o={...x,id:id||uid(),title:val('pt').trim(),category:val('pc'),source:val('ps'),body:val('pb'),day:int(val('pd'),1),year:int(val('py'),1),location:val('pl'),faction:val('pf'),image,notes:val('pn'),hidden:$('ph').checked};if(!o.title)return toast('Введите заголовок');if(k==='people'){Object.assign(o,readAffiliation('pf','prank'));o.attitude=val('pa');o.promises=val('pp')}if(k==='rumors')o.truth=val('ptr');if(k==='mail')o.read=$('pmr').checked;if(a){o.points=int(val('pap'),0,10000);o.auto=val('pau');o.target=int(val('pat'),1);o.secret=$('pas').checked;o.grants=Array.isArray(x.grants)?x.grants:[]}if(id)Object.assign(x,o);else portalData()[k].push(o);closeModal();commit()}catch(err){toast(err.message)}}}
 function deletePortal(k,id){if(player||!confirm('Удалить запись?'))return;S.portal[k]=S.portal[k].filter(x=>x.id!==id);closeModal();commit()}
 function markMail(id){if(player)return;const x=portalData().mail.find(x=>x.id===id);if(x)x.read=true;closeModal();commit()}
 function awardAchievement(id,recipient=''){if(player)return;const x=portalData().achievements.find(x=>x.id===id);if(!x)return;const opts=recipientOptions().filter(([key])=>!hasGrant(x,key));if(!opts.length)return toast('Все доступные получатели уже имеют это достижение');const preferred=recipient||achievementFilter;openModal('Вручить: '+x.title,`<form id="awardForm">${selectField('Получатель','awardWho',opts,opts.some(([k])=>k===preferred)?preferred:opts[0][0])}${controls('Вручить достижение')}</form>`);$('awardForm').onsubmit=e=>{e.preventDefault();const who=val('awardWho');if(!opts.some(([k])=>k===who)||!grantAchievement(x,who))return toast('Достижение уже выдано');closeModal();commit();toast('Достижение получено: '+recipientName(who))}}
@@ -798,7 +2004,16 @@ function uxArchive(k,id){if(player)return;const r=uxFind(k,id,true);if(!r||!['co
 function uxArchiveView(){if(player)return;const rows=uxRecords(true).filter(r=>r.x.archived);openModal('Архив',`<p class="muted">Архивные записи скрыты из активных разделов. Восстановление возвращает их с прежним ID.</p>${rows.map(r=>`<div class="ux-result"><div><small>${esc(UX_LABEL[r.k])}</small><strong>${esc(r.name)}</strong><p>${esc(r.desc.slice(0,180))}</p></div><button onclick="uxArchive(${jsid(r.k)},${jsid(r.id)});uxArchiveView()">Восстановить</button></div>`).join('')||'<p>Архив пуст.</p>'}`)}
 function uxCover(){if(player)return;openModal('Обложка главной страницы',`<p class="muted">Рекомендуется широкое изображение 16:9. Текст и кнопки останутся поверх затемнения.</p><input id="uxCoverFile" type="file" accept="image/*"><div class="actions"><button class="primary" id="uxCoverSave">Сохранить</button><button onclick="uxPrepare().cover='';closeModal();commit()">Убрать обложку</button></div>`);$('uxCoverSave').onclick=async()=>{const f=$('uxCoverFile').files[0];if(!f)return toast('Выберите изображение');try{const img=await readImage(f);if(!safeImage(img))throw Error('Неверное изображение');uxPrepare().cover=img;closeModal();commit()}catch(e){toast(e.message)}}}
 function uxNotifications(){return uxRecords().filter(r=>{const x=r.x;return ['news','rumors','mail'].includes(r.k)?published(r.k,x):r.k==='achievements'?published(r.k,x)&&visibleGrants(x).length:r.k==='contract'? !x.hidden&&x.status==='available':false}).map(r=>({...r,notification:r.key+(r.k==='achievements'?':'+visibleGrants(r.x).map(g=>g.recipient+'@'+g.date).sort().join(','):'')}))}
-function uxReadSet(){const key='atlas-ux-inbox-'+uxPrepare().id+'-'+(player?'player':'master');if(!uxRead[key]){try{uxRead[key]=new Set(JSON.parse(localStorage.getItem(key)||'[]'))}catch{uxRead[key]=new Set()}}return [key,uxRead[key]]}
+function uxReadSet(){
+  const prefix='atlas-ux-inbox-'+uxPrepare().id+'-';
+  const legacy=prefix+(player?'player':'master');
+  const key=typeof actor!=='undefined'&&actor?prefix+'account:'+actor.nick:legacy;
+  if(!uxRead[key]){
+    try{uxRead[key]=new Set(JSON.parse(localStorage.getItem(key)??localStorage.getItem(legacy)??'[]'))}
+    catch{uxRead[key]=new Set()}
+  }
+  return [key,uxRead[key]]
+}
 function uxMarkRead(keys){const [key,set]=uxReadSet();keys.forEach(k=>set.add(k));try{localStorage.setItem(key,JSON.stringify([...set]))}catch{}uxToolbar()}
 function uxInbox(){const rows=uxNotifications(),set=uxReadSet()[1];openModal('Уведомления',`<div class="actions"><button onclick="uxMarkRead(uxNotifications().map(r=>r.notification));uxInbox()">Отметить все прочитанными</button></div>${rows.slice().reverse().sort((a,b)=>Number(set.has(a.notification))-Number(set.has(b.notification))).map(r=>`<div class="ux-result"><button class="ux-result-open" onclick="uxReadOpen(${jsid(r.k)},${jsid(r.id)},${jsid(r.notification)})"><small>${set.has(r.notification)?'':'● Новое · '}${esc(UX_LABEL[r.k])}</small><strong>${esc(r.name)}</strong></button></div>`).join('')||'<p>Нет уведомлений.</p>'}`)}
 function uxReadOpen(k,id,key){uxMarkRead([key]);uxOpen(k,id)}
@@ -2171,19 +3386,9 @@ function phasePanel() {
         "</p>"
       : "") +
     '<div id="engineActions" class="actions"></div>';
-  $("main").prepend(box);
+  if (tab === "map") $("main").prepend(box);
+  else $("main").append(box);
   const a = $("engineActions");
-  if (hero) {
-    const select = document.createElement("select");
-    select.ariaLabel = "Герой";
-    for (const m of heroRows())
-      select.add(new Option(memberName(m), m.id, false, m.id === hero));
-    select.onchange = () => {
-      activeHero = select.value;
-      render();
-    };
-    a.append(select);
-  }
   if (["home", "camp"].includes(tab))
     a.append(button("К стоянке", () => switchTab("stay")));
   if (gm && tab === "map")
@@ -4245,10 +5450,13 @@ function bagPage() {
     "Сумки · " + memberName(heroOf(S, hero)),
     "<p>" +
       esc(p.wallet) +
-      ' зм</p><div class="actions" id="bagTools"></div><section id="bagRows" class="bag-grid"></section>',
+      ' зм</p><div class="actions" id="bagTools"></div><section id="bagRows" class="personal-bags"></section>',
   );
   $("bagTools").append(
-    button("Сетка / список", () => $("bagRows").classList.toggle("bag-grid")),
+    button("В хранилище", () => {
+      closeModal();
+      switchTab("bank");
+    }),
   );
   if (!player)
     $("bagTools").append(
@@ -4261,47 +5469,42 @@ function bagPage() {
         ),
       ),
     );
-  for (const x of bag) {
-    const b = button((x.icon || "◆") + " " + x.name + " × " + x.qty, () =>
-      commandForm(
-        "Передача или разделение",
-        pick(
-          "Получатель",
-          "to",
-          [
-            ["", "Компания"],
-            ...S.company.members
-              .filter((m) => !player || !m.hidden)
-              .map((m) => [
-                m.id,
-                m.id === hero ? "Разделить стопку" : memberName(m),
-              ]),
-          ],
-          "",
-        ) +
-          input(
-            "Количество",
-            "qty",
-            "number",
-            1,
-            'min="1" max="' + x.qty + '"',
-          ),
-        "transfer",
-        () => ({ hero, stack: x.id, to: val("to"), qty: num("qty") }),
-      ),
-    );
-    b.title = x.desc || x.name;
-    $("bagRows").append(b);
-  }
-  if (!bag.length) $("bagRows").textContent = "Сумки пусты";
+  $("bagRows").innerHTML = bag.length
+    ? slotGrid(bag)
+    : emptyScene("Сумки пусты");
+}
+function bagTransfer(stackId) {
+  const x = S.company.inventory.find((item) => item.id === stackId),
+    hero = x?.owner?.slice(7);
+  if (
+    !x?.owner?.startsWith("member:") ||
+    !owned(actor, hero) ||
+    !canSeeStack(x)
+  )
+    return;
+  commandForm(
+    "Передача или разделение",
+    pick(
+      "Получатель",
+      "to",
+      [
+        ["", "Компания"],
+        ...S.company.members
+          .filter((m) => !player || !m.hidden)
+          .map((m) => [
+            m.id,
+            m.id === hero ? "Разделить стопку" : memberName(m),
+          ]),
+      ],
+      "",
+    ) + input("Количество", "qty", "number", 1, 'min="1" max="' + x.qty + '"'),
+    "transfer",
+    () => ({ hero, stack: stackId, to: val("to"), qty: num("qty") }),
+  );
 }
 function recipeBook() {
   openCraftTab("recipes");
 }
-actions.push((a, { hero }) => {
-  if (tab === "bank" && hero && owned(actor, hero))
-    a.append(button("Сумки", bagPage));
-});
 
 function meetsConditions(s, hero, c = {}) {
   const h = profile(s, hero),
@@ -4666,7 +5869,7 @@ function errandEditor(quest = null) {
   if (existing.length) existing.forEach(add);
   else add();
 }
-function localBoard() {
+function localBoard(questId = null) {
   const hero = chosen(),
     e = adventure(S);
   openModal(
@@ -4675,7 +5878,10 @@ function localBoard() {
   );
   const box = $("localBoard");
   for (const q of S.contracts.filter(
-    (q) => q.type === "local" && questAvailable(S, q, hero),
+    (q) =>
+      (!questId || q.id === questId) &&
+      q.type === "local" &&
+      questAvailable(S, q, hero),
   )) {
     const el = document.createElement("article");
     el.className = "quest-card";
@@ -6790,7 +7996,20 @@ function gameHero(hero, stay) {
         .filter(Boolean)
         .join(" · "),
     ) +
-    '</p></div><div id="gameHeroSelect"></div></div>' +
+    "</p>" +
+    (tab === "stay" && p.professions.length
+      ? '<p class="stay-professions">' +
+        esc(
+          S.engine.professions
+            .filter((record) => p.professions.includes(record.id))
+            .map((record) => record.name)
+            .join(" · "),
+        ) +
+        "</p>"
+      : "") +
+    '</div><div id="gameHeroSelect"></div>' +
+    (tab === "stay" ? visualAction("Личные сумки", "bagPage()", "ghost") : "") +
+    "</div>" +
     (stay
       ? '<div class="game-time"><label for="stayTime">Игровое время <strong>' +
         timeLabel(remaining(S, hero)) +
@@ -7124,7 +8343,7 @@ function renderStay() {
     gameHero(hero, stay) +
     "</section>" +
     '<section class="game-section"><h3>Добыча и исследование</h3><div id="activitiesGrid" class="activity-grid"></div></section>' +
-    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="game-task-list"></div></section></div>';
+    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="activity-grid stay-task-grid"></div></section></div>';
   bindGameHero(hero);
   if (master)
     $("stayAdminLink").append(button("Управление стоянкой", stayAdmin));
@@ -7154,7 +8373,8 @@ function renderStay() {
       const card = button(profession.name, () =>
         activityDialog(hero, profession, stay),
       );
-      card.className = "activity-card";
+      card.className =
+        "activity-card" + (state.reason ? " activity-unavailable" : "");
       card.innerHTML =
         gameIcon(profession.icon) +
         "<strong>" +
@@ -7171,7 +8391,7 @@ function renderStay() {
             "</small>"
           : "") +
         '<small class="' +
-        (state.reason ? "game-bad" : "game-good") +
+        (state.reason ? "activity-reason" : "game-good") +
         '">' +
         esc(state.reason || "Доступно") +
         "</small>";
@@ -7208,6 +8428,27 @@ function renderStay() {
     S.engine.projects.some((j) => j.status === "active")
   )
     tasks.append(button("Работа специалистов", staffWorkDialog));
+  const taskArt = [
+    ["⚒", "Рецепты и незавершённые проекты"],
+    ["!", "Работа для жителей региона"],
+    ["▤", "Записки о времени на стоянке"],
+    ["☾", "Восстановить силы"],
+    ["⚙", "Распределить работу в лагере"],
+  ];
+  [...tasks.children].forEach((item, i) => {
+    const [icon, caption] = taskArt[i];
+    const title = item.textContent;
+    item.innerHTML =
+      gameIcon(icon) +
+      "<strong>" +
+      esc(title) +
+      "</strong><small>" +
+      esc(caption) +
+      "</small>";
+    item.setAttribute("aria-label", title);
+    item.classList.add("activity-card");
+    if (item.disabled) item.classList.add("activity-unavailable");
+  });
   if (!tasks.children.length)
     tasks.innerHTML =
       '<p class="muted">Дела компании доступны назначенным героям.</p>';
@@ -7420,6 +8661,11 @@ function renderProfessionCards(root, hero) {
     grid.textContent = "В этой группе пока нет профессий.";
 }
 function renderRecipeList(root, hero) {
+  function showRecipeView(open) {
+    root.classList.toggle("mobile-recipe-open", open);
+    if (open) $("recipeBack").focus();
+    else $("recipeList").querySelector('[aria-pressed="true"]')?.focus();
+  }
   root.className = "";
   if (!S.engine.recipes.length) {
     root.innerHTML =
@@ -7515,6 +8761,7 @@ function renderRecipeList(root, hero) {
     const selected = rows.find((x) => x.r.id === craftRecipe) || rows[0];
     detail.hidden = !selected;
     if (!selected) {
+      root.classList.remove("mobile-recipe-open");
       list.textContent = "Рецепты по выбранным фильтрам не найдены.";
       return;
     }
@@ -7523,8 +8770,7 @@ function renderRecipeList(root, hero) {
       const b = button(row.r.name, () => {
         craftRecipe = row.r.id;
         refresh();
-        if (matchMedia("(max-width: 700px)").matches)
-          $("recipeDetail").scrollIntoView({ block: "start" });
+        if (matchMedia("(max-width: 700px)").matches) showRecipeView(true);
       });
       b.className = "recipe-option";
       b.setAttribute("aria-pressed", String(row === selected));
@@ -7547,6 +8793,10 @@ function renderRecipeList(root, hero) {
       list.append(b);
     }
     renderRecipeDetail(detail, hero, p, selected.r, selected.item);
+    const back = button("К списку рецептов", () => showRecipeView(false));
+    back.className = "recipe-back";
+    back.id = "recipeBack";
+    detail.prepend(back);
   }
   for (const id of [
     "recipeQuery",
@@ -7913,6 +9163,2044 @@ function renderWorkshop() {
       document.createTextNode("Демонстрационные данные добавлены."),
     );
 }
+
+function visualMenu(label, controls) {
+  if (!controls) return "";
+  return (
+    '<details class="visual-menu" data-context-menu><summary aria-label="' +
+    esc(label) +
+    '" title="' +
+    esc(label) +
+    '">⋯</summary><div class="visual-menu-panel">' +
+    controls +
+    "</div></details>"
+  );
+}
+function visualAction(label, action, style = "") {
+  return (
+    '<button type="button" class="' +
+    style +
+    '" onclick="' +
+    action +
+    '">' +
+    esc(label) +
+    "</button>"
+  );
+}
+function sectionArt(image, shape, icon, extra = "") {
+  const url = safeImage(image);
+  return (
+    '<div class="section-art art-' +
+    shape +
+    " " +
+    extra +
+    (url ? " has-art" : "") +
+    '">' +
+    (url
+      ? '<img src="' + esc(url) + '" alt="" loading="lazy">'
+      : '<span aria-hidden="true">' + esc(icon) + "</span>") +
+    "</div>"
+  );
+}
+function emptyScene(message, action = "") {
+  return (
+    '<div class="scene-empty"><p>' + esc(message) + "</p>" + action + "</div>"
+  );
+}
+function sectionHeader(title, description, actions = "", key = tab) {
+  const image = S.settings.visual?.covers?.[key];
+  return (
+    '<header class="section-cover">' +
+    (safeImage(image) ? sectionArt(image, "cover", "") : "") +
+    '<div class="section-cover-copy"><h2>' +
+    esc(title) +
+    "</h2>" +
+    (description ? "<p>" + esc(description) + "</p>" : "") +
+    '</div><div class="section-cover-actions">' +
+    actions +
+    (!player
+      ? visualMenu(
+          "Оформление раздела",
+          visualAction(
+            "Изменить обложку",
+            "editSectionCover(" + jsid(key) + ")",
+          ),
+        )
+      : "") +
+    "</div></header>"
+  );
+}
+function editSectionCover(key) {
+  if (player) return;
+  const old = S.settings.visual?.covers?.[key];
+  editVisualImages(
+    "Обложка раздела",
+    [{ key: "cover", label: "Широкая обложка", image: old }],
+    (images) => {
+      const visual = (S.settings.visual ??= {});
+      (visual.covers ??= {})[key] = images.cover;
+    },
+  );
+}
+function editVisualImages(title, fields, update) {
+  if (player) return;
+  form(
+    title,
+    fields
+      .map(
+        ({ key, label, image }) =>
+          input(label, key, "file", "", "accept=image/*") +
+          (safeImage(image)
+            ? check("Убрать изображение", key + "Remove", false)
+            : ""),
+      )
+      .join(""),
+    async () => {
+      const values = await Promise.all(
+        fields.map(async ({ key, image }) => [
+          key,
+          $(key).files[0]
+            ? await readImage($(key).files[0])
+            : $(key + "Remove")?.checked
+              ? ""
+              : image || "",
+        ]),
+      );
+      update(Object.fromEntries(values));
+      commit();
+    },
+  );
+}
+function portalMenu(k, x) {
+  if (player) return "";
+  const args = jsid(k) + "," + jsid(x.id);
+  return visualMenu(
+    "Действия с записью",
+    visualAction("Изменить", "editPortal(" + args + ")") +
+      visualAction("Дублировать", "uxDuplicate(" + args + ")") +
+      visualAction("В архив", "uxArchive(" + args + ")", "danger") +
+      (k === "achievements"
+        ? visualAction("Вручить", "awardAchievement(" + jsid(x.id) + ")")
+        : ""),
+  );
+}
+function portalMeta(x) {
+  const f = faction(x.faction);
+  return [
+    x.category,
+    x.source,
+    locLabel(x.location),
+    f && visibleFaction(f) ? f.name : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+}
+function excerpt(text, limit = 155) {
+  return text?.length > limit
+    ? text.slice(0, limit).trimEnd() + "…"
+    : text || "";
+}
+document.addEventListener(
+  "toggle",
+  (event) => {
+    if (!event.target.matches?.("[data-context-menu][open]")) return;
+    document.querySelectorAll("[data-context-menu][open]").forEach((menu) => {
+      if (menu !== event.target) menu.open = false;
+    });
+  },
+  true,
+);
+document.addEventListener("click", (event) => {
+  document.querySelectorAll("[data-context-menu][open]").forEach((menu) => {
+    if (!menu.contains(event.target)) menu.open = false;
+  });
+});
+
+const peopleView = { mode: "gallery", faction: "", status: "", place: "" };
+let codexCategory = "",
+  gazetteRegion = "";
+const legacyPortalRecord = openPortalRecord;
+const legacyPortalSection = renderPortal;
+function visiblePortalRows(kind) {
+  return portalData()[kind].filter((x) => seen(kind, x));
+}
+function portalQuery(record, extra = []) {
+  const query = searchText.trim().toLocaleLowerCase("ru");
+  return (
+    !query ||
+    [record.title, record.body, record.source, record.category, ...extra].some(
+      (value) =>
+        String(value || "")
+          .toLocaleLowerCase("ru")
+          .includes(query),
+    )
+  );
+}
+function portalSearchField(placeholder) {
+  return (
+    '<input type="search" id="portalSearch" value="' +
+    esc(searchText) +
+    '" aria-label="' +
+    esc(placeholder) +
+    '" placeholder="' +
+    esc(placeholder) +
+    '">'
+  );
+}
+function portalCreate(k, label) {
+  return !player
+    ? visualAction(label, "editPortal(" + jsid(k) + ")", "primary")
+    : "";
+}
+function renderPeopleGallery() {
+  const records = visiblePortalRows("people");
+  const rows = records.filter(
+    (x) =>
+      portalQuery(x, [affiliationText(x), x.attitude]) &&
+      (!peopleView.faction || x.faction === peopleView.faction) &&
+      (!peopleView.status || x.category === peopleView.status) &&
+      (!peopleView.place || x.location === peopleView.place),
+  );
+  $("main").innerHTML =
+    '<div class="screen visual-screen">' +
+    sectionHeader(
+      "Персонажи мира",
+      "Знакомые, союзники и соперники компании.",
+      portalCreate("people", "Новый персонаж"),
+    ) +
+    '<div class="visual-filters">' +
+    portalSearchField("Найти персонажа") +
+    pick(
+      "Фракция",
+      "peopleFaction",
+      [["", "Все фракции"], ...pairs(S.factions.filter(visibleFaction))],
+      peopleView.faction,
+    ) +
+    pick(
+      "Статус",
+      "peopleStatus",
+      [
+        ["", "Все статусы"],
+        ...[
+          ...new Set([
+            ...PORTAL.people.cats,
+            ...records.map((x) => x.category).filter(Boolean),
+          ]),
+        ].map((s) => [s, s]),
+      ],
+      peopleView.status,
+    ) +
+    pick(
+      "Место",
+      "peoplePlace",
+      [["", "Все места"], ...pairs(S.nodes.filter(visibleNode))],
+      peopleView.place,
+    ) +
+    '<div class="visual-switch">' +
+    visualAction(
+      peopleView.mode === "gallery" ? "Список" : "Галерея",
+      "togglePeopleView()",
+    ) +
+    "</div></div>" +
+    '<div class="people-gallery ' +
+    (peopleView.mode === "list" ? "is-list" : "") +
+    '">' +
+    (rows.map(personCard).join("") ||
+      emptyScene(
+        records.length
+          ? "По этим фильтрам никого не найдено."
+          : "Ваша компания ещё не встретила известных персонажей.",
+      )) +
+    "</div></div>";
+  for (const [field, id] of [
+    ["faction", "peopleFaction"],
+    ["status", "peopleStatus"],
+    ["place", "peoplePlace"],
+  ])
+    $(id).onchange = () => {
+      peopleView[field] = val(id);
+      renderPeopleGallery();
+    };
+  bindPortalSearch(renderPeopleGallery);
+}
+function togglePeopleView() {
+  peopleView.mode = peopleView.mode === "gallery" ? "list" : "gallery";
+  renderPeopleGallery();
+}
+function personCard(x) {
+  const f = faction(x.faction);
+  const relation = f && visibleFaction(f) ? f.name + " · " + rankLabel(x) : "";
+  return (
+    '<article class="visual-card person-card">' +
+    '<button class="visual-open person-open" onclick="openPortalRecord(\'people\',' +
+    jsid(x.id) +
+    ')">' +
+    sectionArt(x.image, "portrait", "♟") +
+    '<span class="person-info"><strong>' +
+    esc(x.title) +
+    "</strong>" +
+    (x.source || x.category
+      ? "<span>" + esc(x.source || x.category) + "</span>"
+      : "") +
+    (relation ? "<small>" + esc(relation) + "</small>" : "") +
+    (!player && x.hidden
+      ? '<small class="record-private">Скрыто от игроков</small>'
+      : "") +
+    ([x.attitude, locLabel(x.location)].filter(Boolean).length
+      ? "<small>" +
+        esc([x.attitude, locLabel(x.location)].filter(Boolean).join(" · ")) +
+        "</small>"
+      : "") +
+    '</span></button><div class="visual-card-menu">' +
+    portalMenu("people", x) +
+    "</div></article>"
+  );
+}
+function editDossier(id) {
+  const x = portalData().people.find((record) => record.id === id);
+  if (player || !x) return;
+  const options = (name, rows, selected) =>
+    '<div class="hero-checklist">' +
+    rows
+      .map(
+        (row) =>
+          '<label class="checkline"><input type="checkbox" name="' +
+          name +
+          '" value="' +
+          esc(row.id) +
+          '"' +
+          (selected?.includes(row.id) ? " checked" : "") +
+          ">" +
+          esc(row.title) +
+          "</label>",
+      )
+      .join("") +
+    "</div>";
+  form(
+    "Подробности досье",
+    area("Характеристика", "personTraits", x.traits || "") +
+      area("История знакомства", "personHistory", x.history || "") +
+      "<details><summary>Связанные персонажи</summary>" +
+      options(
+        "personLinks",
+        portalData().people.filter((p) => p.id !== id),
+        x.relatedPeople,
+      ) +
+      "</details>" +
+      "<details><summary>Связанные письма</summary>" +
+      options("personLetters", portalData().mail, x.letters) +
+      "</details>",
+    () => {
+      const picked = (name) =>
+        [
+          ...$("engineForm").querySelectorAll(
+            'input[name="' + name + '"]:checked',
+          ),
+        ].map((el) => el.value);
+      Object.assign(x, {
+        traits: val("personTraits"),
+        history: val("personHistory"),
+        relatedPeople: picked("personLinks"),
+        letters: picked("personLetters"),
+      });
+      commit();
+      openPortalRecord("people", id);
+    },
+  );
+}
+function dossier(x) {
+  const links = (kind, ids) =>
+    visiblePortalRows(kind)
+      .filter((row) => ids?.includes(row.id))
+      .map((row) => uxBtn(kind, row.id, row.title))
+      .join("");
+  const quests = S.contracts
+    .filter((q) => q.giver === x.id && uxFind("contract", q.id))
+    .map((q) => uxBtn("contract", q.id, q.title))
+    .join("");
+  const block = (title, text) =>
+    text
+      ? "<section><h3>" +
+        title +
+        '</h3><p class="record-body">' +
+        esc(text) +
+        "</p></section>"
+      : "";
+  const list = (title, items) =>
+    items
+      ? "<section><h3>" +
+        title +
+        '</h3><div class="actions">' +
+        items +
+        "</div></section>"
+      : "";
+  openModal(
+    x.title,
+    '<div class="dossier"><aside>' +
+      sectionArt(x.image, "portrait", "♟") +
+      "<small>" +
+      esc(x.source || x.category || "") +
+      "</small>" +
+      affiliationBadge(x) +
+      (locLabel(x.location)
+        ? uxBtn("node", x.location, locLabel(x.location))
+        : "") +
+      (x.attitude ? "<p>" + esc(x.attitude) + "</p>" : "") +
+      '<div class="actions">' +
+      uxFavButton("people", x.id) +
+      (!player
+        ? visualMenu(
+            "Действия с досье",
+            visualAction(
+              "Изменить",
+              "editPortal(\'people\'," + jsid(x.id) + ")",
+            ) +
+              visualAction(
+                "Связи и знакомство",
+                "editDossier(" + jsid(x.id) + ")",
+              ) +
+              visualAction(
+                "Дублировать",
+                "uxDuplicate(\'people\'," + jsid(x.id) + ")",
+              ) +
+              visualAction(
+                "В архив",
+                "uxArchive(\'people\'," + jsid(x.id) + ")",
+                "danger",
+              ),
+          )
+        : "") +
+      "</div></aside>" +
+      '<div class="reader dossier-copy">' +
+      (x.body
+        ? block("Биография", x.body)
+        : emptyScene("Биография ещё не записана.")) +
+      block("Характеристика", x.traits) +
+      block("История знакомства", x.history) +
+      block("Обязательства", x.promises) +
+      list("Связанные задания", quests) +
+      list("Письма", links("mail", x.letters)) +
+      list("Связанные персонажи", links("people", x.relatedPeople)) +
+      personAchievements("npc", x.id) +
+      (!player && x.notes ? block("Заметки мастера", x.notes) : "") +
+      "</div></div>",
+  );
+  uxLinkify($("modalBody"));
+}
+function codexCategories() {
+  return [
+    ...new Set([
+      ...(S.settings.visual?.codexCategories || PORTAL.codex.cats),
+      ...visiblePortalRows("codex")
+        .map((x) => x.category)
+        .filter(Boolean),
+    ]),
+  ];
+}
+function editCodexCategories() {
+  if (player) return;
+  form(
+    "Категории Кодекса",
+    area(
+      "Одна категория на строку",
+      "codexCategoryList",
+      codexCategories().join("\n"),
+    ),
+    () => {
+      (S.settings.visual ??= {}).codexCategories = [
+        ...new Set(
+          val("codexCategoryList")
+            .split("\n")
+            .map((s) => s.trim())
+            .filter(Boolean),
+        ),
+      ];
+      codexCategory = "";
+      commit();
+    },
+  );
+}
+function editCodexCover(category) {
+  editVisualImages(
+    category,
+    [
+      {
+        key: "categoryArt",
+        label: "Обложка категории",
+        image: S.settings.visual?.codexArt?.[category],
+      },
+    ],
+    (images) => {
+      const settings = (S.settings.visual ??= {});
+      settings.codexArt = {
+        ...settings.codexArt,
+        [category]: images.categoryArt,
+      };
+    },
+  );
+}
+function showCodexCategory(category) {
+  codexCategory = category;
+  searchText = "";
+  renderCodex();
+}
+function renderCodex() {
+  const records = visiblePortalRows("codex"),
+    categories = codexCategories();
+  if (codexCategory && !categories.includes(codexCategory)) codexCategory = "";
+  const rows = records.filter(
+    (x) => (!codexCategory || x.category === codexCategory) && portalQuery(x),
+  );
+  const editing = !player
+    ? visualMenu(
+        "Настройки Кодекса",
+        visualAction("Изменить категории", "editCodexCategories()") +
+          (codexCategory
+            ? visualAction(
+                "Обложка категории",
+                "editCodexCover(" + jsid(codexCategory) + ")",
+              )
+            : ""),
+      )
+    : "";
+  $("main").innerHTML =
+    '<div class="screen visual-screen">' +
+    sectionHeader(
+      "Кодекс путешественника",
+      codexCategory || "Места, легенды и открытия компании.",
+      (!player
+        ? visualAction(
+            "Новая статья",
+            "editPortal(\'codex\',null,{category:" +
+              jsid(codexCategory || categories[0] || "Прочее") +
+              "})",
+            "primary",
+          )
+        : "") + editing,
+    ) +
+    '<div class="visual-filters">' +
+    (codexCategory
+      ? visualAction("Все категории", "showCodexCategory(\'\')")
+      : "") +
+    portalSearchField("Найти статью") +
+    "</div>" +
+    (!codexCategory && !searchText.trim()
+      ? '<div class="codex-grid">' +
+        categories
+          .map((category, i) => {
+            const count = records.filter((x) => x.category === category).length;
+            const image = Object.hasOwn(
+              S.settings.visual?.codexArt || {},
+              category,
+            )
+              ? S.settings.visual.codexArt[category]
+              : "";
+            return (
+              '<article class="visual-card codex-category"><button class="visual-open" onclick="showCodexCategory(' +
+              jsid(category) +
+              ')">' +
+              sectionArt(
+                image,
+                "cover",
+                ["▥", "✥", "⌖", "☾", "⚑", "♞", "◇"][i % 7],
+              ) +
+              "<span><strong>" +
+              esc(category) +
+              "</strong><small>Статей · " +
+              count +
+              "</small></span></button></article>"
+            );
+          })
+          .join("") +
+        "</div>"
+      : '<div class="codex-articles">' +
+        (rows.map((x) => editorialCard("codex", x)).join("") ||
+          emptyScene("В этом разделе пока нет подходящих статей.")) +
+        "</div>") +
+    (!records.length && !codexCategory && !searchText
+      ? emptyScene("Кодекс ждёт первых открытий.")
+      : "") +
+    "</div>";
+  bindPortalSearch(renderCodex);
+}
+function readCodex(x) {
+  const lines = String(x.body || "").split(/\r?\n/);
+  const predefined = lines.some((line) => /^#{1,4}\s+/.test(line));
+  const blocks = predefined ? lines : String(x.body || "").split(/\n\s*\n/);
+  const headings = [];
+  const content = blocks
+    .map((line, i) => {
+      const mark = line.match(/^#{1,4}\s+(.+)/);
+      const title =
+        mark?.[1] ||
+        (!predefined && blocks.length > 5 && i % 3 === 0
+          ? excerpt(line.split(/[.!?]/)[0], 50)
+          : "");
+      if (title) headings.push([i, title]);
+      return mark
+        ? '<h3 id="codex-part-' + i + '">' + esc(title) + "</h3>"
+        : line
+          ? '<p id="codex-part-' +
+            i +
+            '" class="record-body">' +
+            esc(line) +
+            "</p>"
+          : "";
+    })
+    .join("");
+  openModal(
+    x.title,
+    '<article class="reader codex-reader">' +
+      '<div class="reader-meta"><small>' +
+      esc(portalMeta(x)) +
+      "</small>" +
+      portalMenu("codex", x) +
+      "</div>" +
+      (safeImage(x.image) ? sectionArt(x.image, "cover", "") : "") +
+      (headings.length > 1
+        ? '<nav class="reader-toc" aria-label="Оглавление">' +
+          headings
+            .map(([i, title]) =>
+              visualAction(
+                title,
+                "document.getElementById(\'codex-part-" +
+                  i +
+                  "\').scrollIntoView({block:\'nearest\'})",
+                "ghost",
+              ),
+            )
+            .join("") +
+          "</nav>"
+        : "") +
+      (content || emptyScene("Текст статьи ещё не добавлен.")) +
+      "</article>",
+  );
+  uxDetailExtras("codex", x.id);
+  uxLinkify($("modalBody"));
+}
+function editorialCard(k, x, feature = false) {
+  const picture = feature || safeImage(x.image);
+  return (
+    '<article class="visual-card editorial-card ' +
+    (feature ? "featured-story" : "") +
+    '">' +
+    '<button class="visual-open" onclick="openPortalRecord(' +
+    jsid(k) +
+    "," +
+    jsid(x.id) +
+    ')">' +
+    (picture ? sectionArt(x.image, "cover", k === "rumors" ? "☕" : "▤") : "") +
+    '<span class="editorial-copy"><small>' +
+    esc(
+      [
+        k === "rumors"
+          ? "Слух"
+          : k === "news"
+            ? "Новость"
+            : k === "mail" && !x.read && !uxReadSet()[1].has("mail:" + x.id)
+              ? "Новое письмо"
+              : "",
+        portalDate(x),
+        portalMeta(x),
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    ) +
+    "</small>" +
+    "<strong>" +
+    esc(x.title) +
+    "</strong><span>" +
+    esc(excerpt(x.body, feature ? 260 : 137)) +
+    "</span></span></button>" +
+    '<div class="visual-card-menu">' +
+    portalMenu(k, x) +
+    "</div></article>"
+  );
+}
+function renderGazette() {
+  const issueRegion = (x) => {
+    const place = node(x.location);
+    return place && visibleNode(place)
+      ? S.engine.regions.find((region) => region.id === place.regionId)?.name ||
+          place.name
+      : "";
+  };
+  const all = ["news", "rumors"].flatMap((k) =>
+    visiblePortalRows(k).map((x) => ({ k, x, region: issueRegion(x) })),
+  );
+  const regions = [
+    ...new Set(all.map((row) => row.region).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b, "ru"));
+  if (gazetteRegion && !regions.includes(gazetteRegion)) gazetteRegion = "";
+  const rows = all
+    .filter(
+      ({ k, x, region }) =>
+        (newsFilter === "all" || newsFilter === k) &&
+        (!gazetteRegion || region === gazetteRegion) &&
+        portalQuery(x, [region]),
+    )
+    .sort((a, b) => n(b.x.year) - n(a.x.year) || n(b.x.day) - n(a.x.day));
+  const feature =
+    rows.find((row) => row.k === "news" && safeImage(row.x.image)) ||
+    rows.find((row) => row.k === "news") ||
+    rows[0];
+  $("main").innerHTML =
+    '<div class="screen visual-screen gazette">' +
+    sectionHeader(
+      "Вестник Азерота",
+      "События, донесения и слухи.",
+      portalCreate("news", "Новая новость") +
+        portalCreate("rumors", "Новый слух"),
+    ) +
+    '<div class="visual-filters"><div class="actions game-tabs">' +
+    [
+      ["all", "Всё"],
+      ["news", "Новости"],
+      ["rumors", "Слухи"],
+    ]
+      .map(
+        ([k, l]) =>
+          '<button aria-pressed="' +
+          (newsFilter === k) +
+          '" onclick="newsFilter=' +
+          jsid(k) +
+          ';renderGazette()">' +
+          l +
+          "</button>",
+      )
+      .join("") +
+    "</div>" +
+    portalSearchField("Поиск по Вестнику") +
+    (regions.length
+      ? pick(
+          "Место или регион",
+          "gazetteRegion",
+          [["", "Все места"], ...regions.map((r) => [r, r])],
+          gazetteRegion,
+        )
+      : "") +
+    "</div>" +
+    (feature
+      ? '<div class="gazette-layout">' +
+        editorialCard(feature.k, feature.x, true) +
+        '<div class="gazette-feed">' +
+        rows
+          .filter((row) => row !== feature)
+          .map((row) => editorialCard(row.k, row.x))
+          .join("") +
+        "</div></div>"
+      : emptyScene(
+          searchText ? "Ничего не найдено." : "Вестник ждёт первых сообщений.",
+        )) +
+    "</div>";
+  if ($("gazetteRegion"))
+    $("gazetteRegion").onchange = () => {
+      gazetteRegion = val("gazetteRegion");
+      renderGazette();
+    };
+  bindPortalSearch(renderGazette);
+}
+function renderChronicle() {
+  const rows = visiblePortalRows("chronicle")
+    .filter((x) => portalQuery(x))
+    .sort((a, b) => n(b.year) - n(a.year) || n(b.day) - n(a.day));
+  $("main").innerHTML =
+    '<div class="screen visual-screen">' +
+    sectionHeader(
+      "Летопись Вольной компании",
+      "История отряда в приключениях и открытиях.",
+      portalCreate("chronicle", "Добавить запись"),
+    ) +
+    '<div class="visual-filters">' +
+    portalSearchField("Поиск по летописи") +
+    "</div>" +
+    '<div class="chronicle-timeline">' +
+    (rows.map((x) => editorialCard("chronicle", x)).join("") ||
+      emptyScene(
+        searchText
+          ? "Ничего не найдено."
+          : "Летопись ждёт первой записи о приключениях компании.",
+      )) +
+    "</div></div>";
+  bindPortalSearch(renderChronicle);
+}
+renderPortal = function (kind) {
+  const draws = {
+    people: renderPeopleGallery,
+    codex: renderCodex,
+    news: renderGazette,
+    chronicle: renderChronicle,
+  };
+  if (Object.hasOwn(draws, kind)) return draws[kind]();
+  return legacyPortalSection(kind);
+};
+openPortalRecord = function (kind, id) {
+  const x = portalData()[kind]?.find((row) => row.id === id);
+  if (!x || !seen(kind, x)) return;
+  if (kind === "people") return dossier(x);
+  if (kind === "codex") return readCodex(x);
+  if (kind === "mail") uxMarkRead(["mail:" + id]);
+  legacyPortalRecord(kind, id);
+  $("modalBody").querySelector(".stack")?.classList.add("reader");
+  compactPortalDetails(kind, x);
+};
+function compactPortalDetails(kind, x) {
+  const modal = $("modalBody");
+  for (const row of modal.querySelectorAll("button")) {
+    if (
+      ["Изменить", "Копия", "В архив", "Архивировать", "Дублировать"].includes(
+        row.textContent.trim(),
+      )
+    )
+      row.remove();
+  }
+  if (!player)
+    modal.insertAdjacentHTML(
+      "afterbegin",
+      '<div class="modal-tools">' + portalMenu(kind, x) + "</div>",
+    );
+  uxLinkify(modal);
+}
+
+let factionPanel = "overview",
+  storageView = "grid",
+  storageQuality = "";
+function factionTowns(f) {
+  return S.nodes.filter((n) => n.faction === f.id && visibleNode(n));
+}
+function factionQuests(f) {
+  return S.contracts.filter(
+    (q) => q.faction === f.id && uxFind("contract", q.id),
+  );
+}
+function factionEmblem(f) {
+  return sectionArt(f.emblem, "emblem", f.icon || "⚑");
+}
+function factionMenu(f) {
+  if (player) return "";
+  const id = jsid(f.id);
+  return visualMenu(
+    "Действия с фракцией",
+    visualAction("Изменить", "editFaction(" + id + ")") +
+      visualAction("Обложка и эмблема", "editFactionArt(" + id + ")") +
+      visualAction("Изменить репутацию", "changeRep(" + id + ")") +
+      visualAction("Удалить", "deleteFaction(" + id + ")", "danger"),
+  );
+}
+function editFactionArt(id) {
+  const f = faction(id);
+  if (!f || player) return;
+  editVisualImages(
+    f.name,
+    [
+      { key: "factionCover", label: "Широкая обложка", image: f.cover },
+      { key: "factionEmblem", label: "Квадратная эмблема", image: f.emblem },
+    ],
+    (images) =>
+      Object.assign(f, {
+        cover: images.factionCover,
+        emblem: images.factionEmblem,
+      }),
+  );
+}
+function factionOverviewCard(f) {
+  const leader = factionLeaderLabel(f),
+    quests = factionQuests(f).filter((q) => q.status === "available");
+  return (
+    '<article class="visual-card faction-wow faction-overview">' +
+    '<button class="visual-open" onclick="focusFaction(' +
+    jsid(f.id) +
+    ')">' +
+    sectionArt(f.cover, "cover", "⚑") +
+    '<span class="faction-card-title">' +
+    factionEmblem(f) +
+    "<span><strong>" +
+    esc(f.name) +
+    "</strong>" +
+    (leader ? "<small>" + esc(leader) + "</small>" : "") +
+    "</span></span></button>" +
+    '<div class="faction-card-copy">' +
+    repBar(f) +
+    (f.desc ? "<p>" + esc(excerpt(f.desc, 120)) + "</p>" : "") +
+    "<small>" +
+    factionPeople(f).length +
+    " предст. · " +
+    factionTowns(f).length +
+    " мест · " +
+    quests.length +
+    " заданий</small></div>" +
+    '<div class="visual-card-menu">' +
+    factionMenu(f) +
+    "</div></article>"
+  );
+}
+renderFactions = function () {
+  const groups = [...REGIONS, ["hostile", "Враждебные фракции"]];
+  const factions = S.factions.filter(visibleFaction);
+  const controls =
+    visualAction("Дипломатия", "switchTab(\'diplomacy\')") +
+    (!player ? visualAction("Новая фракция", "editFaction()", "primary") : "");
+  $("main").innerHTML =
+    '<div class="screen visual-screen">' +
+    sectionHeader(
+      "Фракции",
+      "Союзы, соперники и репутация компании.",
+      controls,
+    ) +
+    groups
+      .map(([key, label]) => {
+        const rows = factions.filter((f) =>
+          key === "hostile"
+            ? f.repPoints < -3000
+            : f.repPoints >= -3000 && f.region === key,
+        );
+        return rows.length
+          ? '<section class="faction-region"><h3>' +
+              esc(label) +
+              '</h3><div class="faction-gallery">' +
+              rows.map(factionOverviewCard).join("") +
+              "</div></section>"
+          : "";
+      })
+      .join("") +
+    (factions.length
+      ? ""
+      : emptyScene("Компания ещё не знает местных фракций.")) +
+    '<details class="visual-guide"><summary>Уровни репутации</summary>' +
+    reputationGuide() +
+    "</details></div>";
+};
+function reputationGuide() {
+  return REP_LEVELS.slice()
+    .reverse()
+    .map(
+      (l) =>
+        '<div class="rep-guide"><b style="color:' +
+        l.color +
+        '">' +
+        esc(l.name) +
+        "</b><span>" +
+        esc(l.min.toLocaleString("ru-RU")) +
+        " очков</span><span>" +
+        esc(l.desc) +
+        (l.discount ? " · ориентир скидки " + l.discount + "%" : "") +
+        "</span></div>",
+    )
+    .join("");
+}
+focusFaction = function (id) {
+  factionPanel = "overview";
+  openFactionPanel(id);
+};
+function openFactionPanel(id, selected = factionPanel) {
+  const f = faction(id);
+  if (!f || !visibleFaction(f)) return;
+  factionPanel = selected;
+  const panels = [
+    ["overview", "Обзор"],
+    ["people", "Представители"],
+    ["places", "Территории"],
+    ["diplomacy", "Дипломатия"],
+    ["quests", "Задания"],
+    ["reputation", "Репутация и привилегии"],
+  ];
+  const region = REGIONS.find(([key]) => key === f.region)?.[1];
+  openModal(
+    f.name,
+    '<div class="faction-dossier">' +
+      sectionArt(f.cover, "cover", "⚑") +
+      '<div class="faction-card-title">' +
+      factionEmblem(f) +
+      "<div><strong>" +
+      esc(f.name) +
+      "</strong><small>" +
+      esc([factionLeaderLabel(f), region].filter(Boolean).join(" · ")) +
+      "</small></div>" +
+      factionMenu(f) +
+      "</div>" +
+      '<div class="actions game-tabs">' +
+      panels
+        .map(
+          ([key, label]) =>
+            '<button aria-pressed="' +
+            (key === selected) +
+            '" onclick="openFactionPanel(' +
+            jsid(id) +
+            "," +
+            jsid(key) +
+            ')">' +
+            label +
+            "</button>",
+        )
+        .join("") +
+      "</div>" +
+      '<div id="factionPanel" class="reader"></div></div>',
+  );
+  const list = (rows, empty) =>
+    rows.length
+      ? '<div class="faction-links">' + rows.join("") + "</div>"
+      : emptyScene(empty);
+  const tabs = {
+    overview: () =>
+      repBar(f) +
+      (f.desc ? '<p class="record-body">' + esc(f.desc) + "</p>" : "") +
+      '<div class="actions">' +
+      uxFavButton("faction", id) +
+      "</div>" +
+      (!player && f.notes
+        ? '<p class="notice record-body">' + esc(f.notes) + "</p>"
+        : ""),
+    people: () =>
+      list(
+        factionPeople(f).map(
+          (x) =>
+            '<button class="aff-person" onclick="openAffPerson(' +
+            jsid(x.kind) +
+            "," +
+            jsid(x.record.id) +
+            ')">' +
+            sectionArt(x.record.image, "emblem", "♟") +
+            "<span>" +
+            esc(x.name) +
+            "<small>" +
+            esc(rankLabel(x.record)) +
+            "</small></span></button>",
+        ),
+        "Представители пока неизвестны.",
+      ),
+    places: () =>
+      list(
+        factionTowns(f).map((x) => uxBtn("node", x.id, x.name)),
+        "Известные территории пока не отмечены на карте.",
+      ),
+    diplomacy: () =>
+      list(
+        S.diplomacy
+          .filter((r) => (r.a === id || r.b === id) && visibleDiplomacy(r))
+          .map((r) => {
+            const other = faction(r.a === id ? r.b : r.a);
+            return uxBtn("diplomacy", r.id, other.name + " · " + dipInfo(r)[1]);
+          }),
+        "Дипломатические отношения пока не записаны.",
+      ),
+    quests: () =>
+      list(
+        factionQuests(f).map((q) => uxBtn("contract", q.id, q.title)),
+        "Связанные задания пока неизвестны.",
+      ),
+    reputation: () =>
+      repBar(f) +
+      "<p>" +
+      esc(reputation(f).desc) +
+      "</p>" +
+      (f.charter
+        ? '<h3>Привилегии и грамоты</h3><p class="record-body">' +
+          esc(f.charter) +
+          "</p>"
+        : emptyScene("Верительных грамот пока нет.")) +
+      '<details class="visual-guide"><summary>Уровни репутации</summary>' +
+      reputationGuide() +
+      "</details>",
+  };
+  $("factionPanel").innerHTML = tabs[selected]();
+  uxLinkify($("factionPanel"));
+}
+function slotButton(x) {
+  const quality = ITEM_QUAL.find((q) => q[0] === x.quality) || ITEM_QUAL[0];
+  return (
+    '<button class="item-slot inventory-slot" style="--quality:' +
+    quality[2] +
+    '" onclick="openItem(' +
+    jsid(x.id) +
+    ')" aria-label="' +
+    esc(x.name + " × " + x.qty) +
+    '" title="' +
+    esc(
+      x.name +
+        " · " +
+        quality[1] +
+        (x.desc ? " · " + excerpt(x.desc, 100) : ""),
+    ) +
+    '">' +
+    (safeImage(x.image)
+      ? '<img src="' + esc(x.image) + '" alt="">'
+      : '<span aria-hidden="true">' + esc(x.icon || "◆") + "</span>") +
+    '<b aria-hidden="true">' +
+    esc(x.qty) +
+    "</b></button>"
+  );
+}
+function slotGrid(rows) {
+  return (
+    '<div class="inventory-slots">' + rows.map(slotButton).join("") + "</div>"
+  );
+}
+function storageGroups(rows) {
+  const company = rows.filter((x) => !x.owner);
+  const personal = rows.filter((x) => x.owner);
+  if (!rows.length)
+    return emptyScene(
+      bankQuery || bankFilter || storageQuality
+        ? "По этим фильтрам нет предметов."
+        : "В хранилище пока нет добычи и припасов.",
+      !player ? visualAction("Добавить предмет", "editItem()") : "",
+    );
+  if (storageView === "table" && !player)
+    return (
+      '<div class="storage-table"><table><thead><tr><th>Предмет</th><th>Владелец</th><th>Категория</th><th>Количество</th></tr></thead><tbody>' +
+      rows
+        .map(
+          (x) =>
+            "<tr><td>" +
+            visualAction(x.name, "openItem(" + jsid(x.id) + ")", "ghost") +
+            "</td><td>" +
+            esc(ownerLabel(x.owner)) +
+            "</td><td>" +
+            esc(x.category) +
+            "</td><td>" +
+            esc(x.qty) +
+            "</td></tr>",
+        )
+        .join("") +
+      "</tbody></table></div>"
+    );
+  return [
+    [company, "Общий банк"],
+    [personal, "Личное и фракционное имущество"],
+  ]
+    .filter(([items]) => items.length)
+    .map(
+      ([items, label]) =>
+        '<section class="storage-chest"><h3>' +
+        label +
+        "</h3>" +
+        slotGrid(items) +
+        "</section>",
+    )
+    .join("");
+}
+renderBank = function () {
+  const visible = S.company.inventory.filter(canSeeStack);
+  const rows = visible.filter(
+    (x) =>
+      (!bankFilter || x.category === bankFilter) &&
+      (bankOwner === "all" || (x.owner || "") === bankOwner) &&
+      (!storageQuality || x.quality === storageQuality) &&
+      (!bankQuery ||
+        [x.name, x.desc, x.category, ownerLabel(x.owner)].some((v) =>
+          String(v || "")
+            .toLowerCase()
+            .includes(bankQuery.toLowerCase()),
+        )),
+  );
+  const categories = [
+    ...new Set([...ITEM_TYPES, ...(S.engine?.categories || [])]),
+  ];
+  const controls = !player
+    ? visualMenu(
+        "Управление хранилищем",
+        visualAction("Добавить предмет", "editItem()") +
+          visualAction("Зачислить или списать золото", "treasury()") +
+          visualAction("Установить остаток", "setGold()"),
+      )
+    : "";
+  $("main").innerHTML =
+    '<div class="screen visual-screen">' +
+    sectionHeader(
+      "Хранилище",
+      "Добыча, припасы и имущество компании.",
+      controls,
+    ) +
+    '<div class="treasury-strip"><span aria-hidden="true">◉</span><div><small>Казна компании</small><strong>' +
+    esc(S.company.gold.toLocaleString("ru-RU")) +
+    " зм</strong></div>" +
+    (chosen() ? visualAction("Личные сумки", "bagPage()") : "") +
+    "</div>" +
+    '<div class="visual-filters"><input id="bankSearch" type="search" aria-label="Поиск предметов" placeholder="Поиск предметов" value="' +
+    esc(bankQuery) +
+    '">' +
+    pick(
+      "Категория",
+      "bankCategory",
+      [["", "Все категории"], ...categories.map((c) => [c, c])],
+      bankFilter,
+    ) +
+    pick(
+      "Владелец",
+      "bankOwnerPicker",
+      [
+        ["all", "Все владельцы"],
+        ...ownerOptions(bankOwner).filter(
+          ([id]) => !id || !player || visible.some((x) => x.owner === id),
+        ),
+      ],
+      bankOwner,
+    ) +
+    pick(
+      "Редкость",
+      "bankQuality",
+      [["", "Любая редкость"], ...ITEM_QUAL.map((q) => q.slice(0, 2))],
+      storageQuality,
+    ) +
+    (!player
+      ? '<div class="visual-switch">' +
+        visualAction(
+          storageView === "grid" ? "Таблица" : "Ячейки",
+          "toggleStorageView()",
+        ) +
+        "</div>"
+      : "") +
+    "</div>" +
+    storageGroups(rows) +
+    "</div>";
+  $("bankSearch").oninput = (e) => {
+    const end = e.target.selectionStart;
+    bankQuery = e.target.value;
+    render();
+    $("bankSearch").focus({ preventScroll: true });
+    $("bankSearch").setSelectionRange(end, end);
+  };
+  $("bankCategory").onchange = () => {
+    bankFilter = val("bankCategory");
+    render();
+  };
+  $("bankOwnerPicker").onchange = () => {
+    bankOwner = val("bankOwnerPicker");
+    render();
+  };
+  $("bankQuality").onchange = () => {
+    storageQuality = val("bankQuality");
+    render();
+  };
+};
+function toggleStorageView() {
+  if (!player) {
+    storageView = storageView === "grid" ? "table" : "grid";
+    render();
+  }
+}
+openItem = function (id) {
+  const x = S.company.inventory.find((i) => i.id === id);
+  if (!x || !canSeeStack(x)) return;
+  const q = ITEM_QUAL.find((q) => q[0] === x.quality) || ITEM_QUAL[0],
+    catalog = S.engine.items.find((i) => i.id === x.item_id);
+  const properties = x.properties ?? catalog?.properties;
+  const details =
+    properties && typeof properties === "object"
+      ? Object.entries(properties)
+          .map(
+            ([key, value]) =>
+              "<li>" +
+              esc(key) +
+              " · " +
+              esc(typeof value === "object" ? JSON.stringify(value) : value) +
+              "</li>",
+          )
+          .join("")
+      : "";
+  const args = jsid(id);
+  const admin = !player
+    ? visualMenu(
+        "Действия с предметом",
+        visualAction("Редактировать", "editItem(" + args + ")") +
+          visualAction("Увеличить количество", "itemQty(" + args + ",1)") +
+          (x.qty > 0
+            ? visualAction("Уменьшить количество", "itemQty(" + args + ",-1)") +
+              visualAction("Передать как мастер", "transferItem(" + args + ")")
+            : ""),
+      )
+    : "";
+  openModal(
+    x.name,
+    '<article class="reader item-dossier"><div class="item-dossier-title">' +
+      sectionArt(x.image, "emblem", x.icon || "◆") +
+      '<div><strong style="color:' +
+      q[2] +
+      '">' +
+      esc(x.name) +
+      "</strong><small>" +
+      esc([q[1], x.category, ownerLabel(x.owner)].filter(Boolean).join(" · ")) +
+      "</small></div>" +
+      admin +
+      '</div><dl class="item-values"><div><dt>Количество</dt><dd>' +
+      esc(x.qty) +
+      "</dd></div>" +
+      "<div><dt>Цена за единицу</dt><dd>" +
+      ((x.value_gp ?? catalog?.value_gp) != null
+        ? esc(x.value_gp ?? catalog.value_gp) + " зм"
+        : "Не указана") +
+      "</dd></div></dl>" +
+      (x.desc || catalog?.desc
+        ? '<p class="record-body">' + esc(x.desc || catalog.desc) + "</p>"
+        : "") +
+      (details ? "<ul>" + details + "</ul>" : "") +
+      '<div class="actions">' +
+      uxFavButton("item", id) +
+      (x.qty > 0 &&
+      x.owner?.startsWith("member:") &&
+      owned(actor, x.owner.slice(7))
+        ? visualAction(
+            "Передать или разделить",
+            "bagTransfer(" + args + ")",
+            "primary",
+          )
+        : "") +
+      "</div></article>",
+  );
+};
+function questMainActions(q) {
+  const id = jsid(q.id);
+  if (q.type === "local") {
+    const hero = chosen();
+    return hero && owned(actor, hero) && questAvailable(S, q, hero)
+      ? visualAction("Выбрать решение", "localBoard(" + id + ")", "primary")
+      : "";
+  }
+  if (player) return "";
+  if (q.status === "available")
+    return visualAction(
+      "Принять",
+      "closeModal();questStatus(" + id + ",'active')",
+      "primary",
+    );
+  if (q.status === "active")
+    return visualAction(
+      "Завершить",
+      "rewardDialog(" + id + ",true)",
+      "primary",
+    );
+  return "";
+}
+function questMenu(q) {
+  if (player) return "";
+  const id = jsid(q.id);
+  return visualMenu(
+    "Действия с заданием",
+    visualAction(
+      "Изменить",
+      q.type === "local"
+        ? "errandEditor(S.contracts.find(q=>q.id===" + id + "))"
+        : "editContract(" + id + ")",
+    ) +
+      (q.type !== "local" && q.status !== "done" && !q.rewardReceipt
+        ? visualAction("Настроить награды", "rewardDialog(" + id + ",false)")
+        : "") +
+      ((q.rewardHidden || q.rewardSecret) && !q.rewardRevealed
+        ? visualAction("Открыть награду", "revealReward(" + id + ")")
+        : "") +
+      (q.type !== "local"
+        ? visualAction("Дублировать", "uxDuplicate('contract'," + id + ")")
+        : "") +
+      visualAction("В архив", "removeContract(" + id + ")", "danger"),
+  );
+}
+function questOverview(q) {
+  const status = CS.find(([key]) => key === q.status)?.[1] || "Доступно";
+  const actual = q.rewardReceipt?.rewards || q.rewards || [];
+  const rewards = actual.filter(
+    (r) => !player || !(q.rewardHidden || r.secret) || q.rewardRevealed,
+  );
+  return (
+    '<article class="visual-card quest-entry quest-' +
+    esc(q.status) +
+    '"><div class="visual-card-menu">' +
+    questMenu(q) +
+    "</div>" +
+    '<button class="visual-open" onclick="openMapQuest(' +
+    jsid(q.id) +
+    ')"><span class="quest-seal" aria-hidden="true">' +
+    questIcon(q) +
+    "</span><span><small>" +
+    esc(status) +
+    "</small><strong>" +
+    esc(q.title) +
+    "</strong><span>" +
+    esc(
+      [questGiver(q), questPlace(q), questFactionName(q)]
+        .filter(Boolean)
+        .join(" · "),
+    ) +
+    "</span>" +
+    (q.desc ? "<p>" + esc(excerpt(q.desc, 140)) + "</p>" : "") +
+    (rewards.length
+      ? "<small>" +
+        esc(rewards.map(rewardText).slice(0, 2).join(" · ")) +
+        "</small>"
+      : q.reward && (!player || !q.rewardHidden || q.rewardRevealed)
+        ? "<small>" + esc(excerpt(q.reward, 85)) + "</small>"
+        : "") +
+    '</span></button><div class="actions quest-entry-actions">' +
+    questMainActions(q) +
+    "</div></article>"
+  );
+}
+renderContracts = function () {
+  const all = S.contracts.filter((c) => !c.archived && (!player || !c.hidden));
+  const rows = all.filter(
+    (c) =>
+      (questFilter === "all" || c.status === questFilter) &&
+      (!questFaction ||
+        (questFaction === "none" ? !c.faction : c.faction === questFaction)),
+  );
+  const controls = !player
+    ? visualAction("Новое задание", "editContract()", "primary")
+    : "";
+  $("main").innerHTML =
+    '<div class="screen visual-screen">' +
+    sectionHeader(
+      "Журнал заданий",
+      "Контракты компании и местные поручения.",
+      controls,
+    ) +
+    '<div class="visual-filters"><div class="actions game-tabs">' +
+    [["all", "Все задания"], ...CS]
+      .map(
+        ([key, label]) =>
+          '<button aria-pressed="' +
+          (questFilter === key) +
+          '" onclick="questFilter=' +
+          jsid(key) +
+          ';render()">' +
+          esc(label) +
+          "</button>",
+      )
+      .join("") +
+    "</div>" +
+    pick(
+      "Фракция",
+      "questFactionPicker",
+      [
+        ["", "Все фракции"],
+        ["none", "Без фракции"],
+        ...pairs(S.factions.filter(visibleFaction)),
+      ],
+      questFaction,
+    ) +
+    "</div>" +
+    [
+      [false, "Контракты"],
+      [true, "Местные поручения"],
+    ]
+      .map(([local, title]) => {
+        const portion = rows.filter((q) => (q.type === "local") === local);
+        return portion.length
+          ? '<section class="quest-chapter"><h3>' +
+              title +
+              "</h3>" +
+              portion.map(questOverview).join("") +
+              "</section>"
+          : "";
+      })
+      .join("") +
+    (rows.length
+      ? ""
+      : emptyScene(
+          all.length
+            ? "По этим условиям заданий нет."
+            : "Журнал ждёт первого задания.",
+        )) +
+    "</div>";
+  $("questFactionPicker").onchange = () => {
+    questFaction = val("questFactionPicker");
+    render();
+  };
+};
+openMapQuest = function (id) {
+  const q = S.contracts.find((x) => x.id === id);
+  if (!q || q.archived || (player && q.hidden)) return;
+  const reward = q.rewardReceipt?.rewards || q.rewards || [];
+  const visible = reward.filter(
+    (r) => !player || !(q.rewardHidden || r.secret) || q.rewardRevealed,
+  );
+  const region = S.engine.regions.find((r) => r.id === q.region_id);
+  const place = questPlace(q);
+  const conditions = q.conditions || {};
+  const conditionNotes = [
+    conditions.race,
+    conditions.class,
+    conditions.level ? "Уровень от " + conditions.level : "",
+    conditions.skill,
+    S.engine.professions.find((p) => p.id === conditions.profession)?.name,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const relation = uxRelated("contract", id);
+  openModal(
+    q.title,
+    '<article class="quest-paper reader"><header><span class="quest-seal" aria-hidden="true">' +
+      questIcon(q) +
+      "</span><div><small>" +
+      esc(q.type === "local" ? "Местное поручение" : "Контракт") +
+      "</small><p>" +
+      esc(
+        [questGiver(q), place, region?.name, questFactionName(q)]
+          .filter(Boolean)
+          .join(" · "),
+      ) +
+      "</p></div>" +
+      questMenu(q) +
+      "</header>" +
+      (safeImage(q.image) ? sectionArt(q.image, "cover", "") : "") +
+      (q.desc
+        ? '<section><h3>Завязка</h3><p class="record-body">' +
+          esc(q.desc) +
+          "</p></section>"
+        : "") +
+      (q.objectives
+        ? '<section><h3>Цели</h3><p class="record-body">' +
+          esc(q.objectives) +
+          "</p></section>"
+        : "") +
+      (q.hours || conditionNotes
+        ? "<section><h3>Условия</h3><p>" +
+          esc(
+            [q.hours ? timeLabel(q.hours) : "", conditionNotes]
+              .filter(Boolean)
+              .join(" · "),
+          ) +
+          "</p></section>"
+        : "") +
+      questReward(q) +
+      (visible.length
+        ? '<div class="structured-loot">' +
+          visible
+            .map(
+              (r) =>
+                "<span>" +
+                gameIcon(
+                  r.type === "gold" ? "◉" : r.type === "rep" ? "⚑" : "◆",
+                  r.image,
+                ) +
+                esc(rewardText(r)) +
+                "</span>",
+            )
+            .join("") +
+          "</div>"
+        : "") +
+      (!player && q.notes
+        ? '<p class="notice record-body">' + esc(q.notes) + "</p>"
+        : "") +
+      relation +
+      '<div class="actions">' +
+      questMainActions(q) +
+      uxFavButton("contract", id) +
+      (place
+        ? visualAction("На карте", "focusQuestMap(" + jsid(id) + ")")
+        : "") +
+      "</div></article>",
+  );
+  uxLinkify($("modalBody"));
+};
+
+uxToolbar = function () {
+  const el = $("uxTools");
+  if (!el) return;
+  const count = uxNotifications().filter(
+    (row) => !uxReadSet()[1].has(row.notification),
+  ).length;
+  el.innerHTML =
+    visualAction("Поиск", "uxSearch()", "toolbar-search") +
+    '<button type="button" onclick="uxInbox()">Уведомления' +
+    (count ? ' <span class="ux-count">' + count + "</span>" : "") +
+    "</button>" +
+    visualAction("Избранное", "uxFavorites()", "toolbar-favorites") +
+    (!player
+      ? visualMenu(
+          "История и архив",
+          visualAction("Архив", "uxArchiveView()") +
+            visualAction("История", "uxHistory()") +
+            (uxUndo.length
+              ? visualAction("Отменить действие", "uxRestore(false)")
+              : "") +
+            (uxRedo.length
+              ? visualAction("Повторить действие", "uxRestore(true)")
+              : ""),
+        )
+      : "");
+};
+const existingSwitchTab = switchTab;
+switchTab = function (section) {
+  document.querySelectorAll("[data-context-menu][open]").forEach((menu) => {
+    menu.open = false;
+  });
+  return existingSwitchTab(section);
+};
+function revealActiveSection() {
+  const active = $("nav")?.querySelector("[aria-current='page']");
+  if (!active) return;
+  const strip = active.closest(".nav-scroll");
+  const item = active.getBoundingClientRect(),
+    view = strip.getBoundingClientRect();
+  if (item.left < view.left) strip.scrollLeft += item.left - view.left;
+  if (item.right > view.right) strip.scrollLeft += item.right - view.right;
+}
+function renderCampaignBar() {
+  const phase = S.journey ? "travel" : S.engine.phase;
+  const here = locLabel(S.company.location);
+  const hero = chosen();
+  const roles = heroRows();
+  $("status").innerHTML =
+    '<div class="status-campaign"><strong>' +
+    esc(S.company.name) +
+    "</strong><span>" +
+    esc(dayLabel()) +
+    "</span></div>" +
+    '<div class="status-location"><span class="phase-indicator phase-' +
+    esc(phase) +
+    '">' +
+    esc(phases[phase]) +
+    "</span>" +
+    (here ? "<span>" + esc(here) + "</span>" : "") +
+    "</div>" +
+    (hero
+      ? '<div class="status-hero">' +
+        (roles.length > 1
+          ? pick(
+              "Герой",
+              "statusHero",
+              roles.map((m) => [m.id, memberName(m)]),
+              hero,
+            )
+          : visualAction(
+              memberName(heroOf(S, hero)),
+              "openAffPerson('hero'," + jsid(hero) + ")",
+              "ghost",
+            )) +
+        "</div>"
+      : "") +
+    '<span id="saveState" class="save">' +
+    (player ? "" : "Локальная кампания") +
+    "</span>";
+  if ($("statusHero"))
+    $("statusHero").onchange = () => {
+      activeHero = val("statusHero");
+      render();
+    };
+  const operations = $("atlasOperations");
+  if (operations) operations.hidden = player;
+}
+function homeSituation() {
+  const hero = chosen(),
+    stay = currentStay(S),
+    routeRecord = S.journey && route(S.journey.routeId);
+  const notifications = uxNotifications().filter(
+    (row) => !uxReadSet()[1].has(row.notification),
+  );
+  const current = S.contracts.filter(
+    (q) => q.status === "active" && !q.archived && (!player || !q.hidden),
+  );
+  const mode = S.journey ? "travel" : S.engine.phase;
+  const actions =
+    mode === "stay"
+      ? visualAction("Открыть стоянку", "switchTab('stay')", "primary") +
+        (hero ? visualAction("Ремесло", "openCraftTab('recipes')") : "")
+      : mode === "travel"
+        ? visualAction("Перейти к маршруту", "switchTab('map')", "primary")
+        : visualAction(
+            "Открыть журнал заданий",
+            "switchTab('contracts')",
+            "primary",
+          );
+  let text = "";
+  if (stay)
+    text =
+      stay.name +
+      (hero ? " · " + timeLabel(remaining(S, hero)) + " у героя" : "");
+  else if (S.journey)
+    text =
+      routeRecord && visibleRoute(routeRecord)
+        ? routeLabel(routeRecord) +
+          " · " +
+          (S.journey.outcome == null
+            ? "ожидается событие"
+            : "событие перехода определено")
+        : "Компания в пути";
+  else
+    text = current.length
+      ? current
+          .slice(0, 2)
+          .map((q) => q.title)
+          .join(" · ")
+      : "Компания готовится к новым приключениям.";
+  const portrait = hero ? heroOf(S, hero) : null;
+  return (
+    '<section class="home-situation" aria-label="Сейчас в кампании"><div>' +
+    "<small>" +
+    esc(phases[mode]) +
+    "</small><strong>" +
+    esc(text) +
+    '</strong><div class="actions">' +
+    actions +
+    "</div></div>" +
+    "<div><small>" +
+    (portrait ? "Активный герой" : "В компании") +
+    "</small><strong>" +
+    esc(portrait ? memberName(portrait) : S.company.name) +
+    "</strong>" +
+    visualAction(
+      notifications.length
+        ? "Новые события · " + notifications.length
+        : "Уведомления",
+      "uxInbox()",
+      "ghost",
+    ) +
+    "</div></section>"
+  );
+}
+function prepareHomeVisuals() {
+  const cover = $("main").querySelector(".home-hero");
+  if (!cover) return;
+  const p = getHomePrefs();
+  if (p.hero) cover.insertAdjacentHTML("afterend", homeSituation());
+  $("main").querySelector(".home-hero .ux-cover")?.remove();
+  const settings = $("main").querySelector(".home-settings");
+  const slot = document.createElement("div");
+  slot.className = "home-appearance";
+  slot.innerHTML = visualMenu(
+    "Главная страница",
+    visualAction("Настроить блоки", "openHomeAppearance()") +
+      (!player ? visualAction("Изменить обложку", "uxCover()") : ""),
+  );
+  cover.append(slot);
+  if (settings) settings.hidden = true;
+}
+function openHomeAppearance() {
+  openModal("Оформление главной страницы", homeSettingsPanel(getHomePrefs()));
+  $("modalBody").querySelector(".home-settings").open = true;
+}
+const baseSectionHeader = header;
+header = function (title, desc, action = "") {
+  return [
+    "camp",
+    "company",
+    "achievements",
+    "mail",
+    "help",
+    "diplomacy",
+    "journal",
+  ].includes(tab)
+    ? sectionHeader(title, desc, action)
+    : baseSectionHeader(title, desc, action);
+};
+function editStaffPortrait(id) {
+  const staff = S.company.staff.find((x) => x.id === id);
+  if (!staff || player) return;
+  editVisualImages(
+    staff.name,
+    [{ key: "staffPortrait", label: "Портрет", image: staff.image }],
+    (images) => {
+      staff.image = images.staffPortrait;
+    },
+  );
+}
+function campVisuals() {
+  const body = $("main");
+  body.querySelector(".screen")?.classList.add("visual-screen", "camp-visual");
+  const staff = body.querySelector(".camp-grid ~ .cards");
+  if (staff) {
+    staff.className = "people-gallery camp-staff";
+    staff.innerHTML =
+      S.company.staff
+        .filter((x) => !player || !x.hidden)
+        .map((x) => {
+          const id = jsid(x.id);
+          const projects = (S.engine.projects || []).filter(
+            (p) =>
+              p.status === "active" &&
+              p.contributors?.some((c) => c.staff === x.id),
+          );
+          return (
+            '<article class="visual-card person-card"><button class="visual-open person-open" onclick="openAffPerson(\'staff\',' +
+            id +
+            ')">' +
+            sectionArt(x.image, "portrait", "⚒") +
+            '<span class="person-info"><strong>' +
+            esc(x.name) +
+            "</strong><span>" +
+            esc(x.role || "Специалист") +
+            "</span>" +
+            (projects.length
+              ? "<small>" +
+                esc(projects.map((p) => p.name).join(" · ")) +
+                "</small>"
+              : "") +
+            "</span></button>" +
+            (!player
+              ? '<div class="visual-card-menu">' +
+                visualMenu(
+                  "Действия специалиста",
+                  visualAction("Изменить", "editStaff(" + id + ")") +
+                    visualAction("Портрет", "editStaffPortrait(" + id + ")") +
+                    visualAction(
+                      "Удалить",
+                      "removeStaff(" + id + ")",
+                      "danger",
+                    ),
+                ) +
+                "</div>"
+              : "") +
+            "</article>"
+          );
+        })
+        .join("") || emptyScene("У лагеря пока нет специалистов.");
+  }
+  for (const branch of body.querySelectorAll(".branch")) {
+    const icon = branch.querySelector("h2")?.textContent.trim()[0] || "✦";
+    for (const node of branch.querySelectorAll(".talent")) {
+      node
+        .querySelector(".rank")
+        ?.insertAdjacentHTML("beforebegin", gameIcon(icon));
+      const buttons = node.querySelector(".actions");
+      const manual = buttons?.querySelector(".ghost");
+      if (manual) {
+        const anchor = document.createElement("div");
+        anchor.innerHTML = visualMenu(
+          "Управление улучшением",
+          manual.outerHTML,
+        );
+        manual.replaceWith(anchor.firstElementChild);
+      }
+    }
+  }
+}
+function collectionVisuals() {
+  const root = $("main");
+  root
+    .querySelector(".screen")
+    ?.classList.add("visual-screen", "achievement-collection");
+  const cards = [...root.querySelectorAll(".achievement")];
+  const stats = root.querySelector(".achievement-stats");
+  if (stats) {
+    const cardsVisible = portalData().achievements.filter(
+      (x) =>
+        seen("achievements", x) &&
+        (!player || !x.secret || shownGrants(x).length),
+    );
+    const earned = cardsVisible.filter((x) => shownGrants(x).length).length;
+    stats.insertAdjacentHTML(
+      "afterend",
+      '<progress class="collection-meter" aria-label="Заполнение коллекции" value="' +
+        earned +
+        '" max="' +
+        (cardsVisible.length || 1) +
+        '"></progress>',
+    );
+  }
+  if (!cards.length)
+    root
+      .querySelector(".empty")
+      ?.replaceChildren("У компании пока нет подвигов в этой коллекции.");
+}
+const fallbackVisualCard = portalCard;
+portalCard = function (k, x) {
+  if (k === "achievements") {
+    const grants = shownGrants(x);
+    return (
+      '<article class="visual-card achievement ' +
+      (grants.length ? "earned" : "locked") +
+      '">' +
+      '<button class="visual-open achievement-open" onclick="openPortalRecord(\'achievements\',' +
+      jsid(x.id) +
+      ')">' +
+      sectionArt(x.image, "emblem", "✦") +
+      "<span><small>" +
+      esc(x.category || "") +
+      "</small><strong>" +
+      esc(x.title) +
+      "</strong><span>" +
+      esc(excerpt(x.body, 155)) +
+      "</span><small>" +
+      esc(n(x.points) + " очк.") +
+      "</small>" +
+      (grants.length
+        ? '<small class="achievement-recipients">' +
+          esc(
+            grants
+              .map(
+                (g) =>
+                  recipientName(g.recipient, g.name) +
+                  (g.date ? " · " + g.date : ""),
+              )
+              .join(" / "),
+          ) +
+          "</small>"
+        : "") +
+      '</span></button><div class="visual-card-menu">' +
+      portalMenu(k, x) +
+      "</div></article>"
+    );
+  }
+  if (k === "mail") return editorialCard(k, x);
+  return fallbackVisualCard(k, x);
+};
+const visualAchievementList = renderAchievements;
+let achievementCategory = "";
+renderAchievements = function () {
+  visualAchievementList();
+  const root = $("main"),
+    gallery = root.querySelector(".ach-grid");
+  if (!gallery) return;
+  const categories = [
+    ...new Set(
+      visiblePortalRows("achievements")
+        .filter((x) => !player || !x.secret || shownGrants(x).length)
+        .map((x) => x.category)
+        .filter(Boolean),
+    ),
+  ];
+  if (achievementCategory && !categories.includes(achievementCategory))
+    achievementCategory = "";
+  gallery.insertAdjacentHTML(
+    "beforebegin",
+    '<div class="achievement-category">' +
+      pick(
+        "Категория",
+        "achievementCategory",
+        [["", "Все категории"], ...categories.map((c) => [c, c])],
+        achievementCategory,
+      ) +
+      "</div>",
+  );
+  $("achievementCategory").onchange = () => {
+    achievementCategory = val("achievementCategory");
+    renderAchievements();
+  };
+  if (achievementCategory) {
+    const cards = [...gallery.querySelectorAll(".achievement")];
+    for (const card of cards)
+      if (
+        card.querySelector(".achievement-open small")?.textContent !==
+        achievementCategory
+      )
+        card.remove();
+    if (!gallery.children.length)
+      gallery.innerHTML = emptyScene(
+        "В этой категории пока нет подходящих достижений.",
+      );
+  }
+  collectionVisuals();
+};
+const baseVisualBook = renderWorldBook;
+renderWorldBook = function () {
+  baseVisualBook();
+  $("main")
+    .querySelector(".screen")
+    ?.classList.add("visual-screen", "book-visual");
+};
+const baseVisualSidebar = renderSidebar;
+renderSidebar = function () {
+  baseVisualSidebar();
+  const place = selected?.type === "node" ? node(selected.id) : null;
+  const panel = $("sidebar")?.querySelector(".side-inner");
+  if (!place || !panel || !visibleNode(place)) return;
+  const section = [...panel.children].find((el) => el.querySelector("h2"));
+  if (!section) return;
+  const region = S.engine.regions.find((r) => r.id === place.regionId);
+  section.classList.add("place-dossier");
+  section.insertAdjacentHTML(
+    "afterbegin",
+    sectionArt(
+      place.image || region?.image,
+      "cover",
+      type(place.type)[0] ? "⌖" : "✦",
+    ),
+  );
+  if (!player) {
+    const actions = section.querySelector(".actions");
+    const menu = visualMenu(
+      "Действия с местом",
+      (actions?.innerHTML || "") +
+        visualAction(
+          "Иллюстрация места",
+          "editPlaceArt(" + jsid(place.id) + ")",
+        ),
+    );
+    if (actions) actions.outerHTML = menu;
+    else section.insertAdjacentHTML("beforeend", menu);
+  }
+};
+function editPlaceArt(id) {
+  const place = node(id);
+  if (player || !place) return;
+  editVisualImages(
+    place.name,
+    [{ key: "placeArt", label: "Иллюстрация места", image: place.image }],
+    (images) => {
+      place.image = images.placeArt;
+    },
+  );
+}
+onRender.push(() => {
+  renderCampaignBar();
+  revealActiveSection();
+  const main = $("main");
+  main.dataset.scene = tab;
+  if (tab === "home") prepareHomeVisuals();
+  if (tab === "camp") campVisuals();
+  if (tab === "stay" || tab === "craft") {
+    main.querySelector(".screen")?.classList.add("visual-screen");
+    const controls = $("stayAdminLink");
+    const cover = main.querySelector(".game-cover");
+    const image = S.settings.visual?.covers?.[tab];
+    if (
+      cover &&
+      safeImage(image) &&
+      !(tab === "stay" && cover.querySelector(".stay-illustration"))
+    )
+      cover.insertAdjacentHTML(
+        "afterbegin",
+        sectionArt(image, "cover", "", "game-cover-art"),
+      );
+    if (!player && cover) {
+      const format = visualAction(
+        "Изменить обложку",
+        "editSectionCover(" + jsid(tab) + ")",
+      );
+      if (controls)
+        controls.innerHTML = visualMenu(
+          "Управление стоянкой",
+          visualAction("Управление стоянкой", "stayAdmin()") + format,
+        );
+      else {
+        const target = tab === "craft" ? $("craftHeroLinks") : $("stayActions");
+        target?.insertAdjacentHTML(
+          "beforeend",
+          visualMenu("Оформление раздела", format),
+        );
+      }
+    }
+  }
+  const panel = $("engineActions");
+  if (panel) {
+    const box = panel.closest(".engine-panel");
+    const decisions = new Set([
+      "Создать регион",
+      "Нарисовать границу",
+      "Изменить регион",
+      "Эффекты лагеря",
+      "Обучение профессиям",
+      "Новое местное поручение",
+      "Изменить поручение",
+      "Последствия сессии",
+      "Категория предметов",
+      "Экономика",
+      "Закрыть стоянку",
+    ]);
+    const admin = [...panel.children].filter((el) =>
+      decisions.has(el.textContent),
+    );
+    if (admin.length && !player) {
+      const details = document.createElement("details");
+      details.className = "visual-menu";
+      details.dataset.contextMenu = "";
+      details.innerHTML =
+        '<summary aria-label="Управление разделом" title="Управление разделом">⋯</summary><div class="visual-menu-panel"></div>';
+      details.lastElementChild.append(...admin);
+      panel.append(details);
+    }
+    box?.classList.add("context-panel");
+  }
+});
 
 boot();
 </script></body></html>

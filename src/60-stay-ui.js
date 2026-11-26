@@ -22,7 +22,20 @@ function gameHero(hero, stay) {
         .filter(Boolean)
         .join(" · "),
     ) +
-    '</p></div><div id="gameHeroSelect"></div></div>' +
+    "</p>" +
+    (tab === "stay" && p.professions.length
+      ? '<p class="stay-professions">' +
+        esc(
+          S.engine.professions
+            .filter((record) => p.professions.includes(record.id))
+            .map((record) => record.name)
+            .join(" · "),
+        ) +
+        "</p>"
+      : "") +
+    '</div><div id="gameHeroSelect"></div>' +
+    (tab === "stay" ? visualAction("Личные сумки", "bagPage()", "ghost") : "") +
+    "</div>" +
     (stay
       ? '<div class="game-time"><label for="stayTime">Игровое время <strong>' +
         timeLabel(remaining(S, hero)) +
@@ -356,7 +369,7 @@ function renderStay() {
     gameHero(hero, stay) +
     "</section>" +
     '<section class="game-section"><h3>Добыча и исследование</h3><div id="activitiesGrid" class="activity-grid"></div></section>' +
-    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="game-task-list"></div></section></div>';
+    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="activity-grid stay-task-grid"></div></section></div>';
   bindGameHero(hero);
   if (master)
     $("stayAdminLink").append(button("Управление стоянкой", stayAdmin));
@@ -386,7 +399,8 @@ function renderStay() {
       const card = button(profession.name, () =>
         activityDialog(hero, profession, stay),
       );
-      card.className = "activity-card";
+      card.className =
+        "activity-card" + (state.reason ? " activity-unavailable" : "");
       card.innerHTML =
         gameIcon(profession.icon) +
         "<strong>" +
@@ -403,7 +417,7 @@ function renderStay() {
             "</small>"
           : "") +
         '<small class="' +
-        (state.reason ? "game-bad" : "game-good") +
+        (state.reason ? "activity-reason" : "game-good") +
         '">' +
         esc(state.reason || "Доступно") +
         "</small>";
@@ -440,6 +454,27 @@ function renderStay() {
     S.engine.projects.some((j) => j.status === "active")
   )
     tasks.append(button("Работа специалистов", staffWorkDialog));
+  const taskArt = [
+    ["⚒", "Рецепты и незавершённые проекты"],
+    ["!", "Работа для жителей региона"],
+    ["▤", "Записки о времени на стоянке"],
+    ["☾", "Восстановить силы"],
+    ["⚙", "Распределить работу в лагере"],
+  ];
+  [...tasks.children].forEach((item, i) => {
+    const [icon, caption] = taskArt[i];
+    const title = item.textContent;
+    item.innerHTML =
+      gameIcon(icon) +
+      "<strong>" +
+      esc(title) +
+      "</strong><small>" +
+      esc(caption) +
+      "</small>";
+    item.setAttribute("aria-label", title);
+    item.classList.add("activity-card");
+    if (item.disabled) item.classList.add("activity-unavailable");
+  });
   if (!tasks.children.length)
     tasks.innerHTML =
       '<p class="muted">Дела компании доступны назначенным героям.</p>';

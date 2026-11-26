@@ -111,7 +111,7 @@ function errandEditor(quest = null) {
   if (existing.length) existing.forEach(add);
   else add();
 }
-function localBoard() {
+function localBoard(questId = null) {
   const hero = chosen(),
     e = adventure(S);
   openModal(
@@ -120,7 +120,10 @@ function localBoard() {
   );
   const box = $("localBoard");
   for (const q of S.contracts.filter(
-    (q) => q.type === "local" && questAvailable(S, q, hero),
+    (q) =>
+      (!questId || q.id === questId) &&
+      q.type === "local" &&
+      questAvailable(S, q, hero),
   )) {
     const el = document.createElement("article");
     el.className = "quest-card";
