@@ -780,5 +780,231 @@
         "origin": "demo"
       }
     }
+  ],
+  "errands": [
+    {
+      "id": "task-0",
+      "title": "Незадачливый торговец",
+      "desc": "Колесо телеги гоблина застряло в канаве.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-1",
+      "title": "Потерянный разведчик",
+      "desc": "На опушке остались следы дозора.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-2",
+      "title": "Вода для каравана",
+      "desc": "У колодца стоит встревоженный караванщик.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-3",
+      "title": "Старая надпись",
+      "desc": "На камне сохранились руны.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-4",
+      "title": "Лекарь заставы",
+      "desc": "Лекарю нужен помощник в полевом лагере.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "solutions": [
+    {
+      "id": "option-0",
+      "quest_id": "task-0",
+      "name": "Помочь",
+      "skill": "Атлетика",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-0-help",
+      "quest_id": "task-0",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-1",
+      "quest_id": "task-1",
+      "name": "Помочь",
+      "skill": "Выживание",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-1-help",
+      "quest_id": "task-1",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-2",
+      "quest_id": "task-2",
+      "name": "Помочь",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-2-help",
+      "quest_id": "task-2",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-3",
+      "quest_id": "task-3",
+      "name": "Помочь",
+      "skill": "История",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-3-help",
+      "quest_id": "task-3",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-4",
+      "quest_id": "task-4",
+      "name": "Помочь",
+      "skill": "Медицина",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-4-help",
+      "quest_id": "task-4",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    }
+  ],
+  "rewards": [
+    {
+      "id": "gold-option-0",
+      "solution_id": "option-0",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-0-help",
+      "solution_id": "option-0-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-1",
+      "solution_id": "option-1",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-1-help",
+      "solution_id": "option-1-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-2",
+      "solution_id": "option-2",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-2-help",
+      "solution_id": "option-2-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-3",
+      "solution_id": "option-3",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-3-help",
+      "solution_id": "option-3-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-4",
+      "solution_id": "option-4",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-4-help",
+      "solution_id": "option-4-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    }
   ]
 }

@@ -1673,6 +1673,232 @@ const demoPack={
         "origin": "demo"
       }
     }
+  ],
+  "errands": [
+    {
+      "id": "task-0",
+      "title": "Незадачливый торговец",
+      "desc": "Колесо телеги гоблина застряло в канаве.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-1",
+      "title": "Потерянный разведчик",
+      "desc": "На опушке остались следы дозора.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-2",
+      "title": "Вода для каравана",
+      "desc": "У колодца стоит встревоженный караванщик.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-3",
+      "title": "Старая надпись",
+      "desc": "На камне сохранились руны.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "task-4",
+      "title": "Лекарь заставы",
+      "desc": "Лекарю нужен помощник в полевом лагере.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "solutions": [
+    {
+      "id": "option-0",
+      "quest_id": "task-0",
+      "name": "Помочь",
+      "skill": "Атлетика",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-0-help",
+      "quest_id": "task-0",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-1",
+      "quest_id": "task-1",
+      "name": "Помочь",
+      "skill": "Выживание",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-1-help",
+      "quest_id": "task-1",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-2",
+      "quest_id": "task-2",
+      "name": "Помочь",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-2-help",
+      "quest_id": "task-2",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-3",
+      "quest_id": "task-3",
+      "name": "Помочь",
+      "skill": "История",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-3-help",
+      "quest_id": "task-3",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-4",
+      "quest_id": "task-4",
+      "name": "Помочь",
+      "skill": "Медицина",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    },
+    {
+      "id": "option-4-help",
+      "quest_id": "task-4",
+      "name": "Позвать подмогу",
+      "skill": "Убеждение",
+      "dc": 10,
+      "success": "Поручение выполнено.",
+      "failure": "Попытка не удалась."
+    }
+  ],
+  "rewards": [
+    {
+      "id": "gold-option-0",
+      "solution_id": "option-0",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-0-help",
+      "solution_id": "option-0-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-1",
+      "solution_id": "option-1",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-1-help",
+      "solution_id": "option-1-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-2",
+      "solution_id": "option-2",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-2-help",
+      "solution_id": "option-2-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-3",
+      "solution_id": "option-3",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-3-help",
+      "solution_id": "option-3-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-4",
+      "solution_id": "option-4",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    },
+    {
+      "id": "gold-option-4-help",
+      "solution_id": "option-4-help",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    }
   ]
 }
 ;
@@ -1762,7 +1988,7 @@ register('cancelProject','hero',(s,p)=>{
  profile(s,j.hero).wallet+=Math.floor(j.cost*rate);j.status='cancelled';
 });
 register('demo','master',s=>{
- const e=economy(s);requireThat(!e.demo,'Пример уже установлен');
+ const e=adventure(s);requireThat(!e.demo,'Пример уже установлен');
  for(const [k,rows] of Object.entries(demoPack)){const target=k==='errands'?s.contracts:e[k];for(const row of rows){requireThat(!target.some(x=>x.id===row.id),'Конфликт ID '+row.id);target.push(structuredClone(row))}}
  e.demo=true;
 });
@@ -1811,6 +2037,88 @@ actions.push((a,{gm,hero,t,e})=>{
   if(t)a.append(button('Добыча',activities));
   a.append(button('Книга рецептов',recipeBook));
  }
+});
+
+function adventure(s){
+ const e=economy(s);for(const k of ['solutions','rewards','completions','sessions'])e[k]??=[];return e;
+}
+function questAvailable(s,q,hero){
+ const e=adventure(s),t=currentStay(s),h=profile(s,hero),m=heroOf(s,hero),c=q.conditions||{};
+ if(!t||q.archived||q.hidden||q.region_id&&q.region_id!==t.region||q.location&&q.location!==t.location)return false;
+ if(c.race&&c.race!==m.race||c.class&&c.class!==m.class||c.level&&c.level>h.level)return false;
+ if(c.skill&&!h.skills[c.skill]||c.recipe&&!h.recipes.includes(c.recipe)||c.profession&&!eligibleProfession(s,h,c.profession))return false;
+ if(c.item&&!s.company.inventory.some(i=>i.owner==='member:'+hero&&i.item_id===c.item&&i.qty>0))return false;
+ if(c.faction&&(s.factions.find(f=>f.id===c.faction)?.repPoints??-Infinity)<(c.rep||0))return false;
+ if(c.npc&&!h.contacts?.includes(c.npc)||c.achievement&&!s.portal.achievements.some(a=>a.id===c.achievement&&a.grants?.some(g=>g.recipient==='hero:'+hero)))return false;
+ if(c.quest&&!e.completions.some(r=>r.hero===hero&&r.quest===c.quest)&&!s.contracts.some(r=>r.id===c.quest&&r.status==='done'))return false;
+ return !e.completions.some(r=>r.hero===hero&&r.quest===q.id&&(q.repeat==='stay'?r.stay===t.id:q.repeat==='day'?r.day===s.company.day:q.period?s.company.day-r.day<q.period:true));
+}
+function grant(s,r,hero){
+ const h=hero?profile(s,hero):null;
+ if(r.type==='item'){deposit(s,r.item_id,hero?'member:'+hero:'',integer(r.quantity,1),{hidden:!!r.secret});return}
+ if(r.type==='gold'){integer(r.amount,0);if(h)h.wallet+=r.amount;else s.company.gold+=r.amount;return}
+ if(r.type==='rep'){const f=byId(s.factions,r.faction);integer(r.amount,-100000);f.repPoints=Math.max(-6000,Math.min(42999,f.repPoints+r.amount));return}
+ if(r.type==='contact'){byId(s.portal.people,r.npc);requireThat(h,'Нужен герой');h.contacts??=[];if(!h.contacts.includes(r.npc))h.contacts.push(r.npc);return}
+ if(r.type==='discover'){byId(s.nodes,r.node).visibility='known';return}
+ if(r.type==='achievement'){const a=byId(s.portal.achievements,r.achievement);a.grants??=[];const recipient=hero?'hero:'+hero:'company';if(!a.grants.some(g=>g.recipient===recipient))a.grants.push({recipient,date:'День '+s.company.day,name:hero?heroOf(s,hero).name:s.company.name});return}
+ requireThat(false,'Неизвестная награда');
+}
+register('errand','master',(s,p)=>{
+ adventure(s);requireThat(p.title&&p.options.length,'Нужны название и варианты');
+ const id=p.id||crypto.randomUUID();const q={id,title:p.title,type:'local',desc:p.desc,region_id:p.region_id,hours:integer(p.hours,1),repeat:p.repeat,conditions:p.conditions||{},status:'available',rewards:[]};
+ requireThat(!s.contracts.some(x=>x.id===id),'ID поручения занят');s.contracts.push(q);
+ for(const o of p.options){integer(o.dc,0,100);requireThat(o.name&&Object.hasOwn(skills,o.skill),'Проверьте вариант');const key=crypto.randomUUID();s.engine.solutions.push({...o,id:key,quest_id:id});if(o.gold)s.engine.rewards.push({id:crypto.randomUUID(),solution_id:key,type:'gold',amount:integer(o.gold),when:'success'})}
+});
+register('quest','hero',(s,p)=>{
+ const e=adventure(s),q=byId(s.contracts,p.quest),o=byId(e.solutions,p.option);
+ requireThat(q.type==='local'&&q.id===o.quest_id&&questAvailable(s,q,p.hero),'Поручение недоступно');
+ spend(s,p.hero,q.hours||1,q.title);
+ const r=ability(profile(s,p.hero),{skill:o.skill,tool:o.tool,stat:o.stat,dc:o.dc,mode:'normal'});
+ e.rolls.unshift({...r,hero:p.hero,label:q.title});
+ for(const rw of e.rewards.filter(x=>x.solution_id===o.id&&x.when===(r.success?'success':'failure')))grant(s,rw,p.hero);
+ const result=o.encounter?'Требуется решение мастера':(r.success?o.success:o.failure);
+ e.completions.push({hero:p.hero,quest:q.id,option:o.id,stay:currentStay(s).id,day:s.company.day,result});
+ s.journal.unshift({id:crypto.randomUUID(),kind:'contract',title:q.title,text:result||'',day:s.company.day,year:s.company.year});
+});
+register('session','master',(s,p)=>{
+ const e=adventure(s);requireThat(typeof p.id==='string'&&p.id&&p.summary&&!e.sessions.some(x=>x.id===p.id),'Нужны уникальный ID и краткое содержание');
+ for(const r of p.effects){
+  if(r.type==='quest'){const q=byId(s.contracts,r.quest);requireThat(!q.rewardReceipt&&!q.rewards?.length,'Контракт с наградой завершите на доске заданий');q.status='done'}
+  else grant(s,r,r.hero||'');
+ }
+ e.sessions.push(structuredClone(p));s.journal.unshift({id:crypto.randomUUID(),kind:'note',title:p.summary,text:p.log,hidden:!!p.hidden,day:s.company.day,year:s.company.year});
+});
+
+function errandEditor(){
+ form('Местное поручение',input('Название','qt','text','','required')+area('Вступление','qd')+pick('Регион','qr',[['','Любой'],...pairs(S.engine.regions)],'')+input('Часов','qh','number',1)+pick('Повторять','repeat',[['once','Однократно'],['day','Раз в игровой день'],['stay','Раз за стоянку']],'once')+'<div id="optionsBox"></div><button type="button" id="addOption">Добавить решение</button>',async()=>{
+ const options=[...$('optionsBox').children].map((_,i)=>({name:val('op'+i),skill:val('skill'+i),dc:num('dc'+i),success:val('win'+i),failure:val('loss'+i),gold:num('gold'+i)}));
+ await execute('errand',{title:val('qt'),desc:val('qd'),region_id:val('qr'),hours:num('qh'),repeat:val('repeat'),options});
+ });
+ const add=()=>{const i=$('optionsBox').children.length,el=document.createElement('details');el.open=true;el.innerHTML='<summary>Решение '+(i+1)+'</summary>'+input('Действие','op'+i,'text','','required')+pick('Навык','skill'+i,Object.keys(skills).map(k=>[k,k]),'Атлетика')+input('Сл','dc'+i,'number',10)+input('Успех','win'+i)+input('Неудача','loss'+i)+input('Награда при успехе, зм','gold'+i,'number',0);$('optionsBox').append(el)};
+ $('addOption').onclick=add;add();
+}
+function localBoard(){
+ const hero=chosen(),e=adventure(S);openModal('Местные поручения','<section class="stack" id="localBoard"></section>');const box=$('localBoard');
+ for(const q of S.contracts.filter(q=>q.type==='local'&&questAvailable(S,q,hero))){
+ const el=document.createElement('article');el.className='quest-card';el.innerHTML='<h3>'+esc(q.title)+'</h3><p>'+esc(q.desc)+'</p><small>'+esc(q.hours)+' ч.</small>';
+ for(const o of e.solutions.filter(x=>x.quest_id===q.id))el.append(button(o.name,()=>commandForm(q.title,'<p>'+esc(o.name)+' · '+esc(o.skill)+' · Сл '+esc(o.dc)+'</p>','quest',()=>({hero,quest:q.id,option:o.id}),'Выполнить')));
+ box.append(el);
+ }if(!box.children.length)box.textContent='Доступных поручений пока нет.';
+}
+function sessionEditor(){
+ form('Последствия приключения',input('Идентификатор сессии','sid','text',crypto.randomUUID(),'required')+input('Краткое содержание','sum','text','','required')+area('Текстовый лог','logTxt')+input('Загрузить лог (.txt)','logFile','file')+area('Последствия JSON','effects','[]')+input('Загрузить последствия (.json)','effectFile','file')+check('Скрыть запись летописи','privateSession',false),()=>{
+ const p={id:val('sid'),summary:val('sum'),log:val('logTxt'),hidden:$('privateSession').checked,effects:JSON.parse(val('effects'))};
+ applyCommand(S,actor,'session',p,'preview:'+p.id);
+ commandForm('Подтверждение последствий','<p>'+esc(p.summary)+'</p><pre>'+esc(JSON.stringify(p.effects,null,2))+'</pre>','session',()=>p,'Применить');
+ },'Проверить');
+ $('logFile').onchange=async e=>{if(e.target.files[0])$('logTxt').value=await e.target.files[0].text()};
+ $('effectFile').onchange=async e=>{if(e.target.files[0])$('effects').value=await e.target.files[0].text()};
+}
+actions.push((a,{gm,t,hero})=>{
+ adventure(S);
+ if(gm&&tab==='contracts')a.append(button('Новое местное поручение',errandEditor));
+ if(gm&&tab==='home')a.append(button('Последствия сессии',sessionEditor));
+ if(hero&&t)a.append(button('Местные поручения',localBoard));
 });
 
 boot();

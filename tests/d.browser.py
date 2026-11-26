@@ -1,0 +1,6 @@
+page.evaluate("switchTab('contracts')")
+page.get_by_role('button',name='Новое местное поручение').click()
+page.locator('#qt').fill('Браузерное поручение')
+page.locator('#op0').fill('Помочь')
+page.locator('#engineForm button[type=submit]').click()
+page.wait_for_function("S.contracts.some(x=>x.title==='Браузерное поручение')")

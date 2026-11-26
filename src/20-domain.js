@@ -86,7 +86,7 @@ register('cancelProject','hero',(s,p)=>{
  profile(s,j.hero).wallet+=Math.floor(j.cost*rate);j.status='cancelled';
 });
 register('demo','master',s=>{
- const e=economy(s);requireThat(!e.demo,'Пример уже установлен');
+ const e=adventure(s);requireThat(!e.demo,'Пример уже установлен');
  for(const [k,rows] of Object.entries(demoPack)){const target=k==='errands'?s.contracts:e[k];for(const row of rows){requireThat(!target.some(x=>x.id===row.id),'Конфликт ID '+row.id);target.push(structuredClone(row))}}
  e.demo=true;
 });
