@@ -1,0 +1,784 @@
+{
+  "regions": [
+    {
+      "id": "durotar",
+      "name": "Дуротар",
+      "continent": "Калимдор",
+      "biome": "Сухие холмы",
+      "dc": 10,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens",
+      "name": "Степи",
+      "continent": "Калимдор",
+      "biome": "Саванна",
+      "dc": 12,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash",
+      "name": "Ясеневый лес",
+      "continent": "Калимдор",
+      "biome": "Лес",
+      "dc": 15,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "ore",
+      "name": "Медная руда",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "silver",
+      "name": "Серебряная руда",
+      "category": "Материалы",
+      "quality": "rare",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "bloom",
+      "name": "Мироцвет",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "leaf",
+      "name": "Сребролист",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "hide",
+      "name": "Лёгкая кожа",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "meat",
+      "name": "Сырое мясо",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "fish",
+      "name": "Речная рыба",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "shard",
+      "name": "Осколок реликвии",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "bar",
+      "name": "Медный слиток",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "wire",
+      "name": "Медная проволока",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "hook",
+      "name": "Крючок",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "nail",
+      "name": "Гвозди",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "oil",
+      "name": "Травяное масло",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ink",
+      "name": "Чернила",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "meal",
+      "name": "Походный рацион",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "soup",
+      "name": "Рыбная похлёбка",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "strap",
+      "name": "Кожаный ремешок",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ring",
+      "name": "Серебряное кольцо",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "recipes": [
+    {
+      "id": "make-bar",
+      "name": "Медный слиток",
+      "profession_id": "smithing",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "bar",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-wire",
+      "name": "Медная проволока",
+      "profession_id": "smithing",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "wire",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-hook",
+      "name": "Крючок",
+      "profession_id": "engineering",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "hook",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-nail",
+      "name": "Гвозди",
+      "profession_id": "smithing",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "nail",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-oil",
+      "name": "Травяное масло",
+      "profession_id": "alchemy",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "oil",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-ink",
+      "name": "Чернила",
+      "profession_id": "inscription",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "ink",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-meal",
+      "name": "Походный рацион",
+      "profession_id": "cooking",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "meal",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-soup",
+      "name": "Рыбная похлёбка",
+      "profession_id": "cooking",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "soup",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-strap",
+      "name": "Кожаный ремешок",
+      "profession_id": "leather",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "strap",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-ring",
+      "name": "Серебряное кольцо",
+      "profession_id": "jewelry",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "ring",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "ingredients": [
+    {
+      "id": "need-bar",
+      "recipe_id": "make-bar",
+      "item_id": "ore",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-wire",
+      "recipe_id": "make-wire",
+      "item_id": "bar",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-hook",
+      "recipe_id": "make-hook",
+      "item_id": "wire",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-nail",
+      "recipe_id": "make-nail",
+      "item_id": "bar",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-oil",
+      "recipe_id": "make-oil",
+      "item_id": "bloom",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-ink",
+      "recipe_id": "make-ink",
+      "item_id": "leaf",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-meal",
+      "recipe_id": "make-meal",
+      "item_id": "meat",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-soup",
+      "recipe_id": "make-soup",
+      "item_id": "fish",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-strap",
+      "recipe_id": "make-strap",
+      "item_id": "hide",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-ring",
+      "recipe_id": "make-ring",
+      "item_id": "silver",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "loot": [
+    {
+      "id": "durotar-mining-ore",
+      "region_id": "durotar",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-mining-silver",
+      "region_id": "durotar",
+      "profession_id": "mining",
+      "item_id": "silver",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-herbalism-bloom",
+      "region_id": "durotar",
+      "profession_id": "herbalism",
+      "item_id": "bloom",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-herbalism-leaf",
+      "region_id": "durotar",
+      "profession_id": "herbalism",
+      "item_id": "leaf",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-hunt-meat",
+      "region_id": "durotar",
+      "profession_id": "hunt",
+      "item_id": "meat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-fishing-fish",
+      "region_id": "durotar",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-skinning-hide",
+      "region_id": "durotar",
+      "profession_id": "skinning",
+      "item_id": "hide",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-archaeology-shard",
+      "region_id": "durotar",
+      "profession_id": "archaeology",
+      "item_id": "shard",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-mining-ore",
+      "region_id": "barrens",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-mining-silver",
+      "region_id": "barrens",
+      "profession_id": "mining",
+      "item_id": "silver",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-herbalism-bloom",
+      "region_id": "barrens",
+      "profession_id": "herbalism",
+      "item_id": "bloom",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-herbalism-leaf",
+      "region_id": "barrens",
+      "profession_id": "herbalism",
+      "item_id": "leaf",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-hunt-meat",
+      "region_id": "barrens",
+      "profession_id": "hunt",
+      "item_id": "meat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-fishing-fish",
+      "region_id": "barrens",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-skinning-hide",
+      "region_id": "barrens",
+      "profession_id": "skinning",
+      "item_id": "hide",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-archaeology-shard",
+      "region_id": "barrens",
+      "profession_id": "archaeology",
+      "item_id": "shard",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-mining-ore",
+      "region_id": "ash",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-mining-silver",
+      "region_id": "ash",
+      "profession_id": "mining",
+      "item_id": "silver",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-herbalism-bloom",
+      "region_id": "ash",
+      "profession_id": "herbalism",
+      "item_id": "bloom",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-herbalism-leaf",
+      "region_id": "ash",
+      "profession_id": "herbalism",
+      "item_id": "leaf",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-hunt-meat",
+      "region_id": "ash",
+      "profession_id": "hunt",
+      "item_id": "meat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-fishing-fish",
+      "region_id": "ash",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-skinning-hide",
+      "region_id": "ash",
+      "profession_id": "skinning",
+      "item_id": "hide",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-archaeology-shard",
+      "region_id": "ash",
+      "profession_id": "archaeology",
+      "item_id": "shard",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

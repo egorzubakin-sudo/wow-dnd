@@ -1,0 +1,250 @@
+{
+  "professions": [
+    {
+      "id": "mining",
+      "name": "Горное дело",
+      "tools": [
+        "Инструменты каменщика"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 98
+      }
+    },
+    {
+      "id": "herbalism",
+      "name": "Травничество",
+      "tools": [
+        "Набор травника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 97
+      }
+    },
+    {
+      "id": "skinning",
+      "name": "Снятие шкур",
+      "tools": [
+        "Инструменты кожевника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 98
+      }
+    },
+    {
+      "id": "fishing",
+      "name": "Рыбалка",
+      "tools": [],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 97
+      }
+    },
+    {
+      "id": "archaeology",
+      "name": "Археология",
+      "tools": [],
+      "skill": "История",
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "id": "alchemy",
+      "name": "Алхимия",
+      "tools": [
+        "Инструменты алхимика",
+        "Набор травника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 99
+      }
+    },
+    {
+      "id": "smithing",
+      "name": "Кузнечное дело",
+      "tools": [
+        "Инструменты каменщика",
+        "Инструменты кузнеца"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 100
+      }
+    },
+    {
+      "id": "cooking",
+      "name": "Кулинария",
+      "tools": [
+        "Инструменты пивовара",
+        "Инструменты повара"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 100
+      }
+    },
+    {
+      "id": "enchanting",
+      "name": "Наложение чар",
+      "tools": [
+        "Инструменты плотника",
+        "Инструменты гончара",
+        "Инструменты резчика по дереву"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 100
+      }
+    },
+    {
+      "id": "engineering",
+      "name": "Инженерное дело",
+      "tools": [
+        "Инструменты ремонтника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 101
+      }
+    },
+    {
+      "id": "inscription",
+      "name": "Начертание",
+      "tools": [
+        "Инструменты каллиграфа",
+        "Инструменты картографа",
+        "Инструменты художника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 101
+      }
+    },
+    {
+      "id": "jewelry",
+      "name": "Ювелирное дело",
+      "tools": [
+        "Инструменты стеклодува",
+        "Инструменты ювелира"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 102
+      }
+    },
+    {
+      "id": "leather",
+      "name": "Кожевничество",
+      "tools": [
+        "Инструменты сапожника",
+        "Инструменты кожевника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 102
+      }
+    },
+    {
+      "id": "tailor",
+      "name": "Портняжное дело",
+      "tools": [
+        "Инструменты ткача"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 102
+      }
+    },
+    {
+      "id": "hunt",
+      "name": "Охота",
+      "tools": [],
+      "skill": "",
+      "source": {
+        "origin": "house"
+      }
+    }
+  ],
+  "gathering": [
+    {
+      "tier": 1,
+      "dc": 10,
+      "common_gp": 10,
+      "rare_gp": 25,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 2,
+      "dc": 12,
+      "common_gp": 50,
+      "rare_gp": 100,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 3,
+      "dc": 15,
+      "common_gp": 250,
+      "rare_gp": 500,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 4,
+      "dc": 17,
+      "common_gp": 1000,
+      "rare_gp": 2500,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 5,
+      "dc": 20,
+      "common_gp": 5000,
+      "rare_gp": 7500,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    }
+  ],
+  "checks": {
+    "book": "phb2024",
+    "printed_page": 10
+  },
+  "tools": {
+    "book": "phb2024",
+    "printed_page": 220
+  },
+  "bastions": {
+    "book": "dmg2024",
+    "printed_page": 333
+  }
+}

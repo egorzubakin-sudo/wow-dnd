@@ -20,6 +20,7 @@ body{background:radial-gradient(ellipse at 70% 0%,#263129 0%,#141917 55%)}.nav{f
 </style><style>
 .ux-tools{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:7px 14px;border-bottom:1px solid var(--line);background:#1b211b}.ux-tools button{font-size:12px;padding:5px 9px}.ux-count{background:#a77d35;color:#fff4d2;padding:1px 5px;border-radius:9px}.ux-results{display:grid;gap:7px;margin-top:12px}.ux-result{display:flex;align-items:center;gap:8px;justify-content:space-between;border-bottom:1px solid #62543b55;padding:9px 0}.ux-result strong,.ux-result small,.ux-result span{display:block}.ux-result-open{flex:1;text-align:left;background:transparent;border:0;min-width:0}.ux-result-open strong{color:var(--gold)}.ux-result-open span{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.ux-result button[data-ux-fav]{font-size:11px;flex-shrink:0}.ux-inline{display:inline;padding:0!important;border:0!important;background:transparent!important;color:inherit!important;text-decoration:underline;text-decoration-color:#b29458;text-underline-offset:3px;font:inherit!important;cursor:pointer}.ux-inline:hover{color:#d7ac62!important}.ux-related{display:flex;flex-wrap:wrap;gap:5px;margin:9px 0}.ux-related h3{width:100%;margin-bottom:4px}.ux-link{font-size:12px}.ux-card-tools{display:flex;gap:5px;flex-wrap:wrap;padding:6px 12px 12px}.ux-card-tools button{font-size:11px}.ux-cover{position:absolute;right:12px;bottom:12px;z-index:2;background:#181b16aa!important}.home-hero{position:relative}.ux-ach-popup{position:fixed;z-index:9999;left:50%;bottom:28px;transform:translateX(-50%);width:min(440px,92vw);display:flex;gap:12px;align-items:center;padding:12px;border:2px solid #d5ab59;border-radius:8px;background:linear-gradient(135deg,#3b2e19,#161c17);color:#f3e5b7;box-shadow:0 0 25px #cba14f70,0 8px 26px #000b;animation:uxEnter .25s ease-out}.ux-ach-popup[hidden]{display:none}.ux-ach-popup small,.ux-ach-popup strong,.ux-ach-popup span{display:block}.ux-ach-popup small{color:#dfbb73;letter-spacing:.1em;font-size:10px}.ux-ach-popup strong{font:700 20px Georgia}.ux-ach-popup span{font-size:12px}.ux-ach-popup button{margin-left:auto}.ux-ach-icon{width:58px;height:58px;flex-shrink:0;display:grid;place-items:center;border:1px solid #d6ad62;background:#3e3726;font-size:32px;color:#edcc72;overflow:hidden}.ux-ach-icon img{width:100%;height:100%;object-fit:contain}@keyframes uxEnter{from{opacity:0;translate:0 14px}to{opacity:1;translate:0 0}}@media(max-width:600px){.ux-tools{padding:5px 7px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.ux-tools button{white-space:nowrap;flex-shrink:0}.ux-result{align-items:flex-start}.ux-result button[data-ux-fav]{max-width:100px;white-space:normal}}
 </style><style>.locked > :not(#gate):not(script):not(style){display:none!important}body:not(.locked)>#gate{display:none}#gate{max-width:30rem;margin:10vh auto;padding:2rem}#gate h2,.engine-panel h3{color:#e0bc75}#gate label,.engine-form label{display:grid;gap:.3rem;margin:.5rem 0}.engine-panel{margin:1rem auto;padding:1rem;max-width:76rem}.engine-panel .actions{flex-wrap:wrap}.engine-panel select,.engine-form input,.engine-form textarea{max-width:100%}.engine-form pre{white-space:pre-wrap;overflow-wrap:anywhere}.engine-panel small{color:#c5b899}
+.bag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:.4rem}.bag-grid button{min-height:60px}
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
 <header class="header"><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div class="head-actions"><button id="navIconBtn" onclick="editNavIcons()" title="Настроить иконки меню">⚙ Иконки меню</button><button id="modeBtn" onclick="toggleMode()">Режим игроков</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxTools" class="ux-tools"></div><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
 <nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · локальная версия 0.8 · D&D 2024 / домашние правила Вольной компании</footer>
@@ -638,6 +639,1179 @@ function phasePanel(){
   for(const fn of actions)fn(a,{gm,hero,t,e,box});
 }
 onRender.push(phasePanel);
+
+const rulebook={
+  "professions": [
+    {
+      "id": "mining",
+      "name": "Горное дело",
+      "tools": [
+        "Инструменты каменщика"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 98
+      }
+    },
+    {
+      "id": "herbalism",
+      "name": "Травничество",
+      "tools": [
+        "Набор травника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 97
+      }
+    },
+    {
+      "id": "skinning",
+      "name": "Снятие шкур",
+      "tools": [
+        "Инструменты кожевника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 98
+      }
+    },
+    {
+      "id": "fishing",
+      "name": "Рыбалка",
+      "tools": [],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 97
+      }
+    },
+    {
+      "id": "archaeology",
+      "name": "Археология",
+      "tools": [],
+      "skill": "История",
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "id": "alchemy",
+      "name": "Алхимия",
+      "tools": [
+        "Инструменты алхимика",
+        "Набор травника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 99
+      }
+    },
+    {
+      "id": "smithing",
+      "name": "Кузнечное дело",
+      "tools": [
+        "Инструменты каменщика",
+        "Инструменты кузнеца"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 100
+      }
+    },
+    {
+      "id": "cooking",
+      "name": "Кулинария",
+      "tools": [
+        "Инструменты пивовара",
+        "Инструменты повара"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 100
+      }
+    },
+    {
+      "id": "enchanting",
+      "name": "Наложение чар",
+      "tools": [
+        "Инструменты плотника",
+        "Инструменты гончара",
+        "Инструменты резчика по дереву"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 100
+      }
+    },
+    {
+      "id": "engineering",
+      "name": "Инженерное дело",
+      "tools": [
+        "Инструменты ремонтника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 101
+      }
+    },
+    {
+      "id": "inscription",
+      "name": "Начертание",
+      "tools": [
+        "Инструменты каллиграфа",
+        "Инструменты картографа",
+        "Инструменты художника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 101
+      }
+    },
+    {
+      "id": "jewelry",
+      "name": "Ювелирное дело",
+      "tools": [
+        "Инструменты стеклодува",
+        "Инструменты ювелира"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 102
+      }
+    },
+    {
+      "id": "leather",
+      "name": "Кожевничество",
+      "tools": [
+        "Инструменты сапожника",
+        "Инструменты кожевника"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 102
+      }
+    },
+    {
+      "id": "tailor",
+      "name": "Портняжное дело",
+      "tools": [
+        "Инструменты ткача"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 102
+      }
+    },
+    {
+      "id": "hunt",
+      "name": "Охота",
+      "tools": [],
+      "skill": "",
+      "source": {
+        "origin": "house"
+      }
+    }
+  ],
+  "gathering": [
+    {
+      "tier": 1,
+      "dc": 10,
+      "common_gp": 10,
+      "rare_gp": 25,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 2,
+      "dc": 12,
+      "common_gp": 50,
+      "rare_gp": 100,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 3,
+      "dc": 15,
+      "common_gp": 250,
+      "rare_gp": 500,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 4,
+      "dc": 17,
+      "common_gp": 1000,
+      "rare_gp": 2500,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    },
+    {
+      "tier": 5,
+      "dc": 20,
+      "common_gp": 5000,
+      "rare_gp": 7500,
+      "source": {
+        "book": "wow",
+        "printed_page": 96
+      }
+    }
+  ],
+  "checks": {
+    "book": "phb2024",
+    "printed_page": 10
+  },
+  "tools": {
+    "book": "phb2024",
+    "printed_page": 220
+  },
+  "bastions": {
+    "book": "dmg2024",
+    "printed_page": 333
+  }
+}
+;
+const demoPack={
+  "regions": [
+    {
+      "id": "durotar",
+      "name": "Дуротар",
+      "continent": "Калимдор",
+      "biome": "Сухие холмы",
+      "dc": 10,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens",
+      "name": "Степи",
+      "continent": "Калимдор",
+      "biome": "Саванна",
+      "dc": 12,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash",
+      "name": "Ясеневый лес",
+      "continent": "Калимдор",
+      "biome": "Лес",
+      "dc": 15,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "items": [
+    {
+      "id": "ore",
+      "name": "Медная руда",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "silver",
+      "name": "Серебряная руда",
+      "category": "Материалы",
+      "quality": "rare",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "bloom",
+      "name": "Мироцвет",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "leaf",
+      "name": "Сребролист",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "hide",
+      "name": "Лёгкая кожа",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "meat",
+      "name": "Сырое мясо",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "fish",
+      "name": "Речная рыба",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "shard",
+      "name": "Осколок реликвии",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "bar",
+      "name": "Медный слиток",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "wire",
+      "name": "Медная проволока",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "hook",
+      "name": "Крючок",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "nail",
+      "name": "Гвозди",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "oil",
+      "name": "Травяное масло",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ink",
+      "name": "Чернила",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "meal",
+      "name": "Походный рацион",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "soup",
+      "name": "Рыбная похлёбка",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "strap",
+      "name": "Кожаный ремешок",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ring",
+      "name": "Серебряное кольцо",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "recipes": [
+    {
+      "id": "make-bar",
+      "name": "Медный слиток",
+      "profession_id": "smithing",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "bar",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-wire",
+      "name": "Медная проволока",
+      "profession_id": "smithing",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "wire",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-hook",
+      "name": "Крючок",
+      "profession_id": "engineering",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "hook",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-nail",
+      "name": "Гвозди",
+      "profession_id": "smithing",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "nail",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-oil",
+      "name": "Травяное масло",
+      "profession_id": "alchemy",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "oil",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-ink",
+      "name": "Чернила",
+      "profession_id": "inscription",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "ink",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-meal",
+      "name": "Походный рацион",
+      "profession_id": "cooking",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "meal",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-soup",
+      "name": "Рыбная похлёбка",
+      "profession_id": "cooking",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "soup",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-strap",
+      "name": "Кожаный ремешок",
+      "profession_id": "leather",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "strap",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "make-ring",
+      "name": "Серебряное кольцо",
+      "profession_id": "jewelry",
+      "rank": 2,
+      "hours": 2,
+      "gold": 0,
+      "item_id": "ring",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "ingredients": [
+    {
+      "id": "need-bar",
+      "recipe_id": "make-bar",
+      "item_id": "ore",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-wire",
+      "recipe_id": "make-wire",
+      "item_id": "bar",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-hook",
+      "recipe_id": "make-hook",
+      "item_id": "wire",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-nail",
+      "recipe_id": "make-nail",
+      "item_id": "bar",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-oil",
+      "recipe_id": "make-oil",
+      "item_id": "bloom",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-ink",
+      "recipe_id": "make-ink",
+      "item_id": "leaf",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-meal",
+      "recipe_id": "make-meal",
+      "item_id": "meat",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-soup",
+      "recipe_id": "make-soup",
+      "item_id": "fish",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-strap",
+      "recipe_id": "make-strap",
+      "item_id": "hide",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "need-ring",
+      "recipe_id": "make-ring",
+      "item_id": "silver",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ],
+  "loot": [
+    {
+      "id": "durotar-mining-ore",
+      "region_id": "durotar",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-mining-silver",
+      "region_id": "durotar",
+      "profession_id": "mining",
+      "item_id": "silver",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-herbalism-bloom",
+      "region_id": "durotar",
+      "profession_id": "herbalism",
+      "item_id": "bloom",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-herbalism-leaf",
+      "region_id": "durotar",
+      "profession_id": "herbalism",
+      "item_id": "leaf",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-hunt-meat",
+      "region_id": "durotar",
+      "profession_id": "hunt",
+      "item_id": "meat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-fishing-fish",
+      "region_id": "durotar",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-skinning-hide",
+      "region_id": "durotar",
+      "profession_id": "skinning",
+      "item_id": "hide",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "durotar-archaeology-shard",
+      "region_id": "durotar",
+      "profession_id": "archaeology",
+      "item_id": "shard",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-mining-ore",
+      "region_id": "barrens",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-mining-silver",
+      "region_id": "barrens",
+      "profession_id": "mining",
+      "item_id": "silver",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-herbalism-bloom",
+      "region_id": "barrens",
+      "profession_id": "herbalism",
+      "item_id": "bloom",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-herbalism-leaf",
+      "region_id": "barrens",
+      "profession_id": "herbalism",
+      "item_id": "leaf",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-hunt-meat",
+      "region_id": "barrens",
+      "profession_id": "hunt",
+      "item_id": "meat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-fishing-fish",
+      "region_id": "barrens",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-skinning-hide",
+      "region_id": "barrens",
+      "profession_id": "skinning",
+      "item_id": "hide",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "barrens-archaeology-shard",
+      "region_id": "barrens",
+      "profession_id": "archaeology",
+      "item_id": "shard",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-mining-ore",
+      "region_id": "ash",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-mining-silver",
+      "region_id": "ash",
+      "profession_id": "mining",
+      "item_id": "silver",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-herbalism-bloom",
+      "region_id": "ash",
+      "profession_id": "herbalism",
+      "item_id": "bloom",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-herbalism-leaf",
+      "region_id": "ash",
+      "profession_id": "herbalism",
+      "item_id": "leaf",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-hunt-meat",
+      "region_id": "ash",
+      "profession_id": "hunt",
+      "item_id": "meat",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-fishing-fish",
+      "region_id": "ash",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-skinning-hide",
+      "region_id": "ash",
+      "profession_id": "skinning",
+      "item_id": "hide",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "ash-archaeology-shard",
+      "region_id": "ash",
+      "profession_id": "archaeology",
+      "item_id": "shard",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}
+;
+function economy(s){
+  const e=foundation(s);
+  for(const k of ['items','recipes','ingredients','loot','projects'])e[k]??=[];
+  e.professions??=structuredClone(rulebook.professions);e.gathering??=structuredClone(rulebook.gathering);
+  for(const stack of s.company.inventory||[]){
+    if(stack.item_id)continue;
+    stack.item_id='legacy-'+stack.id;e.items.push({id:stack.item_id,name:stack.name,category:stack.category,quality:stack.quality,icon:stack.icon,image:stack.image,desc:stack.desc,hidden:stack.hidden,value_gp:0});
+  }return e;
+}
+function byId(rows,id){const x=rows.find(r=>r.id===id);requireThat(x,'Не найдена запись '+id);return x}
+function eligibleProfession(s,h,id){
+  const p=byId(economy(s).professions,id);
+  return (!p.skill||!!h.skills[p.skill])&&(!p.tools?.length||p.tools.some(t=>h.tools.includes(t)));
+}
+function deposit(s,item_id,owner,qty,extra={}){
+  integer(qty,1);const item=byId(economy(s).items,item_id),bag=s.company.inventory;
+  const existing=bag.find(x=>x.item_id===item_id&&x.owner===owner&&!x.properties&&!extra.properties&&!!x.hidden===!!(extra.hidden??item.hidden));
+  if(existing&&item.stackable!==false){existing.qty=integer(existing.qty+qty);return}
+  bag.push({...item,...extra,id:crypto.randomUUID(),owner,item_id,qty});
+}
+function take(s,item,owner,amount){
+  integer(amount,1);const rows=s.company.inventory.filter(x=>x.item_id===item&&x.owner===owner&&!x.properties);
+  requireThat(rows.reduce((n,x)=>n+x.qty,0)>=amount,'Недостаточно материалов');
+  for(const row of rows){const use=Math.min(row.qty,amount);row.qty-=use;amount-=use}
+  s.company.inventory=s.company.inventory.filter(x=>x.qty>0);
+}
+register('transfer','hero',(s,p)=>{
+  const row=byId(s.company.inventory,p.stack),from='member:'+p.hero;
+  requireThat(row.owner===from,'Чужая сумка');integer(p.qty,1,row.qty);
+  if(p.to)heroOf(s,p.to);
+  const owner=p.to?'member:'+p.to:'';
+  if(owner===from){requireThat(p.qty<row.qty,'Для разделения укажите часть стопки');s.company.inventory.push({...row,id:crypto.randomUUID(),qty:p.qty})}
+  else deposit(s,row.item_id,owner,p.qty,{properties:row.properties,hidden:row.hidden});
+  row.qty-=p.qty;s.company.inventory=s.company.inventory.filter(x=>x.qty);
+});
+register('gold','master',(s,p)=>{const h=profile(s,p.hero);integer(p.amount,-1000000000);requireThat(h.wallet+p.amount>=0&&s.company.gold>=p.amount,'Недостаточно золота');h.wallet+=p.amount;s.company.gold-=p.amount});
+function gather(s,p,die=dice){
+  const h=profile(s,p.hero),t=currentStay(s),e=economy(s),id=p.profession;
+  requireThat(t&&eligibleProfession(s,h,id),'Нужна стоянка и подходящие владения');
+  const rows=e.loot.filter(r=>r.region_id===t.region&&r.profession_id===id&&(r.stock==null||r.stock>0));
+  requireThat(rows.length,'В регионе нет доступного ресурса');
+  const rule=rows[0],prof=byId(e.professions,id),region=byId(e.regions,t.region);
+  if(rule.required_tool_id)requireThat(s.company.inventory.some(x=>x.item_id===rule.required_tool_id&&x.owner==='member:'+p.hero&&x.qty>0),'Нужно оборудование');
+  const count=t.history.filter(x=>x.hero===p.hero&&x.activity===id).length;
+  if(rule.attempts!=null)requireThat(count<rule.attempts,'Попытки исчерпаны');
+  spend(s,p.hero,rule.hours||1,id);
+  const check=ability(h,{skill:rule.skill||(id==='archaeology'?'История':'Выживание'),tool:prof.tools?.find(x=>h.tools.includes(x)),dc:rule.dc??region.dc,mode:'normal'},die);
+  e.rolls.unshift({...check,hero:p.hero,label:prof.name});
+  const matches=rows.filter(r=>check.total-check.dc>=r.min_margin);
+  if(matches.length){
+    const margin=Math.max(...matches.map(r=>r.min_margin)),pool=matches.filter(r=>r.min_margin===margin);
+    let weight=die(pool.reduce((n,r)=>n+r.weight,0));const row=pool.find(r=>(weight-=r.weight)<=0);
+    const qty=Math.min(row.stock??Infinity,row.min_quantity+die(row.max_quantity-row.min_quantity+1)-1);
+    deposit(s,row.item_id,'member:'+p.hero,qty);if(row.stock!=null)row.stock-=qty;
+    Object.assign(t.history.at(-1),{item_id:row.item_id,qty});
+  }
+}
+register('gather','hero',(s,p)=>gather(s,p));
+function facilities(s,r){
+ const t=currentStay(s);return !!t&&(!r.service||s.company.talents[r.service]||t.services?.includes(r.service))&&(!r.locations?.length||r.locations.includes(t.location));
+}
+function canCraft(s,h,r){
+ return bv(h)>=(r.rank||2)&&eligibleProfession(s,h,r.profession_id)&&(r.basic||h.recipes.includes(r.id))&&(r.tools||[]).every(t=>h.tools.includes(t))&&facilities(s,r);
+}
+register('project','hero',(s,p)=>{
+ const e=economy(s),h=profile(s,p.hero),r=byId(e.recipes,p.recipe),owner='member:'+p.hero;
+ integer(p.qty,1,1000);requireThat(canCraft(s,h,r),'Проверьте рецепт, ранг, владения и инфраструктуру');
+ const cost=(r.gold||0)*p.qty,work=integer(r.hours*p.qty,1);
+ requireThat(h.wallet>=cost&&remaining(s,p.hero)>0,'Недостаточно золота или времени');
+ const reserve=e.ingredients.filter(i=>i.recipe_id===r.id).map(i=>({item:i.item_id,qty:i.quantity*p.qty}));
+ for(const line of reserve)take(s,line.item,owner,line.qty);
+ h.wallet-=cost;
+ e.projects.push({id:crypto.randomUUID(),hero:p.hero,name:r.name,recipe:structuredClone(r),cost,reserve,left:work,work,qty:p.qty,status:'active',contributors:[]});
+});
+register('work','hero',(s,p)=>{
+ const j=byId(economy(s).projects,p.project);
+ requireThat(j.status==='active'&&facilities(s,j.recipe)&&eligibleProfession(s,profile(s,p.hero),j.recipe.profession_id),'Работа недоступна');
+ integer(p.hours,1,j.left);spend(s,p.hero,p.hours,j.name);j.left-=p.hours;j.contributors.push({hero:p.hero,hours:p.hours});
+ if(!j.left){deposit(s,j.recipe.item_id,'member:'+j.hero,j.qty*j.recipe.quantity,j.recipe.properties?{properties:j.recipe.properties}:{});j.status='done'}
+});
+register('cancelProject','hero',(s,p)=>{
+ const j=byId(economy(s).projects,p.project);requireThat(j.hero===p.hero&&j.status==='active','Проект недоступен');
+ const rate=s.engine.refund??1;for(const l of j.reserve){const qty=Math.floor(l.qty*rate);if(qty)deposit(s,l.item,'member:'+j.hero,qty)}
+ profile(s,j.hero).wallet+=Math.floor(j.cost*rate);j.status='cancelled';
+});
+register('demo','master',s=>{
+ const e=economy(s);requireThat(!e.demo,'Пример уже установлен');
+ for(const [k,rows] of Object.entries(demoPack)){const target=k==='errands'?s.contracts:e[k];for(const row of rows){requireThat(!target.some(x=>x.id===row.id),'Конфликт ID '+row.id);target.push(structuredClone(row))}}
+ e.demo=true;
+});
+
+function bagPage(){
+ const hero=chosen(),p=profile(S,hero),bag=S.company.inventory.filter(x=>x.owner==='member:'+hero&&(!player||!x.hidden));
+ openModal('Сумки · '+memberName(heroOf(S,hero)),'<p>'+esc(p.wallet)+' зм</p><div class="actions" id="bagTools"></div><section id="bagRows" class="bag-grid"></section>');
+ $('bagTools').append(button('Сетка / список',()=>$('bagRows').classList.toggle('bag-grid')));
+ if(!player)$('bagTools').append(button('Перевести из казны',()=>commandForm('Перевод между казной и кошельком',input('Зм (отрицательное — в казну)','amt','number',1),'gold',()=>({hero,amount:num('amt')}))));
+ for(const x of bag){
+   const b=button((x.icon||'◆')+' '+x.name+' × '+x.qty,()=>commandForm('Передача или разделение',pick('Получатель','to',[['','Компания'],...S.company.members.filter(m=>!player||!m.hidden).map(m=>[m.id,m.id===hero?'Разделить стопку':memberName(m)])],'')+input('Количество','qty','number',1,'min="1" max="'+x.qty+'"'),'transfer',()=>({hero,stack:x.id,to:val('to'),qty:num('qty')})));
+   b.title=x.desc||x.name;$('bagRows').append(b);
+ }
+ if(!bag.length)$('bagRows').textContent='Сумки пусты';
+}
+function activities(){
+ const hero=chosen(),h=profile(S,hero),e=economy(S),t=currentStay(S);
+ openModal('Занятия · '+remaining(S,hero)+' ч.','<div id="activityList" class="stack"></div>');
+ const list=$('activityList');
+ const ids=new Set(e.loot.filter(l=>l.region_id===t.region).map(l=>l.profession_id));
+ for(const id of ids){const prof=byId(e.professions,id),b=button(prof.name,()=>{
+   const rule=e.loot.find(l=>l.region_id===t.region&&l.profession_id===id);
+   commandForm(prof.name,'<p>'+esc(rule.hours||1)+' ч. · Сл '+esc(rule.dc??byId(e.regions,t.region).dc)+'</p>','gather',()=>({hero,profession:id}),'Приступить');
+ });b.disabled=!eligibleProfession(S,h,id);b.title=(prof.tools||[]).join(' / ')||prof.skill||'Доступно без владения';list.append(b)}
+ if(!ids.size)list.textContent='Для этого региона таблицы добычи пока пусты.';
+}
+function recipeBook(){
+ const hero=chosen(),e=economy(S),h=profile(S,hero);
+ openModal('Книга рецептов и проекты','<section id="recipeRows" class="stack"></section>');const box=$('recipeRows');
+ for(const r of e.recipes){
+  const ingredients=e.ingredients.filter(i=>i.recipe_id===r.id).map(i=>byId(e.items,i.item_id).name+' × '+i.quantity);
+  const b=button(r.name+' · '+r.hours+' ч.',()=>commandForm(r.name,'<p>'+esc(ingredients.join(', ')||'Абстрактные ресурсы')+' · '+esc(r.gold||0)+' зм / шт.</p>'+input('Количество','qty','number',1,'min="1" max="1000"'),'project',()=>({hero,recipe:r.id,qty:num('qty')}),'Зарезервировать'));
+  b.disabled=!canCraft(S,h,r);b.title=[byId(e.professions,r.profession_id).name,'БВ +'+r.rank,...ingredients,r.service].filter(Boolean).join(' · ');box.append(b);
+ }
+ for(const j of e.projects.filter(j=>j.status==='active')){
+  box.append(button(j.name+' · осталось '+j.left+' ч.',()=>commandForm('Внести работу',input('Часов','wh','number',Math.min(j.left,remaining(S,hero))),'work',()=>({hero,project:j.id,hours:num('wh')}))));
+  if(j.hero===hero)box.append(button('Отменить '+j.name,()=>commandForm('Отмена проекта','<p>Доля возврата: '+esc((e.refund??1)*100)+'%</p>','cancelProject',()=>({hero,project:j.id}))));
+ }
+ if(!box.children.length)box.textContent='Рецептов и открытых проектов пока нет.';
+}
+actions.push((a,{gm,hero,t,e})=>{
+ economy(S);
+ if(gm&&!e.demo&&['bank','camp'].includes(tab))a.append(button('Добавить демонстрационный набор',()=>commandForm('Демонстрация','<p>Добавить тестовые регионы, предметы, рецепты и занятия в текущую кампанию?</p>','demo',()=>({}),'Добавить')));
+ if(hero&&owned(actor,hero)){
+  a.append(button('Сумки',bagPage));
+  if(t)a.append(button('Добыча',activities));
+  a.append(button('Книга рецептов',recipeBook));
+ }
+});
 
 boot();
 </script></body></html>
