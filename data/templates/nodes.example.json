@@ -1,0 +1,12 @@
+{
+  "nodes": [
+    {
+      "id": "crossroads",
+      "name": "Перекрёсток",
+      "x": 0.5,
+      "y": 0.5,
+      "regionId": "durotar",
+      "type": "city"
+    }
+  ]
+}

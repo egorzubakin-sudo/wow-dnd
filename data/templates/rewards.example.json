@@ -1,0 +1,11 @@
+{
+  "rewards": [
+    {
+      "id": "gold-option-0",
+      "solution_id": "option-0",
+      "type": "gold",
+      "amount": 2,
+      "when": "success"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "items": [
+    {
+      "id": "ore",
+      "name": "Медная руда",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

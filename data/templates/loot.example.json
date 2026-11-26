@@ -1,0 +1,18 @@
+{
+  "loot": [
+    {
+      "id": "durotar-mining-ore",
+      "region_id": "durotar",
+      "profession_id": "mining",
+      "item_id": "ore",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

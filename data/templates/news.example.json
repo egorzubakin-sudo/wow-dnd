@@ -1,0 +1,11 @@
+{
+  "news": [
+    {
+      "id": "caravan-news",
+      "title": "Прибыл караван",
+      "kind": "news",
+      "day": 1,
+      "year": 27
+    }
+  ]
+}

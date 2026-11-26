@@ -1,0 +1,1458 @@
+{
+  "format": "atlas-tables",
+  "version": 1,
+  "encoding": "UTF-8",
+  "csvDelimiter": ";",
+  "types": {
+    "text": "Строка",
+    "int": "Целое ≥ 0",
+    "pos": "Целое ≥ 1",
+    "signed": "Целое со знаком",
+    "num": "Число ≥ 0",
+    "ratio": "Число от 0 до 1",
+    "bool": "true или false",
+    "json": "JSON-массив или объект",
+    "@table": "Стабильный ID строки указанной таблицы"
+  },
+  "tables": {
+    "regions": {
+      "title": "Регионы",
+      "notes": "points: массив пар [x,y] в диапазоне 0–1. При перекрытии выше priority. tier: 1–5.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "continent",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "biome",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "dc",
+          "type": "int",
+          "optional": false
+        },
+        {
+          "name": "priority",
+          "type": "signed",
+          "optional": true
+        },
+        {
+          "name": "points",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "tier",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "levels",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "danger",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "factions",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "image",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "durotar",
+        "name": "Дуротар",
+        "continent": "Калимдор",
+        "biome": "Сухие холмы",
+        "dc": 10,
+        "priority": 0,
+        "points": [],
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "nodes": {
+      "title": "Узлы",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "x",
+          "type": "ratio",
+          "optional": false
+        },
+        {
+          "name": "y",
+          "type": "ratio",
+          "optional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "regionId",
+          "type": "@regions",
+          "optional": true
+        },
+        {
+          "name": "visibility",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "faction",
+          "type": "@factions",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "crossroads",
+        "name": "Перекрёсток",
+        "x": 0.5,
+        "y": 0.5,
+        "regionId": "durotar",
+        "type": "city"
+      }
+    },
+    "routes": {
+      "title": "Маршруты",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "a",
+          "type": "@nodes",
+          "optional": false
+        },
+        {
+          "name": "b",
+          "type": "@nodes",
+          "optional": false
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "min",
+          "type": "int",
+          "optional": false
+        },
+        {
+          "name": "max",
+          "type": "int",
+          "optional": false
+        },
+        {
+          "name": "risk",
+          "type": "int",
+          "optional": false
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "visibility",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "cost",
+          "type": "num",
+          "optional": true
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "events",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "trade-road",
+        "name": "Торговый тракт",
+        "a": "crossroads",
+        "b": "port",
+        "min": 1,
+        "max": 2,
+        "risk": 1,
+        "kind": "road",
+        "status": "open"
+      }
+    },
+    "factions": {
+      "title": "Фракции",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "leader",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "color",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "icon",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "repPoints",
+          "type": "signed",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "caravan",
+        "name": "Караванщики",
+        "color": "#b99755"
+      }
+    },
+    "diplomacy": {
+      "title": "Дипломатические связи",
+      "notes": "state: alliance, cooperation, neutral, truce, tension, hostility, war.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "a",
+          "type": "@factions",
+          "optional": false
+        },
+        {
+          "name": "b",
+          "type": "@factions",
+          "optional": false
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "trade-pact",
+        "a": "caravan",
+        "b": "guild",
+        "state": "neutral"
+      }
+    },
+    "people": {
+      "title": "NPC",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "faction",
+          "type": "@factions",
+          "optional": true
+        },
+        {
+          "name": "location",
+          "type": "@nodes",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "provenance",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "trader",
+        "title": "Гоблин-торговец"
+      }
+    },
+    "items": {
+      "title": "Каталог предметов",
+      "notes": "quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "quality",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "value_gp",
+          "type": "num",
+          "optional": false
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "icon",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "image",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "unit",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "profession_id",
+          "type": "@professions",
+          "optional": true
+        },
+        {
+          "name": "stackable",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "properties",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "ore",
+        "name": "Медная руда",
+        "category": "Материалы",
+        "quality": "common",
+        "value_gp": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "professions": {
+      "title": "Профессии",
+      "notes": "tools: массив альтернативных владений инструментом. Пустой массив снимает требование. skill: название обязательного навыка.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "tools",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "skill",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "mining",
+        "name": "Горное дело",
+        "tools": [
+          "Инструменты каменщика"
+        ],
+        "skill": "",
+        "source": {
+          "book": "wow",
+          "printed_page": 98
+        }
+      }
+    },
+    "recipes": {
+      "title": "Рецепты",
+      "notes": "rank: требуемый бонус владения. gold: стоимость в зм на один экземпляр. equipment: массив ID инструментов из каталога. experiment: объект с полями skill и dc.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "profession_id",
+          "type": "@professions",
+          "optional": false
+        },
+        {
+          "name": "item_id",
+          "type": "@items",
+          "optional": false
+        },
+        {
+          "name": "quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "hours",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "rank",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "gold",
+          "type": "num",
+          "optional": true
+        },
+        {
+          "name": "basic",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "service",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "tools",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "locations",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "properties",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "experiment",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "image",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "description",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "acquisition",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "equipment",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "conditions",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "make-bar",
+        "name": "Медный слиток",
+        "profession_id": "smithing",
+        "rank": 2,
+        "hours": 2,
+        "gold": 0,
+        "item_id": "bar",
+        "quantity": 1,
+        "source": {
+          "origin": "demo"
+        },
+        "service": "Оружейная"
+      }
+    },
+    "ingredients": {
+      "title": "Ингредиенты",
+      "notes": "Количество списывается при резервировании проекта. Одна строка связывает один рецепт с одним ингредиентом.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "recipe_id",
+          "type": "@recipes",
+          "optional": false
+        },
+        {
+          "name": "item_id",
+          "type": "@items",
+          "optional": false
+        },
+        {
+          "name": "quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "need-bar",
+        "recipe_id": "make-bar",
+        "item_id": "ore",
+        "quantity": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "loot": {
+      "title": "Региональная добыча",
+      "notes": "weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "region_id",
+          "type": "@regions",
+          "optional": false
+        },
+        {
+          "name": "profession_id",
+          "type": "@professions",
+          "optional": false
+        },
+        {
+          "name": "item_id",
+          "type": "@items",
+          "optional": false
+        },
+        {
+          "name": "weight",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "min_quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "max_quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "min_margin",
+          "type": "signed",
+          "optional": false
+        },
+        {
+          "name": "hours",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "dc",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "stock",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "attempts",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "skill",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "fail_text",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "rare_chance",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "required_tool_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "origin",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "treasure_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "durotar-mining-ore",
+        "region_id": "durotar",
+        "profession_id": "mining",
+        "item_id": "ore",
+        "weight": 1,
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "min_margin": 0,
+        "hours": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "hunting": {
+      "title": "Охотничьи таблицы",
+      "notes": "weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "region_id",
+          "type": "@regions",
+          "optional": false
+        },
+        {
+          "name": "profession_id",
+          "type": "@professions",
+          "optional": false
+        },
+        {
+          "name": "item_id",
+          "type": "@items",
+          "optional": false
+        },
+        {
+          "name": "weight",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "min_quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "max_quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "min_margin",
+          "type": "signed",
+          "optional": false
+        },
+        {
+          "name": "hours",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "dc",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "stock",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "attempts",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "skill",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "fail_text",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "rare_chance",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "required_tool_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "origin",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "treasure_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "durotar-hunt-meat",
+        "region_id": "durotar",
+        "profession_id": "hunt",
+        "item_id": "meat",
+        "weight": 1,
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "min_margin": 0,
+        "hours": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "fishing": {
+      "title": "Рыболовные таблицы",
+      "notes": "weight: положительный относительный вес. min_margin: минимальное превышение Сл. stock: остаток в регионе. min_quantity и max_quantity включительны.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "region_id",
+          "type": "@regions",
+          "optional": false
+        },
+        {
+          "name": "profession_id",
+          "type": "@professions",
+          "optional": false
+        },
+        {
+          "name": "item_id",
+          "type": "@items",
+          "optional": false
+        },
+        {
+          "name": "weight",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "min_quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "max_quantity",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "min_margin",
+          "type": "signed",
+          "optional": false
+        },
+        {
+          "name": "hours",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "dc",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "stock",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "attempts",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "skill",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "fail_text",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "rare_chance",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "required_tool_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "origin",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "treasure_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "durotar-fishing-fish",
+        "region_id": "durotar",
+        "profession_id": "fishing",
+        "item_id": "fish",
+        "weight": 1,
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "min_margin": 0,
+        "hours": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "errands": {
+      "title": "Местные поручения",
+      "notes": "repeat: once, stay, day или period. При period задайте period в игровых днях. conditions поддерживает race, class, level, skill, profession, item, recipe, faction, rep, npc, achievement, quest.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "hours",
+          "type": "pos",
+          "optional": false
+        },
+        {
+          "name": "region_id",
+          "type": "@regions",
+          "optional": true
+        },
+        {
+          "name": "location",
+          "type": "@nodes",
+          "optional": true
+        },
+        {
+          "name": "giver",
+          "type": "@people",
+          "optional": true
+        },
+        {
+          "name": "faction",
+          "type": "@factions",
+          "optional": true
+        },
+        {
+          "name": "conditions",
+          "type": "json",
+          "optional": true
+        },
+        {
+          "name": "repeat",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "image",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "period",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "task-0",
+        "title": "Незадачливый торговец",
+        "desc": "Колесо телеги гоблина застряло в канаве.",
+        "type": "local",
+        "status": "available",
+        "repeat": "stay",
+        "hours": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "solutions": {
+      "title": "Решения поручений",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "quest_id",
+          "type": "@errands",
+          "optional": false
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "skill",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "dc",
+          "type": "int",
+          "optional": false
+        },
+        {
+          "name": "stat",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "tool",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "success",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "failure",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "encounter",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "option-0",
+        "quest_id": "task-0",
+        "name": "Помочь",
+        "skill": "Атлетика",
+        "dc": 10,
+        "success": "Поручение выполнено.",
+        "failure": "Попытка не удалась."
+      }
+    },
+    "rewards": {
+      "title": "Структурированные награды",
+      "notes": "type: gold, item, rep, contact, discover, achievement. when: success или failure. Для item обязательны item_id и quantity, для rep — faction и amount.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "solution_id",
+          "type": "@solutions",
+          "optional": false
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "when",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "amount",
+          "type": "signed",
+          "optional": true
+        },
+        {
+          "name": "item_id",
+          "type": "@items",
+          "optional": true
+        },
+        {
+          "name": "quantity",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "secret",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "faction",
+          "type": "@factions",
+          "optional": true
+        },
+        {
+          "name": "npc",
+          "type": "@people",
+          "optional": true
+        },
+        {
+          "name": "node",
+          "type": "@nodes",
+          "optional": true
+        },
+        {
+          "name": "achievement",
+          "type": "@achievements",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "gold-option-0",
+        "solution_id": "option-0",
+        "type": "gold",
+        "amount": 2,
+        "when": "success"
+      }
+    },
+    "achievements": {
+      "title": "Достижения",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "points",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "engineEvent",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "scope",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "secret",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "atlas-first-find",
+        "title": "Первый образец",
+        "points": 5,
+        "body": "Принести первую находку со стоянки.",
+        "category": "Ремесло и исследования",
+        "engineEvent": "gather",
+        "scope": "hero",
+        "source": {
+          "origin": "demo"
+        }
+      }
+    },
+    "news": {
+      "title": "Новости и слухи",
+      "notes": "kind: news или rumors. day и year используют календарь компании.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "year",
+          "type": "int",
+          "optional": true
+        },
+        {
+          "name": "day",
+          "type": "pos",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "provenance",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "caravan-news",
+        "title": "Прибыл караван",
+        "kind": "news",
+        "day": 1,
+        "year": 27
+      }
+    },
+    "codex": {
+      "title": "Статьи Кодекса",
+      "notes": "",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "title",
+          "type": "text",
+          "optional": false
+        },
+        {
+          "name": "body",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "source",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "category",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "location",
+          "type": "@nodes",
+          "optional": true
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true
+        },
+        {
+          "name": "provenance",
+          "type": "json",
+          "optional": true
+        }
+      ],
+      "example": {
+        "id": "copper-notes",
+        "title": "Медные жилы",
+        "body": "Заметки старателя."
+      }
+    }
+  }
+}

@@ -217,6 +217,39 @@
       "source": {
         "origin": "demo"
       }
+    },
+    {
+      "id": "stranglekelp",
+      "name": "Удавник",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 50,
+      "source": {
+        "book": "wow",
+        "printed_page": 99
+      }
+    },
+    {
+      "id": "blackmouth",
+      "name": "Масляный черноротик",
+      "category": "Материалы",
+      "quality": "rare",
+      "value_gp": 25,
+      "source": {
+        "book": "wow",
+        "printed_page": 99
+      }
+    },
+    {
+      "id": "water-breathing",
+      "name": "Зелье подводного дыхания",
+      "category": "Магические предметы",
+      "quality": "uncommon",
+      "value_gp": 200,
+      "source": {
+        "book": "wow",
+        "printed_page": 99
+      }
     }
   ],
   "recipes": [
@@ -231,7 +264,8 @@
       "quantity": 1,
       "source": {
         "origin": "demo"
-      }
+      },
+      "service": "Оружейная"
     },
     {
       "id": "make-wire",
@@ -349,6 +383,24 @@
       "source": {
         "origin": "demo"
       }
+    },
+    {
+      "id": "wow-water-breathing",
+      "name": "Зелье подводного дыхания",
+      "item_id": "water-breathing",
+      "profession_id": "alchemy",
+      "rank": 3,
+      "hours": 40,
+      "gold": 0,
+      "quantity": 1,
+      "source": {
+        "book": "wow",
+        "printed_page": 99,
+        "time_source": {
+          "book": "dmg2024",
+          "printed_page": 222
+        }
+      }
     }
   ],
   "ingredients": [
@@ -440,6 +492,26 @@
       "quantity": 1,
       "source": {
         "origin": "demo"
+      }
+    },
+    {
+      "id": "potion-stranglekelp",
+      "recipe_id": "wow-water-breathing",
+      "item_id": "stranglekelp",
+      "quantity": 1,
+      "source": {
+        "book": "wow",
+        "printed_page": 99
+      }
+    },
+    {
+      "id": "potion-blackmouth",
+      "recipe_id": "wow-water-breathing",
+      "item_id": "blackmouth",
+      "quantity": 2,
+      "source": {
+        "book": "wow",
+        "printed_page": 99
       }
     }
   ],
@@ -779,6 +851,34 @@
       "source": {
         "origin": "demo"
       }
+    },
+    {
+      "id": "herb-strangle",
+      "region_id": "barrens",
+      "profession_id": "herbalism",
+      "item_id": "stranglekelp",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 1,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "fish-blackmouth",
+      "region_id": "durotar",
+      "profession_id": "fishing",
+      "item_id": "blackmouth",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 1,
+      "min_margin": 5,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
     }
   ],
   "errands": [
@@ -1005,6 +1105,44 @@
       "type": "gold",
       "amount": 2,
       "when": "success"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "atlas-first-find",
+      "title": "Первый образец",
+      "points": 5,
+      "body": "Принести первую находку со стоянки.",
+      "category": "Ремесло и исследования",
+      "engineEvent": "gather",
+      "scope": "hero",
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "atlas-first-craft",
+      "title": "Работа мастера",
+      "points": 5,
+      "body": "Завершить первый производственный проект.",
+      "category": "Ремесло и исследования",
+      "engineEvent": "craft",
+      "scope": "hero",
+      "source": {
+        "origin": "demo"
+      }
+    },
+    {
+      "id": "atlas-company-stay",
+      "title": "Первый привал",
+      "points": 5,
+      "body": "Завершить стоянку компании.",
+      "category": "Ремесло и исследования",
+      "engineEvent": "closeStay",
+      "scope": "company",
+      "source": {
+        "origin": "demo"
+      }
     }
   ]
 }

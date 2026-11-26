@@ -1,14 +1,22 @@
+"""Assemble the offline edition from the v0.9 shell, rules, and local modules."""
 from pathlib import Path
-root = Path(__file__).resolve().parents[1]
-html = (root/'legacy/atlas-v09.html').read_text()
-def replace(old, new):
-    global html
-    assert html.count(old) == 1, old
-    html = html.replace(old, new)
-replace('shattered-atlas-v1\',1','shattered-atlas-engine\',1')
-replace("req.onupgradeneeded=()=>req.result.createObjectStore('atlas')", "req.onupgradeneeded=()=>{req.result.createObjectStore('atlas');req.result.createObjectStore('accounts',{keyPath:'nick'})}")
-replace('init();\n</script>', '\n'.join(p.read_text() for p in sorted((root/'src').glob('*.js'))) + '\nboot();\n</script>')
-replace('</head>', '<style>'+ (root/'src/atlas.css').read_text() +'</style></head>')
-html=html.replace('/*BUNDLED_RULES*/null',(root/'data/rules.json').read_text()).replace('/*BUNDLED_DEMO*/null',(root/'data/demo.json').read_text())
-replace('<body>', '<body class="locked"><section id="gate" class="card" aria-live="polite"></section>')
-(root/'index.html').write_text(html)
+
+ROOT = Path(__file__).resolve().parents[1]
+SRC = ROOT / 'src'
+
+def read(path):
+    return path.read_text(encoding='utf-8')
+
+def insert(template, marker, value):
+    if template.count(marker) != 1:
+        raise ValueError(f'Expected exactly one {marker}')
+    return template.replace(marker, value)
+
+modules = '\n'.join(read(path) for path in sorted(SRC.glob('*.js')))
+for name in ('rules', 'demo'):
+    data = read(ROOT / 'data' / f'{name}.json').replace('<', r'\u003c')
+    modules = insert(modules, f'/*BUNDLED_{name.upper()}*/ null', data)
+
+shell = insert(read(SRC/'atlas-shell.html'), '/* ATLAS_MODULES */', modules)
+shell = insert(shell, '<!-- ATLAS_STYLES -->', '<style>' + read(SRC/'atlas.css') + '</style>')
+(ROOT / 'index.html').write_text(shell, encoding='utf-8')

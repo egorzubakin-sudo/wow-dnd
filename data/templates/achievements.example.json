@@ -1,0 +1,16 @@
+{
+  "achievements": [
+    {
+      "id": "atlas-first-find",
+      "title": "Первый образец",
+      "points": 5,
+      "body": "Принести первую находку со стоянки.",
+      "category": "Ремесло и исследования",
+      "engineEvent": "gather",
+      "scope": "hero",
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

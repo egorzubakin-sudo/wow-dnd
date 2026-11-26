@@ -1,0 +1,18 @@
+# A deployment at the same origin should discover the existing IndexedDB save.
+migration=browser.new_context()
+legacy=migration.new_page()
+legacy.goto(f'http://127.0.0.1:{server.server_port}/legacy/atlas-v09.html')
+legacy.wait_for_function('db!==null && uxLast!==null && document.querySelector("#main").children.length>0')
+legacy.evaluate("()=>{loadDemo();S.company.name='Старая кампания';commit()}")
+wait_for_db(legacy,"async()=>(await dbGet())?.company.name==='Старая кампания'")
+assert legacy.evaluate("async()=>(await dbGet())?.company.name")=='Старая кампания'
+legacy.goto(f'http://127.0.0.1:{server.server_port}/index.html')
+legacy.locator('#nick').fill('test-master')
+legacy.locator('#pass').fill('atlas-test-pw')
+legacy.locator('#authForm button').click()
+legacy.locator('body:not(.locked)').wait_for()
+assert legacy.evaluate("S.company.name==='Старая кампания'&&S.nodes.length===5&&S.engine.schemaVersion===1"),legacy.evaluate("[S.company.name,S.nodes.length,S.engine.schemaVersion]")
+legacy.goto(f'http://127.0.0.1:{server.server_port}/legacy/atlas-v09.html')
+legacy.wait_for_function("S.company.name==='Старая кампания'")
+assert legacy.evaluate("!S.engine")
+migration.close()

@@ -1,0 +1,18 @@
+{
+  "fishing": [
+    {
+      "id": "durotar-fishing-fish",
+      "region_id": "durotar",
+      "profession_id": "fishing",
+      "item_id": "fish",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 3,
+      "min_margin": 0,
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

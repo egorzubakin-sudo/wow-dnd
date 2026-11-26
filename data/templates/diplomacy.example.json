@@ -1,0 +1,10 @@
+{
+  "diplomacy": [
+    {
+      "id": "trade-pact",
+      "a": "caravan",
+      "b": "guild",
+      "state": "neutral"
+    }
+  ]
+}

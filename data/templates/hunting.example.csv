@@ -1,0 +1,2 @@
+﻿"id";"region_id";"profession_id";"item_id";"weight";"min_quantity";"max_quantity";"min_margin";"hours";"dc";"stock";"attempts";"skill";"fail_text";"rare_chance";"required_tool_id";"origin";"treasure_id";"source"
+"durotar-hunt-meat";"durotar";"hunt";"meat";"1";"1";"3";"0";"1";"";"";"";"";"";"";"";"";"";"{""origin"":""demo""}"

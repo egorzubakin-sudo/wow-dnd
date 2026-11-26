@@ -1,0 +1,13 @@
+{
+  "ingredients": [
+    {
+      "id": "need-bar",
+      "recipe_id": "make-bar",
+      "item_id": "ore",
+      "quantity": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

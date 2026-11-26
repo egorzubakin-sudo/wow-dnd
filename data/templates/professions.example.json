@@ -1,0 +1,16 @@
+{
+  "professions": [
+    {
+      "id": "mining",
+      "name": "Горное дело",
+      "tools": [
+        "Инструменты каменщика"
+      ],
+      "skill": "",
+      "source": {
+        "book": "wow",
+        "printed_page": 98
+      }
+    }
+  ]
+}

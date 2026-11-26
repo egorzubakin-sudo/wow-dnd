@@ -1,0 +1,16 @@
+{
+  "regions": [
+    {
+      "id": "durotar",
+      "name": "Дуротар",
+      "continent": "Калимдор",
+      "biome": "Сухие холмы",
+      "dc": 10,
+      "priority": 0,
+      "points": [],
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

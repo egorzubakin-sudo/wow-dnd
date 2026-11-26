@@ -1,0 +1,16 @@
+{
+  "errands": [
+    {
+      "id": "task-0",
+      "title": "Незадачливый торговец",
+      "desc": "Колесо телеги гоблина застряло в канаве.",
+      "type": "local",
+      "status": "available",
+      "repeat": "stay",
+      "hours": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "routes": [
+    {
+      "id": "trade-road",
+      "name": "Торговый тракт",
+      "a": "crossroads",
+      "b": "port",
+      "min": 1,
+      "max": 2,
+      "risk": 1,
+      "kind": "road",
+      "status": "open"
+    }
+  ]
+}
