@@ -1,0 +1,8 @@
+page.evaluate("switchTab('bank')")
+page.get_by_role('button',name='Мастерская данных',exact=True).click()
+page.locator('#tableRaw').fill('{"regions":[{"id":"test","name":"Тестовый регион","dc":10}]}')
+page.get_by_role('button',name='Проверить и просмотреть').click()
+assert 'ошибки: 0' in page.locator('#importReport').inner_text()
+assert not page.evaluate("S.engine.regions.some(x=>x.id==='test')")
+page.get_by_role('button',name='Подтвердить импорт').click()
+page.wait_for_function("S.engine.regions.some(x=>x.id==='test')")

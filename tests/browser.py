@@ -20,7 +20,13 @@ with sync_playwright() as p:
     for tab in ('map','camp','company','contracts','bank','home'):
         page.evaluate('(t)=>switchTab(t)',tab)
     for case in sorted((root/'tests').glob('*.browser.py')):
-        exec(case.read_text(),globals())
+        print(case.name,flush=True)
+        try:
+            page.set_default_timeout(5000)
+            exec(compile(case.read_text(),str(case),'exec'),globals())
+        except Exception:
+            print(errors,page.locator('#modalBody').inner_text()[-1200:],page.locator('#toast').inner_text())
+            raise
     page.reload()
     page.locator('#nick').fill('gm')
     page.locator('#pass').fill('atlas-test-pw')
