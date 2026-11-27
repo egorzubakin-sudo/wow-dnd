@@ -43,7 +43,7 @@ function gate() {
   closeModal();
   const first = !accounts.length;
   $("gate").innerHTML =
-    '<h2>Атлас расколотого мира</h2><form id="authForm">' +
+    '<h2>Warcraft: Век Авантюристов</h2><form id="authForm">' +
     input("Никнейм", "nick", "text", "", 'required autocomplete="username"') +
     input("Пароль", "pass", "password", "", 'required minlength="8"') +
     '<button class="primary">' +

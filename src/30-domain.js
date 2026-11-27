@@ -116,7 +116,7 @@ function grant(s, r, hero) {
     const a = byId(s.portal.achievements, r.achievement);
     a.grants ??= [];
     const recipient = hero ? "hero:" + hero : "company";
-    if (!a.grants.some((g) => g.recipient === recipient)) {
+    if (achievementGrantAllowed(a, recipient)) {
       const date = "День " + s.company.day;
       a.grants.push({
         recipient,

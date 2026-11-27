@@ -93,7 +93,8 @@ function homeAchievements(hero) {
     .sort((a, b) => (b.grants?.filter((g) => grants.includes(g.recipient)).at(-1)?.date || "")
       .localeCompare(a.grants?.filter((g) => grants.includes(g.recipient)).at(-1)?.date || "", "ru", { numeric: true }));
   return recent.slice(0, 2).map((a) =>
-    kitHomeRow(a.title, hasGrant(a, personal) ? "Личное достижение" : "Достижение компании", "achievements",
+    kitHomeRow(a.title, achievementTitleOnly(a) ? "" :
+      hasGrant(a, personal) ? "Личное достижение" : "Достижение компании", "achievements",
       "openPortalRecord('achievements'," + jsid(a.id) + ")")).join("") ||
     kitHomeRow("Достижения компании", "Новых достижений пока нет", "achievements", "openCompanyAchievements()");
 }

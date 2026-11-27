@@ -14,7 +14,7 @@ def insert(template, marker, value):
     return template.replace(marker, value)
 
 modules = '\n'.join(read(path) for path in sorted(SRC.glob('*.js')))
-for name in ('rules', 'demo'):
+for name in ('rules', 'demo', 'achievements'):
     data = read(ROOT / 'data' / f'{name}.json').replace('<', r'\u003c')
     modules = insert(modules, f'/*BUNDLED_{name.upper()}*/ null', data)
 

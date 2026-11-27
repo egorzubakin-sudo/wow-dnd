@@ -7041,6 +7041,30 @@
           "example": "Принести первую находку со стоянки."
         },
         {
+          "name": "group",
+          "type": "text",
+          "optional": true,
+          "purpose": "Поле group из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "Пример"
+        },
+        {
+          "name": "rewardTitle",
+          "type": "text",
+          "optional": true,
+          "purpose": "Поле rewardTitle из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "Пример"
+        },
+        {
           "name": "points",
           "type": "int",
           "optional": true,
@@ -7075,6 +7099,30 @@
           "unit": null,
           "reference": null,
           "example": "hero"
+        },
+        {
+          "name": "unique",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Поле unique из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": false
+        },
+        {
+          "name": "closed",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Поле closed из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": false
         },
         {
           "name": "secret",

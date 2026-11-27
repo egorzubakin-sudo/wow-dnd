@@ -1,4 +1,4 @@
-.locked > :not(#gate):not(script):not(style) {
+body.locked > :not(#gate):not(script):not(style) {
   display: none !important;
 }
 body:not(.locked) > #gate {

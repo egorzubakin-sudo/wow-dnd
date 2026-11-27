@@ -110,7 +110,7 @@ const tables = {
   achievements: [
     "Достижения",
     "portal.achievements",
-    "id title category? body? points:int? engineEvent? scope? secret:bool? hidden:bool?",
+    "id title category? body? group? rewardTitle? points:int? engineEvent? scope? unique:bool? closed:bool? secret:bool? hidden:bool?",
   ],
   news: [
     "Новости и слухи",
@@ -570,6 +570,10 @@ function planImport(s, pack, mode, options = {}) {
   );
   for (const k of keys) {
     for (const r of records(next, k)) {
+      if (k === "achievements" && r.unique)
+        check(() => requireThat(!r.earned && !invalidUniqueGrants(r) &&
+          !r.auto && !(r.engineEvent && r.scope === "company"),
+          "Уникальное достижение может принадлежать только одному герою"), k + " " + r.id);
       for (const c of columns(k).filter((c) => c.type.startsWith("@"))) {
         if (r[c.name] && !ids[c.type.slice(1)].has(r[c.name]))
           check(

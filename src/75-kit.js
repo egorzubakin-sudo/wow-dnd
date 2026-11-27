@@ -139,7 +139,7 @@ function kitUpdateNavigation() {
   top.innerHTML =
     '<button class="kit-brand" onclick="switchTab(\'home\')" aria-label="Главная">' +
     uiIcon("map") +
-    "<span><strong>Атлас расколотого мира</strong><small>Хроники Азерота</small></span></button>" +
+    "<span><strong>Warcraft: Век Авантюристов</strong><small>Хроники расколотого мира</small></span></button>" +
     '<div class="kit-topmeta"><span class="kit-day">День ' +
     esc(S.company.day) +
     " · <b>" +

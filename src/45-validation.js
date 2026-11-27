@@ -49,6 +49,9 @@ function validateBackup(raw) {
       );
   for (const npc of raw.portal?.people || [])
     if (npc.participation) validateParticipation(npc.participation);
+  for (const row of raw.portal?.achievements || [])
+    if (row.unique)
+      requireThat(!row.earned && !invalidUniqueGrants(row), "Уникальное достижение может принадлежать только одному герою");
   if (!raw.engine) return;
   const e = raw.engine;
   requireThat(

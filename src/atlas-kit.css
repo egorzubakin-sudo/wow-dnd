@@ -1622,6 +1622,34 @@ body.atlas-kit-active {
   background: linear-gradient(90deg, #393224, #20291e);
   border-color: #6f6040;
 }
+.atlas-kit-active .achievement-collection .achievement.locked {
+  background: #242725;
+  border-color: #444946;
+}
+.achievement-collection .achievement.locked .achievement-open {
+  filter: grayscale(1);
+  color: #b8bcb9;
+}
+.achievement-collection .achievement-title-only {
+  display: block;
+}
+.achievement-collection .ach-filter {
+  margin: 14px 0;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.achievement-collection .ach-filter .field {
+  min-width: 0;
+  max-width: 100%;
+}
+.achievement-collection .ach-filter :is(select, input) {
+  max-width: 100%;
+}
+.achievement-pager {
+  justify-content: center;
+  align-items: center;
+  margin-top: 14px;
+}
 .atlas-kit-active .achievement-collection .collection-meter {
   width: 100%;
 }
