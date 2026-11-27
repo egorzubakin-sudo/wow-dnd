@@ -30,6 +30,7 @@ switchTab = function (section) {
   document.querySelectorAll("[data-context-menu][open]").forEach((menu) => {
     menu.open = false;
   });
+  rememberNavPage(section);
   return existingSwitchTab(section);
 };
 function revealActiveSection() {
@@ -241,42 +242,36 @@ const baseVisualSidebar = renderSidebar;
 renderSidebar = function () {
   baseVisualSidebar();
   const place = selected?.type === "node" ? node(selected.id) : null;
+  const path = selected?.type === "route" ? route(selected.id) : null;
   const panel = $("sidebar")?.querySelector(".side-inner");
-  if (!place || !panel || !visibleNode(place)) return;
-  const section = [...panel.children].find((el) => el.querySelector("h2"));
+  const section = panel && [...panel.children].find((el) => el.querySelector("h2") && el.classList.contains("section"));
   if (!section) return;
-  const region = S.engine.regions.find((r) => r.id === place.regionId);
-  section.classList.add("place-dossier");
-  section.insertAdjacentHTML(
-    "afterbegin",
-    sectionArt(
-      place.image || region?.image,
-      "cover",
-      type(place.type)[0] ? "⌖" : "✦",
-    ),
-  );
-  if (!player) {
-    const actions = section.querySelector(".actions");
-    const menu = visualMenu(
-      "Действия с местом",
-      (actions?.innerHTML || "") +
-        visualAction(
-          "Иллюстрация места",
-          "editPlaceArt(" + jsid(place.id) + ")",
-        ),
-    );
-    if (actions) actions.outerHTML = menu;
-    else section.insertAdjacentHTML("beforeend", menu);
+  const actions = section.querySelector(".actions");
+  if (path && visibleRoute(path)) {
+    if (actions) actions.outerHTML = canEditMap() ? visualMenu("Действия с маршрутом",
+      visualAction("Изменить маршрут", "editRoute(" + jsid(path.id) + ")") +
+      visualAction("Удалить маршрут", "deleteRoute(" + jsid(path.id) + ")", "danger")) : "";
+    const table = [...panel.querySelectorAll("section")].find((el) => el.querySelector("h3")?.textContent === "Таблица событий");
+    if (table) table.innerHTML = '<details><summary>Таблица событий d6</summary>' + [...table.querySelectorAll("p")].map((row) => row.outerHTML).join("") + '</details>';
+  } else if (place && visibleNode(place)) {
+    const region = S.engine.regions.find((r) => r.id === place.regionId);
+    section.classList.add("place-dossier");
+    if (place.image || region?.image)
+      section.insertAdjacentHTML("afterbegin", sectionArt(place.image || region.image, "cover", ""));
+    if (actions) actions.outerHTML = canEditMap() ? visualMenu("Действия с местом", mapNodeActions(place.id)) : "";
+    for (const btn of panel.querySelectorAll("button")) {
+      if (btn.getAttribute("onclick")?.startsWith("tool=")) btn.remove();
+    }
   }
 };
 function editPlaceArt(id) {
   const place = node(id);
-  if (player || !place) return;
+  if (!canEditMap() || !place) return;
   editVisualImages(
     place.name,
     [{ key: "placeArt", label: "Иллюстрация места", image: place.image }],
     (images) => {
-      place.image = images.placeArt;
+      if (canEditMap()) place.image = images.placeArt;
     },
   );
 }

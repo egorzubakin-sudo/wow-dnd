@@ -38,6 +38,47 @@ async function passwordKey(password, salt) {
 function input(label, name, type = "text", value = "", extra = "") {
   return field(label, name, value, type, extra);
 }
+const accountSessionKey = "atlas-remembered-account";
+async function sessionDigest(token) {
+  return Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token)))).join(",");
+}
+function replaceAccount(account) {
+  accounts = accounts.map((a) => a.nick === account.nick ? account : a);
+  if (actor?.nick === account.nick) actor = account;
+}
+async function rememberAccount(account) {
+  const token = crypto.randomUUID() + crypto.randomUUID();
+  const updated = { ...account, session: {
+    digest: await sessionDigest(token),
+    expires: Date.now() + 30 * 24 * 60 * 60 * 1000,
+  } };
+  await accountStore("readwrite", (s) => s.put(updated));
+  replaceAccount(updated);
+  localStorage.setItem(accountSessionKey, JSON.stringify({ token, nick: account.nick }));
+  return updated;
+}
+async function rememberedAccount() {
+  try {
+    const remembered = JSON.parse(localStorage.getItem(accountSessionKey));
+    const account = accounts.find((a) => a.nick === remembered?.nick);
+    if (account?.session?.expires > Date.now() && typeof remembered.token === "string" &&
+        account.session.digest === await sessionDigest(remembered.token)) return account;
+  } catch {
+    // A missing or invalid saved session returns to the standard login form.
+  }
+  localStorage.removeItem(accountSessionKey);
+  return null;
+}
+function activateAccount(account) {
+  actor = account;
+  player = account.role !== "master";
+  activeHero = "";
+  tab = player && heroRows().length ? "hero" : "home";
+  document.body.classList.remove("locked");
+  applyUiScale();
+  render();
+  $("gate").replaceChildren();
+}
 function gate() {
   document.body.classList.add("locked");
   closeModal();
@@ -46,6 +87,7 @@ function gate() {
     '<h2>Warcraft: Век Авантюристов</h2><form id="authForm">' +
     input("Никнейм", "nick", "text", "", 'required autocomplete="username"') +
     input("Пароль", "pass", "password", "", 'required minlength="8"') +
+    check("Запомнить вход на этом устройстве на 30 дней", "rememberAccount", false) +
     '<button class="primary">' +
     (first ? "Создать аккаунт мастера" : "Войти") +
     '</button><p id="authError" role="alert"></p></form><small>Локальный вход на этом устройстве. Имеющий доступ к файлам браузера может прочитать кампанию.</small>' +
@@ -65,13 +107,7 @@ function gate() {
             JSON.stringify(a.hash),
         "Неверный никнейм или пароль",
       );
-      actor = a;
-      player = a.role !== "master";
-      activeHero = "";
-      tab = player && heroRows().length ? "hero" : "home";
-      render();
-      document.body.classList.remove("locked");
-      $("gate").replaceChildren();
+      activateAccount($("rememberAccount").checked ? await rememberAccount(a) : a);
     } catch (err) {
       $("authError").textContent = err.message;
       b.disabled = false;
@@ -133,7 +169,10 @@ function button(label, fn) {
   };
   return b;
 }
-function logout() {
+async function logout() {
+  const account = actor;
+  const remembered = localStorage.getItem(accountSessionKey);
+  localStorage.removeItem(accountSessionKey);
   actor = null;
   previewActor = null;
   previewReadOnly = false;
@@ -142,6 +181,12 @@ function logout() {
   uxPopupQueue = [];
   uxDismissPopup();
   gate();
+  if (remembered && account?.session) {
+    const updated = { ...account };
+    delete updated.session;
+    await accountStore("readwrite", (s) => s.put(updated));
+    replaceAccount(updated);
+  }
 }
 function accountMenu() {
   if (previewReadOnly) {
@@ -184,6 +229,8 @@ function accountMenu() {
               salt,
               hash: await passwordKey(val("newpass"), salt),
             };
+          delete updated.session;
+          localStorage.removeItem(accountSessionKey);
           await accountStore("readwrite", (s) => s.put(updated));
           accounts = accounts.map((a) =>
             a.nick === updated.nick ? updated : a,
@@ -193,28 +240,7 @@ function accountMenu() {
       ),
     ),
   );
-  if (master) {
-    for (const a of accounts.filter((a) => a.role !== "master"))
-      box.append(
-        button("Посмотреть как " + a.name, () => {
-          previewActor = actor;
-          actor = a;
-          player = true;
-          closeModal();
-          render();
-        }),
-      );
-  }
-  if (previewActor)
-    box.append(
-      button("Вернуться к мастеру", () => {
-        actor = previewActor;
-        previewActor = null;
-        player = false;
-        closeModal();
-        render();
-      }),
-    );
+  if (master) box.append(button("Аккаунты и герои", manageUsers));
 }
 function createUserDialog() {
   if (player) return;
@@ -321,7 +347,9 @@ async function boot() {
         await dbPut(S);
         uxLast = uxSnapshot();
         accounts = await accountStore("readonly", (s) => s.getAll());
-        gate();
+        const remembered = await rememberedAccount();
+        if (remembered) activateAccount(remembered);
+        else gate();
         await new Promise(() => {});
       },
     );

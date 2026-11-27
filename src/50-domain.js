@@ -253,9 +253,7 @@ function settleContract(s, q, rows, reveal, delivery = null) {
   for (const row of rows) {
     const r = structuredClone(row);
     if (r.type === "charter") {
-      const f = byId(s.factions, r.faction);
-      if (!(f.charter || "").split("\n").includes(r.text))
-        f.charter = [f.charter, r.text].filter(Boolean).join("\n");
+      issueCharter(s, r.faction, r.text);
     } else if (r.type === "rep") {
       const f = byId(s.factions, r.faction),
         old = f.repPoints;

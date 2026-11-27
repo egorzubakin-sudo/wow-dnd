@@ -153,20 +153,21 @@ function openCompanionAction(npcId, actionId) {
     () => ({ hero, ref, message: val("npcMessage") }), "Передать мастеру");
 }
 
-function chooseCompanyNpc() {
+function chooseCompanyNpc(invite = false) {
   if (player) return;
-  openModal("Назначить NPC", pick("Персонаж мира", "assignNpc", pairs(visiblePortalRows("people")), "") +
+  const rows = visiblePortalRows("people").filter((npc) =>
+    !invite || !npc.participation?.companion || ["left", "away", "settled"].includes(npc.participation.companion.state));
+  openModal(invite ? "Пригласить спутника" : "Назначить NPC", pick("Персонаж мира", "assignNpc", pairs(rows), "") +
     '<div class="actions" id="assignNpcTools"></div>');
-  const rows = visiblePortalRows("people");
-  if (rows.length) $("assignNpcTools").append(button("Открыть участие в компании", () => editNpcParticipation(val("assignNpc"))));
+  if (rows.length) $("assignNpcTools").append(button(invite ? "Продолжить" : "Открыть участие в компании", () => editNpcParticipation(val("assignNpc"), invite)));
   else $("assignNpcTools").append(button("Создать персонажа мира", () => editPortal("people")));
 }
-function editNpcParticipation(id) {
+function editNpcParticipation(id, invite = false) {
   const npc = S.portal.people.find((x) => x.id === id);
   if (player || !npc) return;
   const p = npc.participation || {}, c = p.companion || {}, specialist = p.specialist || {};
   form("Участие в компании · " + npc.title,
-    pick("Состояние спутника", "npcState", [["","Без статуса спутника"], ...Object.entries(companionStates)], c.state || "") +
+    pick("Состояние спутника", "npcState", [["","Без статуса спутника"], ...Object.entries(companionStates)], (invite ? "traveling" : c.state) || "") +
     input("Роль спутника", "npcCompanyRole", "text", c.role || "") +
     pick("Местоположение, если отдельно от компании", "npcPlace", [["","По досье персонажа"], ...pairs(S.nodes)], c.location || "") +
     '<div class="cols">' + input("День присоединения", "npcJoinDay", "number", c.joined?.day ?? S.company.day, 'min="1"') +

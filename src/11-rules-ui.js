@@ -490,6 +490,7 @@ function regionForm(points = [], r = {}) {
   );
 }
 function drawRegion() {
+  if (!canEditMap()) return;
   const svg = $("mapsvg"),
     points = [];
   const shape = document.createElementNS(
@@ -505,6 +506,7 @@ function drawRegion() {
     regionForm(points);
   });
   const add = (e) => {
+    if (e.button !== 0 || !canEditMap()) return;
     e.stopImmediatePropagation();
     const p = worldPoint(e),
       d = dims();

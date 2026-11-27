@@ -11,20 +11,43 @@ const kitActivityArt = {
 };
 const additionalNavIcons = { hero: "company", bags: "bank", personalAchievements: "achievements" };
 let activeNavBand = 0;
+const navBandIcons = ["hero", "company", "map"];
+function uiPreferences() {
+  try {
+    return JSON.parse(localStorage.getItem("atlas-ui:" + actor?.nick)) || {};
+  } catch {
+    return {};
+  }
+}
+function saveUiPreferences(values) {
+  localStorage.setItem("atlas-ui:" + actor.nick, JSON.stringify({ ...uiPreferences(), ...values }));
+}
+function applyUiScale() {
+  const scale = uiPreferences().scale;
+  document.documentElement.style.setProperty("--atlas-ui-scale", [100, 115, 130].includes(scale) ? scale / 100 : 1);
+  if ($("mapsvg")) drawMap();
+}
+function uiScaleDialog() {
+  form("Масштаб интерфейса", pick("Размер", "uiScale", [100, 115, 130].map((n) => [n, n + "%"]), uiPreferences().scale || 100), () => {
+    saveUiPreferences({ scale: Number(val("uiScale")) });
+    applyUiScale();
+  });
+}
 function chooseNavBand(index) {
-  activeNavBand = index;
-  $("nav").dataset.band = index;
-  for (const button of $("nav").querySelectorAll(".kit-nav-switch button"))
-    button.setAttribute("aria-pressed", String(Number(button.dataset.group) === index));
+  const items = NAV_BANDS[index]?.[1];
+  if (!items) return;
+  const last = uiPreferences().pages?.[index];
+  switchTab(items.some(([id]) => id === last) ? last : items[0][0]);
 }
 function renderNavigation() {
-  const group = NAV_BANDS.findIndex(([, items]) => items.some(([id]) => id === tab));
-  if (group >= 0) activeNavBand = group;
+  const group = navGroup(tab);
+  const preferences = uiPreferences();
+  activeNavBand = group >= 0 ? group : NAV_BANDS[preferences.group] ? preferences.group : 0;
   $("nav").dataset.band = activeNavBand;
   return '<div class="kit-nav-switch" aria-label="Группы разделов">' +
     NAV_BANDS.map(([label], index) =>
       '<button data-group="' + index + '" aria-pressed="' + (activeNavBand === index) +
-      '" onclick="chooseNavBand(' + index + ')">' + esc(label) + '</button>').join("") + '</div>' +
+      '" onclick="chooseNavBand(' + index + ')">' + uiIcon(navBandIcons[index]) + esc(label) + '</button>').join("") + '</div>' +
     NAV_BANDS.map(([label, items], index) =>
       '<div class="nav-band" data-group="' + index + '"><div class="nav-band-label">' + esc(label) +
       '</div><div class="nav-scroll" data-band="' + index + '" onscroll="navOffsets[' + index + ']=this.scrollLeft">' +
@@ -33,6 +56,18 @@ function renderNavigation() {
         '"' + (tab === id ? ' aria-current="page"' : '') + ' onclick="switchTab(' + jsid(id) +
         ')"><span class="menu-icon">' + navIcon(id, fallback) + '</span><span>' + esc(name) +
         '</span></button>').join("") + '</div></div>').join("");
+}
+function navGroup(section) {
+  return NAV_BANDS.findIndex(([, items]) => items.some(([id]) => id === section));
+}
+function rememberNavPage(section) {
+  if (!actor || previewReadOnly) return;
+  const page = section === "rumors" ? "news" : section;
+  const group = navGroup(page);
+  if (group < 0) return;
+  const preferences = uiPreferences();
+  if (preferences.pages?.[group] !== page || preferences.group !== group)
+    saveUiPreferences({ group, pages: { ...preferences.pages, [group]: page } });
 }
 function kitArtUrl(key) {
   return "assets/ui-kit/" + key + ".webp";
@@ -115,6 +150,7 @@ function kitUpdateNavigation() {
     "afterbegin",
     '<div class="kit-operations-extra">' +
       visualAction("Избранное", "uxFavorites()") +
+      visualAction("Масштаб интерфейса", "uiScaleDialog()") +
       visualAction("Дипломатия", "switchTab('diplomacy')") +
       visualAction("Правила", "switchTab('help')") +
       visualAction("Журнал", "switchTab('journal')") +

@@ -190,6 +190,8 @@ function openFactionPanel(id, selected = factionPanel) {
       (f.desc ? '<p class="record-body">' + esc(f.desc) + "</p>" : "") +
       '<div class="actions">' +
       uxFavButton("faction", id) +
+      (!player ? kitLink("Выдать грамоту", "charterDialog(" + jsid(id) + ")", "contracts", "primary") : "") +
+      (f.charter ? visualAction("Читать грамоты", "viewCharter(" + jsid(id) + ")") : "") +
       "</div>" +
       (!player && f.notes
         ? '<p class="notice record-body">' + esc(f.notes) + "</p>"

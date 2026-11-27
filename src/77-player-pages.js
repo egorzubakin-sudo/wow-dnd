@@ -21,6 +21,7 @@ function returnFromHeroView() {
   previewActor = null;
   previewReadOnly = false;
   player = false;
+  applyUiScale();
   closeModal();
   switchTab("hero");
 }
@@ -148,15 +149,15 @@ function openCompanyAchievements() {
   achievementFilter = "company";
   switchTab("achievements");
 }
-function companyRosterSection(title, cards, id = "") {
-  return '<section' + (id ? ' id="' + id + '"' : "") + '>' + kitSubhead(title) +
+function companyRosterSection(title, cards, id = "", action = "") {
+  return '<section' + (id ? ' id="' + id + '"' : "") + '>' + '<div class="kit-subhead"><h3>' + esc(title) + '</h3>' + action + '</div>' +
     (cards.length ? '<div class="company-roster">' + cards.join("") + '</div>' :
-      emptyScene("В этой группе пока никого нет.")) + '</section>';
+      '<p class="company-roster-empty">В этой группе пока никого нет.</p>') + '</section>';
 }
-function companyCard(name, role, member, action, details = "", extra = "") {
+function companyCard(name, role, member, action, details = "", extra = "", opportunity = "") {
   return '<article class="kit-panel company-member" ' + extra + '><button class="company-member-open" onclick="' + action + '">' +
     kitAvatar(member) + '<span class="kit-grow"><strong>' + esc(name) + '</strong><small>' + esc(role) +
-    '</small></span></button>' + details + '</article>';
+    '</small>' + (opportunity ? '<small class="company-opportunity">' + esc(opportunity) + '</small>' : '') + '</span></button>' + details + '</article>';
 }
 function renderCompany() {
   const c = S.company, art = safeImage(S.settings.visual?.covers?.company) || kitArtUrl("party");
@@ -174,7 +175,8 @@ function renderCompany() {
   const former = (npc) => ["left", "dead"].includes(npc.participation.companion.state);
   const card = (npc) => companyCard(npc.title,
     [npc.participation.companion.role, companionStates[npc.participation.companion.state]].filter(Boolean).join(" · "),
-    npc, "openPortalRecord('people'," + jsid(npc.id) + ")");
+    npc, "openPortalRecord('people'," + jsid(npc.id) + ")", "", "",
+    npc.participation.actions?.[0]?.name || "");
   const companions = allCompanions.filter((npc) => !former(npc)).map(card);
   const departed = allCompanions.filter(former).map(card);
   const staff = companySpecialists(S).filter((row) => !player || !row.hidden).map((row) =>
@@ -200,13 +202,13 @@ function renderCompany() {
       </div><div class="actions">${kitLink("Общий банк", "switchTab('bank')", "bank")}${kitLink("Лагерь", "switchTab('camp')", "camp")}</div></section>
     </div>
     ${companyRosterSection("Герои", roster, "companyHeroes")}
-    ${companyRosterSection("Спутники", companions)}
+    ${companyRosterSection("Спутники", companions, "companyCompanions", !player ? kitLink("Пригласить спутника", "chooseCompanyNpc(true)", "people", "primary") : "")}
     ${departed.length ? '<details class="kit-panel"><summary>Бывшие спутники</summary><div class="company-roster">' + departed.join("") + '</div></details>' : ""}
     ${companyRosterSection("Специалисты", staff)}
     <div class="company-summary">
-      <section class="kit-panel"><h3>Верительные грамоты</h3>${charters.map((f) =>
-        '<h4>' + esc(f.name) + '</h4><p class="record-body">' + esc(f.charter) + '</p>').join("") ||
-        '<p class="muted">Компания пока не получила грамот.</p>'}</section>
+      <section class="kit-panel"><div class="kit-subhead"><h3>Верительные грамоты</h3>
+        ${!player ? kitLink("Выдать грамоту", "charterDialog()", "contracts", "primary") : ""}</div>
+        ${charterCollection(charters)}</section>
       <section class="kit-panel"><h3>Коллективные достижения</h3>${achievements.slice(0, 3).map((a) =>
         kitHomeRow(a.title, "", "achievements", "openPortalRecord('achievements'," + jsid(a.id) + ")")).join("")}
         ${visualAction("Все достижения компании", "openCompanyAchievements()")}
@@ -218,7 +220,7 @@ function renderCompany() {
 function administrationSections() {
   const adminLink = (label, action) => visualAction(label, action);
   const blocks = [
-    ["Пользователи и герои", adminLink("Пользователи", "manageUsers()") +
+    ["Пользователи и герои", adminLink("Аккаунты и герои", "manageUsers()") +
       adminLink("Создать пользователя", "createUserDialog()") + adminLink("Состав компании", "switchTab('company')") +
       adminLink("Назначить NPC", "chooseCompanyNpc()") + adminLink("Обращения к спутникам", "companionRequestsPage()")],
     ["Кампания и календарь", adminLink("Фазы и стоянка", "stayAdmin()") +

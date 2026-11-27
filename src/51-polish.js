@@ -261,61 +261,67 @@ applyQuestRewards = function (c, rows, reveal) {
     })
     .catch((e) => toast(e.message));
 };
+const accountRoles = [["master", "Мастер"], ["captain", "Капитан"], ["player", "Игрок"], ["observer", "Наблюдатель"]];
 function manageUsers() {
-  openModal("Пользователи", '<div id="accountList" class="stack"></div>');
-  for (const user of accounts)
-    $("accountList").append(
-      button(user.name + " · " + user.nick, () => {
-        form(
-          "Права · " + user.nick,
-          input("Имя", "display", "text", user.name, "required") +
-            pick(
-              "Роль",
-              "newrole",
-              [
-                ["master", "Мастер"],
-                ["captain", "Капитан"],
-                ["player", "Игрок"],
-                ["observer", "Наблюдатель"],
-              ],
-              user.role,
-            ) +
-            S.company.members
-              .map((m, i) =>
-                check(memberName(m), "h" + i, user.heroes.includes(m.id)),
-              )
-              .join("") +
-            check("Путешествия капитана", "tc", user.travel) +
-            input("Новый пароль (пусто — сохранить)", "resetpw", "password"),
-          async () => {
-            requireThat(
-              user.nick !== actor.nick || val("newrole") === "master",
-              "Текущий мастер сохраняет доступ к управлению",
-            );
-            const value = {
-              ...user,
-              name: val("display"),
-              role: val("newrole"),
-              heroes: S.company.members
-                .filter((_, i) => $("h" + i).checked)
-                .map((m) => m.id),
-              travel: $("tc").checked,
-            };
-            if (val("resetpw")) {
-              requireThat(val("resetpw").length >= 8, "От 8 символов");
-              value.salt = Array.from(
-                crypto.getRandomValues(new Uint8Array(16)),
-              );
-              value.hash = await passwordKey(val("resetpw"), value.salt);
-            }
-            await accountStore("readwrite", (s) => s.put(value));
-            accounts = accounts.map((a) => (a.nick === user.nick ? value : a));
-            if (value.nick === actor.nick) actor = value;
-            render();
-          },
-        );
-      }),
-    );
+  if (player || actor.role !== "master") return;
+  openModal("Аккаунты и герои", '<p class="muted">Аккаунты хранятся в этом браузере.</p>' +
+    '<div class="actions" id="accountCreate"></div><div id="accountList" class="account-directory"></div>');
+  $("accountCreate").append(button("Создать пользователя", createUserDialog));
+  const rows = $("accountList");
+  for (const user of accounts) {
+    const heroes = S.company.members.filter((m) => user.heroes.includes(m.id)).map(memberName);
+    rows.insertAdjacentHTML("beforeend", kitHomeRow(user.name + " · " + user.nick,
+      [accountRoles.find(([key]) => key === user.role)?.[1], heroes.join(", ") || "Герой не назначен"].join(" · "),
+      "hero", "editAccount(" + jsid(user.nick) + ")"));
+  }
+}
+function editAccount(nick) {
+  if (player || actor.role !== "master") return;
+  const user = accounts.find((row) => row.nick === nick);
+  if (!user) return;
+  form("Профиль · " + user.nick,
+    input("Имя", "display", "text", user.name, "required") +
+    pick("Роль", "newrole", accountRoles, user.role) +
+    '<fieldset><legend>Герои аккаунта</legend>' +
+    S.company.members.map((m, i) => check(memberName(m), "h" + i, user.heroes.includes(m.id))).join("") +
+    '</fieldset>' +
+    check("Путешествия капитана", "tc", user.travel) +
+    input("Новый пароль (пусто — сохранить)", "resetpw", "password", "", 'minlength="8"') +
+    (user.role !== "master" ? visualAction("Посмотреть как " + user.name, "previewAccount(" + jsid(nick) + ")") : ""),
+    async () => {
+      requireThat(user.nick !== actor.nick || val("newrole") === "master", "Текущий мастер сохраняет доступ к управлению");
+      const value = {
+        ...user,
+        name: val("display").trim(),
+        role: val("newrole"),
+        heroes: S.company.members.filter((_, i) => $("h" + i).checked).map((m) => m.id),
+        travel: $("tc").checked,
+      };
+      requireThat(value.name, "Укажите имя");
+      const password = val("resetpw");
+      if (password) {
+        requireThat(password.length >= 8, "Пароль должен содержать от 8 символов");
+        value.salt = Array.from(crypto.getRandomValues(new Uint8Array(16)));
+        value.hash = await passwordKey(password, value.salt);
+      }
+      if (password || value.role !== user.role) {
+        delete value.session;
+        if (value.nick === actor.nick) localStorage.removeItem(accountSessionKey);
+      }
+      await accountStore("readwrite", (s) => s.put(value));
+      replaceAccount(value);
+      render();
+      manageUsers();
+    });
+}
+function previewAccount(nick) {
+  if (player || actor.role !== "master") return;
+  const account = accounts.find((row) => row.nick === nick && row.role !== "master");
+  if (!account) return;
+  previewActor = actor;
+  previewReadOnly = true;
+  activateAccount(account);
+  closeModal();
 }
 const baseAccountMenu = accountMenu;
 accountMenu = function () {

@@ -203,21 +203,3 @@ function renderMail() {
   bindPortalSearch(renderMail);
   uxLinkify($("kitMailLetter"));
 }
-
-const kitBaseMap = renderMap;
-renderMap = function () {
-  kitBaseMap();
-  const layout = $("main").querySelector(".map-layout");
-  const cover = document.createElement("template");
-  cover.innerHTML = sectionHeader("Карта Азерота", "Места, маршруты и текущий путь компании.");
-  layout.prepend(cover.content);
-  const header = layout.querySelector(".section-cover-actions");
-  header.insertAdjacentHTML("beforeend",
-    '<div class="actions" id="engineActions">' +
-    (!player ? visualMenu("Управление картой",
-      visualAction("Создать регион", "regionForm()") +
-      visualAction("Нарисовать границу", "drawRegion()") +
-      (S.engine.regions.length ? visualAction("Изменить регион", "editRegionList()") : "")) : "") +
-    (canTravel() && !S.journey && !currentStay(S) && S.company.location
-      ? visualAction("Отправиться в путь", "choosePartyRoute()") : "") + '</div>');
-};
