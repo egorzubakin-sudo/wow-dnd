@@ -2021,3 +2021,10 @@ body.atlas-kit-active { font-size: 16px; }
 .atlas-kit-active .kit-bank-main .treasury-strip { flex-wrap: wrap; }
 .atlas-kit-active .kit-bank-main .visual-filters > * { min-width: 0; }
 .atlas-kit-active .kit-bank-main .visual-filters :is(input, select) { max-width: 100%; }
+
+.online-workspace { display: grid; gap: 12px; max-width: 980px; margin: auto; }
+.online-map { display: block; width: 100%; max-height: 65vh; background: #263b32; }
+.online-workspace :is(code, #onlineStatus) { overflow-wrap: anywhere; }
+.online-workspace #onlineStatus:empty { display: none; }
+.online-workspace #onlineMemberForm { margin-top: 16px; }
+.online-workspace #onlinePortrait { width: 100px; height: 100px; }

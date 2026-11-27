@@ -380,5 +380,6 @@ for(const name of ['renderNewsFeed','renderAchievements','renderPortalGeneric','
 document.addEventListener('keydown',e=>{if(!document.body.classList.contains('locked')&&(e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();uxSearch()}});
 
 /* ATLAS_MODULES */
-boot();
+if (atlasOnlineMode()) bootOnline();
+else boot();
 </script></body></html>
