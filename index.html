@@ -4028,7 +4028,8 @@ function gate() {
     input("Пароль", "pass", "password", "", 'required minlength="8"') +
     '<button class="primary">' +
     (first ? "Создать аккаунт мастера" : "Войти") +
-    '</button><p id="authError" role="alert"></p></form><small>Локальный вход на этом устройстве. Имеющий доступ к файлам браузера может прочитать кампанию.</small>';
+    '</button><p id="authError" role="alert"></p></form><small>Локальный вход на этом устройстве. Имеющий доступ к файлам браузера может прочитать кампанию.</small>' +
+    '<p><a href="start.html" target="_blank" rel="noopener">Скачать сборку и открыть страницу запуска</a></p>';
   $("authForm").onsubmit = async (e) => {
     e.preventDefault();
     const b = e.submitter;
@@ -4299,7 +4300,13 @@ async function boot() {
       },
     );
   } catch (e) {
-    $("gate").textContent = e.message;
+    const gate = $("gate");
+    gate.textContent = e.message;
+    if (location.protocol === "file:") {
+      const help = document.createElement("p");
+      help.innerHTML = '<a href="start.html">Как запустить Атлас через localhost</a>';
+      gate.append(help);
+    }
   }
 }
 
