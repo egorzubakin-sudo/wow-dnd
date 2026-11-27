@@ -91,7 +91,7 @@ function gate() {
     '<button class="primary">' +
     (first ? "Создать аккаунт мастера" : "Войти") +
     '</button><p id="authError" role="alert"></p></form><small>Локальный вход на этом устройстве. Имеющий доступ к файлам браузера может прочитать кампанию.</small>' +
-    '<p><a href="start.html" target="_blank" rel="noopener">Скачать сборку и открыть страницу запуска</a></p>';
+    '<p><a href="start.html" target="_blank" rel="noopener">Скачать сборку и открыть страницу запуска</a></p>' + onlineLink();
   $("authForm").onsubmit = async (e) => {
     e.preventDefault();
     const b = e.submitter;
