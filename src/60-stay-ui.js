@@ -6,64 +6,6 @@ function gameIcon(symbol, image) {
     "</span>"
   );
 }
-function gameHero(hero, stay) {
-  if (!hero)
-    return '<p class="muted">Назначенный герой появится здесь после привязки аккаунта.</p>';
-  const member = heroOf(S, hero),
-    p = profile(S, hero);
-  return (
-    '<div class="game-hero">' +
-    gameIcon("♙", member.image) +
-    "<div><strong>" +
-    esc(memberName(member)) +
-    '</strong><p class="muted">' +
-    esc(
-      [p.race, p.class, "Уровень " + p.level, "БВ +" + bv(p)]
-        .filter(Boolean)
-        .join(" · "),
-    ) +
-    "</p>" +
-    (tab === "stay" && p.professions.length
-      ? '<p class="stay-professions">' +
-        esc(
-          S.engine.professions
-            .filter((record) => p.professions.includes(record.id))
-            .map((record) => record.name)
-            .join(" · "),
-        ) +
-        "</p>"
-      : "") +
-    '</div><div id="gameHeroSelect"></div>' +
-    (tab === "stay" ? visualAction("Личные сумки", "bagPage()", "ghost") : "") +
-    "</div>" +
-    (stay
-      ? '<div class="game-time"><label for="stayTime">Игровое время <strong>' +
-        timeLabel(remaining(S, hero)) +
-        " / " +
-        timeLabel(stay.hours * stay.days) +
-        "</strong></label>" +
-        '<progress id="stayTime" max="' +
-        stay.hours * stay.days +
-        '" value="' +
-        remaining(S, hero) +
-        '"></progress></div>'
-      : '<p class="muted">Игровое время появится с началом стоянки.</p>')
-  );
-}
-function bindGameHero(hero) {
-  const rows = heroRows();
-  if (rows.length < 2 || !$("gameHeroSelect")) return;
-  $("gameHeroSelect").innerHTML = pick(
-    "Активный персонаж",
-    "gameHero",
-    rows.map((m) => [m.id, memberName(m)]),
-    hero,
-  );
-  $("gameHero").onchange = () => {
-    activeHero = val("gameHero");
-    render();
-  };
-}
 function timeLabel(hours) {
   const minutes = Math.round(hours * 60);
   return [
@@ -92,6 +34,7 @@ function stayAdmin() {
     '<div class="actions" id="stayAdmin"></div>',
   );
   const box = $("stayAdmin");
+  box.append(button("Обложка раздела", () => editSectionCover("stay")));
   if (stay)
     box.append(
       button("Параметры стоянки", () => stayForm(stay)),
@@ -188,10 +131,12 @@ function activityDialog(hero, profession, stay) {
     (r) => r.region_id === stay.region && r.profession_id === profession.id,
   );
   const loot = activityLoot(ids)
-    .map((item) => gameIcon(item.icon, item.image) + " " + esc(item.name))
+    .map((item) => itemIcon(item) + " " + esc(item.name))
     .join(" · ");
   const body =
-    "<p>" +
+    '<img class="kit-modal-cover" src="' +
+    esc(kitActivityPicture(profession.id)) +
+    '" alt=""><p>' +
     esc(
       profession.description ||
         profession.summary ||
@@ -244,7 +189,7 @@ function activityDialog(hero, profession, stay) {
           "</p>" +
           "<p>" +
           (item
-            ? gameIcon(item.icon, item.image) +
+            ? itemIcon(item) +
               esc(item.name) +
               " × " +
               esc(result.qty) +
@@ -259,7 +204,7 @@ function activityDialog(hero, profession, stay) {
         button("К занятиям", closeModal),
       );
     },
-    "Начать занятие",
+    "Отправиться на вылазку",
   );
   const show = () => {
     const info = choice
@@ -306,16 +251,97 @@ function staffWorkDialog() {
     }),
   );
 }
+function kitStayHero(hero, stay) {
+  if (!hero) return emptyScene("Ваш герой не назначен.");
+  const member = heroOf(S, hero),
+    hours = remaining(S, hero),
+    total = stay.hours * stay.days;
+  const p = profile(S, hero);
+  const known = S.engine.professions
+    .filter((profession) => p.professions.includes(profession.id))
+    .map((profession) => profession.name);
+  return (
+    '<div class="kit-panel kit-today"><div class="eyebrow">Ваш герой</div>' +
+    '<div class="kit-row">' +
+    kitAvatar(member) +
+    '<div class="kit-grow"><b>' +
+    esc(memberName(member)) +
+    '</b><div class="muted">' +
+    esc(kitHeroDescription(p)) +
+    "</div>" +
+    (known.length ? "<small>" + esc(known.join(" · ")) + "</small>" : "") +
+    "</div></div>" +
+    '<div class="kit-time"><span class="muted">Свободное время</span><b>' +
+    esc(timeLabel(hours)) +
+    " <small>/ " +
+    esc(timeLabel(total)) +
+    "</small></b></div>" +
+    '<div class="kit-progress" role="progressbar" aria-label="Свободное время" aria-valuenow="' +
+    hours +
+    '" aria-valuemax="' +
+    total +
+    '"><i style="width:' +
+    (hours / total) * 100 +
+    '%"></i></div>' +
+    '<div class="kit-quick">' +
+    kitLink("Сумки", "bagPage()", "bank") +
+    kitLink("Ремесло", "openCraftTab('recipes')", "craft") +
+    kitLink("Герой", "openAffPerson('hero'," + jsid(hero) + ")", "company") +
+    "</div></div>"
+  );
+}
+function kitActivityCard({
+  name,
+  picture,
+  icon,
+  stamp = "",
+  description,
+  loot = "",
+  status,
+  reason = "",
+  action,
+}) {
+  const card = button(name, action);
+  card.className = "kit-artcard" + (reason ? " kit-locked" : "");
+  card.innerHTML =
+    '<img class="kit-card-art" src="' +
+    esc(picture) +
+    '" alt="" loading="lazy">' +
+    (stamp ? '<span class="kit-stamp">' + esc(stamp) + "</span>" : "") +
+    '<div class="kit-card-content"><div class="kit-row">' +
+    icon +
+    "<h3>" +
+    esc(name) +
+    "</h3></div>" +
+    '<p class="muted">' +
+    esc(description) +
+    '</p>' +
+    (loot
+      ? '<small class="kit-card-loot" title="' + esc(loot) + '">' + esc(loot) + '</small>'
+      : '') +
+    '<span class="kit-badge' +
+    (reason ? " kit-no" : "") +
+    '">' +
+    esc(reason || status) +
+    "</span></div>";
+  return card;
+}
 function renderStay() {
   const stay = currentStay(S),
-    master = !player,
-    hero = chosen();
-  const root = $("main");
+    hero = chosen(),
+    root = $("main"),
+    master = !player;
+  const customArt = safeImage(S.settings.visual?.covers?.stay);
   if (!stay) {
     root.innerHTML =
-      '<div class="screen game-screen"><section class="card game-cover"><h2>Стоянка</h2><p>Сейчас · ' +
+      '<div class="atlas-kit kit-stay"><section class="kit-wideart"><img class="kit-cover-image" src="' +
+      esc(customArt || kitArtUrl("camp")) +
+      '" alt="">' +
+      '<div class="kit-herotext"><div class="eyebrow">' +
       esc(phases[S.journey ? "travel" : S.engine.phase]) +
-      '</p><p class="muted">Добыча, отдых и местные поручения станут доступны, когда компания разобьёт стоянку.</p><div class="actions" id="stayActions"></div></section></div>';
+      "</div>" +
+      "<h2>Стоянка</h2><p>Добыча, отдых и местные поручения станут доступны, когда компания разобьёт стоянку.</p></div>" +
+      '<div class="kit-hero-actions" id="stayActions"></div></section></div>';
     $("stayActions").append(button("Открыть карту", () => switchTab("map")));
     if (master && !S.journey)
       $("stayActions").append(
@@ -328,61 +354,77 @@ function renderStay() {
       $("stayActions").append(button("Управление стоянкой", stayAdmin));
     return;
   }
-  const region = S.engine.regions.find((r) => r.id === stay.region),
-    place = node(stay.location);
-  const illustration = safeImage(stay.image) || safeImage(region?.image);
+  const region = S.engine.regions.find((r) => r.id === stay.region);
+  const place = locLabel(stay.location);
+  const cover =
+    safeImage(stay.image) ||
+    safeImage(region?.image) ||
+    customArt ||
+    kitArtUrl("camp");
+  const description =
+    stay.description ||
+    region?.description ||
+    "Компания остановилась, чтобы пополнить припасы и подготовиться к дороге.";
+  const actions = master
+    ? '<div id="stayAdminLink" class="kit-hero-actions">' +
+      kitLink("Управление стоянкой", "stayAdmin()", "gear", "kit-small") +
+      "</div>"
+    : "";
   root.innerHTML =
-    '<div class="screen game-screen"><section class="card game-cover">' +
-    (illustration
-      ? '<img class="stay-illustration" src="' + esc(illustration) + '" alt="">'
-      : "") +
-    '<div class="game-intro"><div><p class="eyebrow">' +
+    '<div class="atlas-kit kit-stay"><section class="kit-wideart">' +
+    '<img class="kit-cover-image" src="' +
+    esc(cover) +
+    '" alt="">' +
+    '<div class="kit-herotext"><div class="eyebrow">' +
     esc(
-      [region?.continent, region?.name].filter(Boolean).join(" · ") ||
-        "Стоянка компании",
+      [region?.continent, region?.name, "День " + S.company.day]
+        .filter(Boolean)
+        .join(" · "),
     ) +
-    "</p>" +
-    "<h2>" +
-    esc(stay.name || (place && visibleNode(place) ? place.name : "Стоянка")) +
-    "</h2>" +
-    "<p>" +
-    esc(
-      stay.description ||
-        region?.description ||
-        "Компания остановилась, чтобы пополнить припасы и подготовиться к дороге.",
-    ) +
-    "</p>" +
-    '<p class="muted">' +
-    esc(
-      stay.days +
-        " дн. · начало в день " +
-        stay.start +
-        " · завершение в день " +
-        (stay.start + stay.days) +
-        " · " +
-        S.company.year +
-        " год",
-    ) +
-    (place && visibleNode(place) ? " · " + esc(place.name) : "") +
-    '</p></div><div id="stayAdminLink"></div></div>' +
-    (stay.limits ? '<p class="notice">' + esc(stay.limits) + "</p>" : "") +
-    gameHero(hero, stay) +
+    "</div><h2>" +
+    esc(stay.name || place || "Стоянка") +
+    "</h2><p>" +
+    esc(description) +
+    '</p><p class="kit-stay-dates">' +
+    esc(`${stay.days} дн. · День ${stay.start}–${stay.start + stay.days}`) +
+    "</p></div>" +
+    actions +
     "</section>" +
-    '<section class="game-section"><h3>Добыча и исследование</h3><div id="activitiesGrid" class="activity-grid"></div></section>' +
-    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="activity-grid stay-task-grid"></div></section></div>';
-  bindGameHero(hero);
-  if (master)
-    $("stayAdminLink").append(button("Управление стоянкой", stayAdmin));
-  const grid = $("activitiesGrid"),
-    tasks = $("stayTasks");
-  const professions = S.engine.professions.filter(
-    (p) =>
-      p.kind === "gathering" ||
-      S.engine.loot.some(
-        (r) => r.region_id === stay.region && r.profession_id === p.id,
-      ),
-  );
-  if (hero && owned(actor, hero))
+    '<div class="kit-staylayout"><section>' +
+    kitSubhead("Чем займёмся сегодня?", "Добыча и исследование") +
+    (stay.limits ? '<p class="kit-notice">' + esc(stay.limits) + "</p>" : "") +
+    '<div class="kit-activitygrid" id="activitiesGrid"></div>' +
+    kitSubhead("Местные дела") +
+    '<div class="kit-panel kit-task-panel" id="stayTasks"></div></section>' +
+    '<aside class="kit-sticky"><div class="kit-toolbar">' +
+    kitHeroSelect(hero) +
+    "</div>" +
+    kitStayHero(hero, stay) +
+    kitSubhead("Сегодня") +
+    '<div class="kit-panel">' +
+    kitStayHistory(hero, stay, place) +
+    "</div></aside></div></div>";
+  bindKitHero();
+  const list = $("activitiesGrid");
+  if (hero && owned(actor, hero)) {
+    const professions = S.engine.professions.filter(
+      (p) =>
+        p.kind === "gathering" ||
+        S.engine.loot.some(
+          (row) => row.region_id === stay.region && row.profession_id === p.id,
+        ),
+    );
+    const order = [
+      "mining",
+      "herbalism",
+      "hunt",
+      "fishing",
+      "archaeology",
+      "skinning",
+    ];
+    const rank = (id) =>
+      order.includes(id) ? order.indexOf(id) : order.length;
+    professions.sort((a, b) => rank(a.id) - rank(b.id));
     for (const profession of professions) {
       if (
         profession.id === "skinning" &&
@@ -393,89 +435,139 @@ function renderStay() {
       const rows = S.engine.loot.filter(
         (r) => r.region_id === stay.region && r.profession_id === profession.id,
       );
-      const loot = activityLoot(rows)
-        .map((i) => i.name)
-        .join(", ");
-      const card = button(profession.name, () =>
-        activityDialog(hero, profession, stay),
+      list.append(
+        kitActivityCard({
+          name: profession.name,
+          picture: kitActivityPicture(profession.id),
+          icon: professionIcon(profession),
+          description: profession.summary || "Региональное занятие",
+          loot: activityLoot(rows).map((item) => item.name).join(", "),
+          stamp: rows.length
+            ? timeLabel(profession.id === "skinning" ? 1 / 6 : rows[0].hours || 1)
+            : "",
+          status: "Доступно",
+          reason: state.reason,
+          action: () => activityDialog(hero, profession, stay),
+        }),
       );
-      card.className =
-        "activity-card" + (state.reason ? " activity-unavailable" : "");
-      card.innerHTML =
-        gameIcon(profession.icon) +
-        "<strong>" +
-        esc(profession.name) +
-        "</strong><span>" +
-        esc(profession.summary || "Региональное занятие") +
-        "</span>" +
-        (rows.length
-          ? "<small>" +
-            timeLabel(
-              profession.id === "skinning" ? 1 / 6 : rows[0].hours || 1,
-            ) +
-            (loot ? " · " + esc(loot) : "") +
-            "</small>"
-          : "") +
-        '<small class="' +
-        (state.reason ? "activity-reason" : "game-good") +
-        '">' +
-        esc(state.reason || "Доступно") +
-        "</small>";
-      grid.append(card);
     }
-  if (!grid.children.length)
-    grid.innerHTML =
-      '<p class="muted">Выберите героя, чтобы увидеть доступные занятия.</p>';
-  if (hero && owned(actor, hero)) {
-    tasks.append(
-      button("Заняться ремеслом", () => openCraftTab("recipes")),
-      button("Местные поручения", localBoard),
-      button("Расписание и история", plansPage),
-      button("Отдохнуть", () =>
-        commandForm(
-          "Отдых",
-          input(
-            "Часов",
-            "rh",
-            "number",
-            1,
-            'min="1" max="' + Math.floor(remaining(S, hero)) + '"',
-          ),
-          "rest",
-          () => ({ hero, hours: num("rh") }),
-        ),
-      ),
+    list.append(
+      kitActivityCard({
+        name: "Ремесло",
+        picture: kitArtUrl("market"),
+        icon: uiIcon("craft"),
+        stamp: "Книга рецептов",
+        description: "Создавайте предметы и продолжайте проекты.",
+        status: "Открыть",
+        action: () => openCraftTab("recipes"),
+      }),
     );
-    if (remaining(S, hero) < 1) tasks.lastElementChild.disabled = true;
+  }
+  if (!list.children.length)
+    list.innerHTML = emptyScene("Выберите героя, чтобы увидеть занятия.");
+  drawKitStayTasks(hero, stay, master);
+}
+function kitStayHistory(hero, stay, place) {
+  const rows = stay.history
+    .filter((row) => row.hero === hero)
+    .slice(-3)
+    .reverse();
+  return rows.length
+    ? rows
+        .map(
+          (row) =>
+            '<p class="kit-listrow"><small>' +
+            esc(
+              "День " +
+                row.day +
+                " · " +
+                (S.engine.professions.find((p) => p.id === row.activity)
+                  ?.name || row.activity) +
+                " · " +
+                timeLabel(row.hours),
+            ) +
+            "</small></p>",
+        )
+        .join("")
+    : '<p class="kit-listrow"><small>' +
+        esc(
+          "День " +
+            stay.start +
+            " · Компания разбила стоянку" +
+            (place ? " · " + place : "") +
+            " · " +
+            stay.days +
+            " дн.",
+        ) +
+        "</small></p>";
+}
+function drawKitStayTasks(hero, stay, master) {
+  const box = $("stayTasks");
+  function task(name, detail, icon, action) {
+    const control = button(name, action);
+    control.className = "kit-listrow";
+    control.setAttribute("aria-label", name);
+    control.innerHTML =
+      uiIcon(icon) +
+      '<span class="kit-grow"><b>' +
+      esc(name) +
+      "</b><small>" +
+      esc(detail) +
+      '</small></span><span aria-hidden="true">›</span>';
+    box.append(control);
+    return control;
+  }
+  if (hero && owned(actor, hero)) {
+    const local = S.contracts.filter(
+      (q) => q.type === "local" && questAvailable(S, q, hero),
+    );
+    if (local[0])
+      task(
+        local[0].title,
+        "Местное поручение · " + timeLabel(local[0].hours),
+        "contracts",
+        () => localBoard(local[0].id),
+      );
+    task(
+      "Местные поручения",
+      local.length
+        ? "Доступные поручения · " + local.length
+        : "Пока нет доступных поручений",
+      "contracts",
+      () => localBoard(),
+    );
+    task("Отдохнуть", "Провести время у костра", "rest", () =>
+      commandForm(
+        "Отдых",
+        input(
+          "Часов",
+          "rh",
+          "number",
+          1,
+          'min="1" max="' + Math.floor(remaining(S, hero)) + '"',
+        ),
+        "rest",
+        () => ({ hero, hours: num("rh") }),
+      ),
+    ).disabled = remaining(S, hero) < 1;
+    task(
+      "Расписание и история",
+      "Записки о времени на стоянке",
+      "journal",
+      plansPage,
+    );
   }
   if (
     master &&
     S.company.staff.length &&
     S.engine.projects.some((j) => j.status === "active")
   )
-    tasks.append(button("Работа специалистов", staffWorkDialog));
-  const taskArt = [
-    ["⚒", "Рецепты и незавершённые проекты"],
-    ["!", "Работа для жителей региона"],
-    ["▤", "Записки о времени на стоянке"],
-    ["☾", "Восстановить силы"],
-    ["⚙", "Распределить работу в лагере"],
-  ];
-  [...tasks.children].forEach((item, i) => {
-    const [icon, caption] = taskArt[i];
-    const title = item.textContent;
-    item.innerHTML =
-      gameIcon(icon) +
-      "<strong>" +
-      esc(title) +
-      "</strong><small>" +
-      esc(caption) +
-      "</small>";
-    item.setAttribute("aria-label", title);
-    item.classList.add("activity-card");
-    if (item.disabled) item.classList.add("activity-unavailable");
-  });
-  if (!tasks.children.length)
-    tasks.innerHTML =
-      '<p class="muted">Дела компании доступны назначенным героям.</p>';
+    task(
+      "Работа специалистов",
+      "Распределить работу в лагере",
+      "gear",
+      staffWorkDialog,
+    );
+  if (!box.children.length)
+    box.innerHTML = emptyScene("Дела компании доступны назначенным героям.");
 }

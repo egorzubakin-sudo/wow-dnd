@@ -35,7 +35,7 @@ def submit():
     page.locator('#engineForm button[type=submit]').click()
     page.wait_for_function("!document.querySelector('#engineForm')||!document.querySelector('#modalwrap').classList.contains('open')")
 def signout():
-    page.locator('#modeBtn').click()
+    page.locator('#modeBtn:visible, #kitAccount:visible').click()
     btn('Выйти')
 def signin(nick):
     page.locator('#nick').fill(nick)
@@ -43,7 +43,7 @@ def signin(nick):
     page.locator('#authForm button').click()
     page.locator('body:not(.locked)').wait_for()
 def add_account(nick,i):
-    page.locator('#modeBtn').click()
+    page.locator('#modeBtn:visible, #kitAccount:visible').click()
     btn('Создать пользователя')
     page.locator('#nn').fill(nick)
     page.locator('#pw').fill('atlas-test-pw')
@@ -120,7 +120,7 @@ submit()
 day=page.evaluate('S.company.day')
 signout()
 signin('miner')
-page.locator('#modeBtn').click()
+page.locator('#modeBtn:visible, #kitAccount:visible').click()
 btn('Мои герои')
 assert page.locator('[data-hero]').first.get_by_role('heading',name='Рудокоп',exact=True).is_visible()
 assert page.get_by_role('button',name='Настроить героя',exact=True).count()==1
@@ -138,8 +138,8 @@ import os
 if os.environ.get('ATLAS_REVIEW_DIR'):
     page.evaluate("window.scrollTo(0,0);$('toast').classList.add('hidden')")
     review_size=page.viewport_size
-    for width in (1280,390):
-        page.set_viewport_size({'width':width,'height':920})
+    for width in (1440,390):
+        page.set_viewport_size({'width':width,'height':960})
         page.screenshot(path=f"{os.environ['ATLAS_REVIEW_DIR']}/active-stay-{width}.png",animations='disabled')
     page.set_viewport_size(review_size)
 assert page.locator('#gameHero').count()==0
@@ -161,6 +161,14 @@ tab('craft')
 btn('Книга рецептов')
 page.locator('#recipeQuery').fill('медный слиток')
 assert page.locator('.material-line').get_by_text('2 / 1').is_visible()
+if os.environ.get('ATLAS_REVIEW_DIR'):
+    size=page.viewport_size
+    page.evaluate("window.scrollTo(0,0);$('toast').classList.add('hidden')")
+    for width in (1440,390):
+        page.set_viewport_size({'width':width,'height':960})
+        page.screenshot(path=f"{os.environ['ATLAS_REVIEW_DIR']}/active-craft-{width}.png",animations='disabled')
+    page.set_viewport_size(size)
+
 page.locator('#craftQty').fill('2')
 assert page.locator('.material-line').get_by_text('2 / 2').is_visible()
 btn('Создать')
@@ -179,7 +187,6 @@ signout()
 signin('gm')
 page.evaluate("(id)=>{S.company.members.find(h=>h.id===id).name='Мастер кузни';commit()}",smith)
 tab('stay')
-page.locator('#stayAdminLink summary').click()
 btn('Управление стоянкой')
 btn('Завершить стоянку')
 submit()
@@ -205,8 +212,8 @@ btn('Книга рецептов')
 assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth')
 page.locator('#recipeList .recipe-option').first.click()
 assert page.locator('#recipeDetail').is_visible()
-btn('К списку рецептов')
-assert page.locator('#recipeList').is_visible() and not page.locator('#recipeDetail').is_visible()
+assert page.locator('#recipeList').is_visible()
+assert page.locator('#recipeList').bounding_box()['y'] < page.locator('#recipeDetail').bounding_box()['y']
 assert page.locator('#nav .nav-scroll').count()==2
 # Verify that the authoritative store is written before reloading.
 wait_for_db(page,"async()=>!!(await dbGet())?.journey")

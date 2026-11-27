@@ -1509,11 +1509,6 @@ body {
     display: inline-block;
     margin-bottom: 0.7rem;
   }
-  #craftBody:not(.mobile-recipe-open) #recipeDetail,
-  .mobile-recipe-open #recipeList,
-  .mobile-recipe-open .recipe-filters {
-    display: none;
-  }
   #recipeList {
     max-height: none;
   }
@@ -1678,8 +1673,1066 @@ body {
     aspect-ratio: 16/9;
   }
 }
+
+/* Atlas UI Kit pilot. Shared styling is scoped to Stay and Craft. */
+body.atlas-kit-active {
+  --kit-bg: #101714;
+  --kit-panel: #19221e;
+  --kit-raised: #222e26;
+  --kit-ink: #f1e7cf;
+  --kit-muted: #a9b5a7;
+  --kit-gold: #d8b777;
+  --kit-gold2: #e9d2a2;
+  --kit-line: #364238;
+  --kit-green: #99be83;
+  --kit-red: #e29b89;
+  --kit-serif: Georgia, "Times New Roman", serif;
+  background:
+    radial-gradient(ellipse at 70% 0, #22312a 0, transparent 45%), var(--kit-bg);
+  color: var(--kit-ink);
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+.atlas-kit-active .header {
+  display: block;
+  max-width: none;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  background: #121b16;
+}
+.atlas-kit-active .header > :not(#kitTop),
+.atlas-kit-active #status {
+  display: none !important;
+}
+#kitTop {
+  max-width: 1510px;
+  height: 64px;
+  margin: auto;
+  padding: 0 28px;
+  display: flex;
+  gap: 17px;
+  align-items: center;
+}
+.kit-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: 0;
+  text-align: left;
+  padding: 0;
+}
+.kit-brand .kit-iconbox {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+.kit-brand strong {
+  font: 20px/1.05 var(--kit-serif);
+  display: block;
+  color: var(--kit-gold2);
+}
+.kit-brand small {
+  color: var(--kit-muted);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.kit-topmeta {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 18px;
+  margin-left: auto;
+  color: var(--kit-muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.kit-topmeta b {
+  color: var(--kit-ink);
+  font-weight: 600;
+}
+.kit-topicon {
+  display: grid;
+  place-items: center;
+  position: relative;
+  background: transparent;
+  border: 0;
+  padding: 4px;
+  border-radius: 5px;
+}
+.kit-topicon .kit-iconbox {
+  width: 20px;
+  height: 20px;
+  border: 0;
+}
+.kit-topicon .kit-avatar {
+  width: 39px;
+  height: 39px;
+}
+.kit-unread::after {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--kit-gold);
+  position: absolute;
+  top: 2px;
+  right: 1px;
+}
+.atlas-kit-active #nav {
+  max-width: none;
+  position: sticky;
+  top: 64px;
+  z-index: 7;
+  background: #121b16;
+  border-bottom: 1px solid #49513e;
+}
+.atlas-kit-active .nav-band {
+  align-items: center;
+  gap: 13px;
+  min-height: 39px;
+  padding: 0 28px;
+  border-top: 1px solid #29382e;
+  border-bottom: 0;
+  background: #121b16;
+}
+.atlas-kit-active .nav-band:last-child {
+  background: #201f19;
+}
+.atlas-kit-active .nav-band-label {
+  flex: 0 0 86px;
+  border: 0;
+  padding: 0;
+  font-size: 9px;
+  letter-spacing: 2px;
+  font-weight: 800;
+}
+.atlas-kit-active .nav-scroll {
+  display: flex;
+  justify-content: flex-start;
+  flex: 1;
+  gap: 2px;
+  padding: 0;
+}
+.atlas-kit-active #nav .nav-tab {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  min-width: 0;
+  max-width: none;
+  min-height: 37px;
+  white-space: nowrap;
+  padding: 8px 10px 7px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: none;
+  font-size: 12px;
+}
+.atlas-kit-active .nav-tab .menu-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  background: transparent;
+  border: 0;
+}
+.atlas-kit-active .nav-tab .menu-icon img {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+.atlas-kit-active .nav-tab:hover {
+  background: #29362c;
+}
+.atlas-kit-active .nav-tab[aria-current] {
+  background: #d6b57415;
+  border-color: var(--kit-gold);
+  color: var(--kit-gold2);
+  box-shadow: none;
+}
+.atlas-kit {
+  max-width: 1510px;
+  margin: auto;
+  padding: 30px 32px 55px;
+  color: var(--kit-ink);
+  font:
+    14px/1.5 system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+}
+.atlas-kit h2,
+.atlas-kit h3,
+.atlas-kit h4,
+.atlas-kit p {
+  margin: 0;
+}
+.atlas-kit h2,
+.atlas-kit h3 {
+  color: var(--kit-gold2);
+  font-family: var(--kit-serif);
+  font-weight: 400;
+}
+.atlas-kit h3 {
+  font-size: 21px;
+  line-height: 1.18;
+}
+.atlas-kit p {
+  line-height: 1.65;
+}
+.atlas-kit small,
+.atlas-kit .muted {
+  color: var(--kit-muted);
+  font-size: 12px;
+}
+.atlas-kit .eyebrow {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--kit-gold);
+  margin-bottom: 9px;
+}
+.kit-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+}
+.kit-grow {
+  flex: 1;
+  min-width: 0;
+}
+.kit-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.kit-iconbox {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #6b6048;
+  background: #2e3025;
+  color: #d8b777;
+  border-radius: 6px;
+  overflow: hidden;
+  flex: none;
+  vertical-align: middle;
+}
+.kit-iconbox img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.kit-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #958160;
+  flex: none;
+}
+.kit-small,
+.atlas-kit .kit-create {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #4d594a;
+  border-radius: 6px;
+  background: #29372c;
+  color: var(--kit-ink);
+  padding: 7px 10px;
+  font-weight: 650;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.kit-small .kit-iconbox,
+.kit-create .kit-iconbox,
+.kit-inline .kit-iconbox {
+  width: 17px;
+  height: 17px;
+  border: 0;
+  border-radius: 3px;
+}
+.atlas-kit .kit-create {
+  background: linear-gradient(130deg, #e1c38a, #b99459);
+  border-color: #e4c78d;
+  color: #181d15;
+  padding: 10px 15px;
+  font-size: 13px;
+}
+.kit-field,
+.atlas-kit input,
+.atlas-kit select {
+  border: 1px solid #435242;
+  background: #111b15;
+  color: var(--kit-ink);
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+.kit-field {
+  width: auto;
+  max-width: 100%;
+}
+.kit-wideart {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9px;
+  border: 1px solid #625a43;
+  min-height: 226px;
+  display: flex;
+  align-items: end;
+}
+.kit-cover-image,
+.kit-wideart::after {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+}
+.kit-cover-image {
+  object-fit: cover;
+  object-position: center 46%;
+}
+.kit-wideart::after {
+  content: "";
+  z-index: -1;
+  background:
+    linear-gradient(90deg, #0d1410f5, #0d1410c7 34%, #0d141038 70%, #0d14100f),
+    linear-gradient(0deg, #101713b8, transparent 60%);
+}
+.kit-herotext {
+  padding: 25px 28px;
+  max-width: 650px;
+}
+.kit-herotext h2,
+.kit-sectionhead h2 {
+  font: 400 clamp(32px, 3.8vw, 48px) / 1.04 var(--kit-serif);
+  letter-spacing: -1.6px;
+}
+.kit-herotext h2 {
+  color: #f4e3bf;
+  text-shadow: 0 2px 18px #131913;
+}
+.kit-herotext p {
+  max-width: 480px;
+  color: #d7dfca;
+  margin-top: 10px;
+}
+.kit-herotext .kit-stay-dates {
+  margin-top: 6px;
+  font-size: 12px;
+}
+.kit-card-loot {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--kit-muted);
+}
+.kit-hero-actions {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.kit-staylayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 22px;
+  margin-top: 21px;
+  align-items: start;
+}
+.kit-sticky {
+  position: sticky;
+  top: 165px;
+  min-width: 0;
+}
+.kit-staylayout > section > .kit-subhead:first-child {
+  margin-top: 0;
+}
+.kit-subhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 24px 0 13px;
+}
+.kit-subhead h3 {
+  font-size: 27px;
+}
+.kit-activitygrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.kit-artcard {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  border: 1px solid var(--kit-line);
+  border-radius: 8px;
+  background: var(--kit-panel);
+  color: var(--kit-ink);
+  text-align: left;
+  padding: 0;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.kit-artcard:hover {
+  border-color: #ad925a;
+  transform: translateY(-2px);
+  background: var(--kit-panel);
+}
+.kit-artcard img.kit-card-art {
+  width: 100%;
+  height: 117px;
+  object-fit: cover;
+  display: block;
+}
+.kit-artcard.kit-locked {
+  opacity: 0.76;
+}
+.kit-artcard.kit-locked .kit-card-art {
+  filter: saturate(0.4) brightness(0.65);
+}
+.kit-stamp {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #101911d9;
+  border: 1px solid #88794d;
+  color: var(--kit-gold2);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+.kit-card-content {
+  padding: 15px;
+  display: grid;
+  gap: 6px;
+  flex: 1;
+}
+.kit-badge {
+  display: inline-flex;
+  align-self: end;
+  font-size: 11px;
+  font-weight: 650;
+  color: var(--kit-green);
+}
+.kit-badge.kit-no {
+  color: var(--kit-red);
+}
+.kit-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.kit-panel {
+  border: 1px solid var(--kit-line);
+  border-radius: 9px;
+  padding: 20px;
+  background: var(--kit-panel);
+  min-width: 0;
+}
+.kit-panel.kit-today {
+  background: linear-gradient(145deg, #293629, #1b251e);
+  border-color: #53654a;
+}
+.kit-task-panel {
+  padding: 8px 16px;
+}
+.kit-time {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 16px 0 8px;
+}
+.kit-time b {
+  font: 25px var(--kit-serif);
+  color: var(--kit-gold2);
+}
+.kit-progress {
+  height: 8px;
+  background: #101a14;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid #3e4b38;
+}
+.kit-progress i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #78965f, #b4ce8a);
+  border-radius: 9px;
+}
+.kit-quick {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 18px;
+}
+.kit-quick button {
+  background: #19271d;
+  border: 1px solid #435242;
+  border-radius: 6px;
+  padding: 12px 4px;
+  text-align: center;
+  color: #d7e2ca;
+}
+.kit-quick .kit-iconbox {
+  display: grid;
+  margin: 0 auto 6px;
+  width: 24px;
+  height: 24px;
+}
+.kit-quick button:hover {
+  border-color: var(--kit-gold);
+}
+.kit-listrow {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border: 0;
+  border-bottom: 1px solid var(--kit-line);
+  width: 100%;
+  background: none;
+  text-align: left;
+  color: var(--kit-ink);
+}
+.kit-listrow:last-child {
+  border: 0;
+}
+.kit-listrow:hover:not(p) {
+  color: var(--kit-gold2);
+  background: transparent;
+}
+.kit-listrow .kit-grow small {
+  display: block;
+}
+.kit-sectionhead {
+  display: flex;
+  align-items: end;
+  gap: 15px;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  position: relative;
+  isolation: isolate;
+}
+.kit-sectionhead h2 {
+  font-size: 40px;
+  color: var(--kit-ink);
+}
+.kit-sectionhead p {
+  color: var(--kit-muted);
+  margin-top: 7px;
+}
+.kit-sectionhead.kit-section-art {
+  padding: 20px;
+  min-height: 130px;
+  border-radius: 9px;
+  overflow: hidden;
+}
+.kit-section-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #121b15ec, #121b155e);
+}
+.kit-craft-hero .kit-grow small {
+  display: block;
+}
+.kit-tabs {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  margin-bottom: 16px;
+}
+.kit-tabs:empty {
+  display: none;
+}
+.kit-tab {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 6px;
+  border: 1px solid var(--kit-line);
+  background: transparent;
+  border-radius: 5px;
+  padding: 7px 13px;
+  color: var(--kit-muted);
+  font-weight: 650;
+}
+.kit-tab[aria-pressed="true"] {
+  border-color: #a88b53;
+  background: #463c28;
+  color: var(--kit-gold2);
+}
+.kit-tab .kit-iconbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 0;
+}
+.kit-recipe-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  border: 1px solid var(--kit-line);
+  background: var(--kit-panel);
+  border-radius: 9px;
+  overflow: hidden;
+  min-height: 440px;
+}
+.kit-recipe-sidebar {
+  border-right: 1px solid var(--kit-line);
+  padding: 13px;
+  background: #131d17;
+  min-width: 0;
+}
+.kit-recipe-sidebar .field {
+  margin: 0 0 8px;
+}
+.kit-recipe-sidebar > .field label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.kit-recipe-filters {
+  margin: 0 0 8px;
+  color: var(--kit-muted);
+  font-size: 12px;
+}
+.kit-recipe-filters summary {
+  cursor: pointer;
+}
+.kit-recipe-filters .field {
+  margin-top: 6px;
+}
+.kit-recipe-list {
+  display: grid;
+  gap: 2px;
+}
+.kit-recipe-list .kit-recipe {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 8px;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+.kit-recipe-list .kit-recipe[aria-pressed="true"] {
+  background: #3b3526;
+  border-color: #85734c;
+}
+.kit-recipe-list .kit-recipe:hover {
+  background: #303a2b;
+}
+.kit-recipe .kit-iconbox {
+  width: 39px;
+  height: 39px;
+}
+.kit-recipe strong,
+.kit-recipe small {
+  display: block;
+}
+.kit-recipe-detail {
+  padding: 25px 28px;
+  min-width: 0;
+}
+.kit-recipe-detail h3 {
+  font-size: 27px;
+}
+.kit-recipe-detail .eyebrow {
+  margin-bottom: 5px;
+}
+.kit-recipe-detail .kit-recipe-description {
+  margin: 14px 0;
+}
+.kit-recipe-detail .kit-subhead h3 {
+  font-size: 21px;
+}
+.kit-ingredient {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--kit-line);
+}
+.kit-ingredient .game-good {
+  color: var(--kit-green);
+}
+.kit-ingredient .game-bad {
+  color: var(--kit-red);
+}
+.kit-recipe-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.kit-quantity {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.kit-quantity .field {
+  margin: 0;
+}
+.kit-quantity label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.kit-quantity input {
+  width: 64px;
+  text-align: center;
+}
+.kit-notice {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #4d5542;
+  border-radius: 6px;
+  background: #242f24;
+  color: var(--kit-muted);
+  font-size: 12px;
+}
+.kit-notice:empty {
+  display: none;
+}
+.kit-project-group h3 {
+  margin-bottom: 9px;
+}
+.kit-craft-views {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.kit-craft-views button[aria-pressed="true"] {
+  border-color: #a88b53;
+  background: #463c28;
+}
+.kit-modal-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/7;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 13px;
+}
+.atlas-kit-active .modal {
+  background: #19221e;
+  border-color: #625a43;
+}
+@media (max-width: 1000px) {
+  .atlas-kit {
+    padding: 22px 20px 45px;
+  }
+  .kit-topmeta .kit-location {
+    display: none;
+  }
+  .kit-activitygrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kit-staylayout {
+    grid-template-columns: minmax(0, 1fr) 265px;
+  }
+}
+@media (max-width: 700px) {
+  #kitTop {
+    height: 53px;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .atlas-kit-active #nav {
+    top: 53px;
+  }
+  .kit-brand {
+    gap: 7px;
+  }
+  .kit-brand strong {
+    font-size: 16px;
+  }
+  .kit-brand small {
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  .kit-brand .kit-iconbox {
+    width: 27px;
+    height: 27px;
+  }
+  .kit-topmeta {
+    gap: 4px;
+  }
+  .kit-topmeta .kit-day,
+  .kit-topmeta .kit-username {
+    display: none;
+  }
+  .kit-topicon .kit-avatar {
+    width: 31px;
+    height: 31px;
+  }
+  .kit-topmeta .visual-menu summary {
+    min-width: 25px;
+    min-height: 28px;
+    font-size: 15px;
+  }
+  .atlas-kit-active .nav-band {
+    padding: 0 8px;
+    gap: 6px;
+    min-height: 36px;
+  }
+  .atlas-kit-active .nav-band-label {
+    flex-basis: 62px;
+    font-size: 8px;
+    letter-spacing: 0.8px;
+  }
+  .atlas-kit-active #nav .nav-tab {
+    min-height: 34px;
+    padding: 7px 8px;
+    font-size: 11px;
+    gap: 5px;
+  }
+  .atlas-kit-active .nav-tab .menu-icon,
+  .atlas-kit-active .nav-tab .menu-icon img {
+    width: 14px;
+    height: 14px;
+  }
+  .atlas-kit {
+    padding: 17px 13px 40px;
+  }
+  .kit-wideart {
+    min-height: 230px;
+  }
+  .kit-wideart::after {
+    background:
+      linear-gradient(90deg, #111a14e8, #111a1450),
+      linear-gradient(0deg, #101713c0, transparent);
+  }
+  .kit-herotext {
+    padding: 52px 19px 22px;
+  }
+  .kit-herotext p {
+    font-size: 13px;
+  }
+  .kit-hero-actions {
+    top: 9px;
+    right: 9px;
+  }
+  .kit-hero-actions button {
+    font-size: 11px;
+    padding: 6px 9px;
+  }
+  .kit-staylayout {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .kit-staylayout > aside {
+    grid-row: 1;
+  }
+  .kit-staylayout aside > .kit-subhead,
+  .kit-staylayout aside > .kit-panel:not(.kit-today) {
+    display: none;
+  }
+  .kit-sticky {
+    position: static;
+  }
+  .kit-subhead h3 {
+    font-size: 23px;
+  }
+  .kit-staylayout .kit-subhead > small {
+    max-width: 90px;
+    text-align: right;
+  }
+  .kit-activitygrid {
+    gap: 10px;
+  }
+  .kit-artcard img.kit-card-art {
+    height: 100px;
+  }
+  .kit-card-content {
+    padding: 11px;
+    gap: 4px;
+  }
+  .kit-card-content .kit-row {
+    gap: 7px;
+  }
+  .kit-card-content .kit-iconbox {
+    width: 34px;
+    height: 34px;
+  }
+  .kit-artcard h3 {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+  .kit-sectionhead {
+    align-items: start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .kit-sectionhead h2 {
+    font-size: 32px;
+  }
+  .kit-sectionhead p {
+    font-size: 13px;
+  }
+  .kit-craft-hero {
+    gap: 7px;
+  }
+  .kit-craft-hero .kit-grow {
+    flex-basis: 90px;
+  }
+  .kit-recipe-layout {
+    grid-template-columns: 1fr;
+  }
+  .kit-recipe-sidebar {
+    border-right: 0;
+    border-bottom: 1px solid var(--kit-line);
+  }
+  .kit-recipe-list {
+    max-height: 240px;
+    overflow: auto;
+  }
+  .kit-recipe-detail {
+    padding: 18px;
+    scroll-margin-top: 132px;
+  }
+}
+
+/* Library is a reusable local dialog; imagery is paged and lazy-loaded. */
+.atlas-icon-picker {
+  width: min(780px, 100% - 22px);
+  max-height: 90dvh;
+  padding: 16px;
+  overflow: auto;
+  background: #19221e;
+  color: #f1e7cf;
+  border: 1px solid #88794d;
+  border-radius: 8px;
+  box-shadow: 0 14px 60px #0008;
+}
+.atlas-icon-picker::backdrop {
+  background: #080e0bbd;
+}
+.atlas-icon-picker header,
+.atlas-icon-picker footer,
+.icon-pagination,
+.icon-picker-preview,
+.icon-upload {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+}
+.atlas-icon-picker header {
+  padding-top: 0;
+}
+.atlas-icon-picker header h2 {
+  margin: 0;
+}
+.icon-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.icon-filters label,
+.icon-upload label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.icon-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 6px;
+}
+.icon-picker-grid button {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 5px;
+}
+.icon-picker-grid button img {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+}
+.icon-picker-grid button span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 10px;
+}
+.icon-picker-grid button[aria-pressed="true"] {
+  border-color: #d8b777;
+  background: #463c28;
+}
+.icon-picker-preview {
+  justify-content: flex-start;
+  border-top: 1px solid #364238;
+}
+.icon-picker-preview p {
+  margin: 0;
+  color: #a9b5a7;
+}
+.icon-upload input {
+  width: 100%;
+}
+.icon-upload button {
+  white-space: nowrap;
+}
+.atlas-icon-picker footer {
+  flex-wrap: wrap;
+}
+@media (max-width: 420px) {
+  .atlas-icon-picker {
+    padding: 11px;
+  }
+  .icon-filters {
+    grid-template-columns: 1fr;
+  }
+  .icon-picker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(57px, 1fr));
+  }
+}
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
-<header class="header"><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div id="uxTools" class="ux-tools"></div><div class="head-actions"><button id="modeBtn" onclick="toggleMode()">Профиль</button><details class="visual-menu" id="atlasOperations" data-context-menu><summary aria-label="Настройки Атласа" title="Настройки Атласа">⋯</summary><div class="visual-menu-panel"><button id="navIconBtn" onclick="editNavIcons()">Иконки меню</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button></div></details><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
+<header class="header"><div id="kitTop" hidden></div><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div id="uxTools" class="ux-tools"></div><div class="head-actions"><button id="modeBtn" onclick="toggleMode()">Профиль</button><details class="visual-menu" id="atlasOperations" data-context-menu><summary aria-label="Настройки Атласа" title="Настройки Атласа">⋯</summary><div class="visual-menu-panel"><button id="navIconBtn" onclick="editNavIcons()">Иконки меню</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button></div></details><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
 <nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · D&D 2024 / домашние правила Вольной компании</footer>
 <div class="modalwrap" id="modalwrap" onclick="if(event.target===this)closeModal()"><div class="modal" role="dialog" aria-modal="true"><div class="modal-head"><h2 id="modalTitle"></h2><button class="ghost" onclick="closeModal()" aria-label="Закрыть">×</button></div><div id="modalBody"></div></div></div><input id="mapFile" type="file" accept="image/*" hidden><div id="toast" class="toast hidden" role="status"></div>
 <input id="navIconFile" type="file" accept="image/*" hidden><input id="bookImport" class="hidden" type="file" accept=".json,.html,application/json,text/html">
@@ -1939,12 +2992,12 @@ let dipFaction='',dipStatus='',iconTarget='',navOffsets=[0,0];
 function prepareDiplomacy(data){const ids=new Set(data.factions.map(f=>f.id)),pairs=new Set();data.diplomacy=(Array.isArray(data.diplomacy)?data.diplomacy:[]).filter(r=>{if(!r||!ids.has(r.a)||!ids.has(r.b)||r.a===r.b||!DIP_STATES.some(x=>x[0]===r.state))return false;let key=pairKey(r.a,r.b);if(pairs.has(key))return false;pairs.add(key);return true}).map(r=>({...r,id:typeof r.id==='string'?r.id:uid(),desc:String(r.desc||''),notes:String(r.notes||''),hidden:!!r.hidden}));data.settings??={};const old=data.settings.navIcons||{};if(!old.news&&safeImage(old.rumors))old.news=old.rumors;data.settings.navIcons=Object.fromEntries(NAV_BANDS.flatMap(b=>b[1]).filter(([k])=>safeImage(old[k])).map(([k])=>[k,old[k]]));return data}
 function pairKey(a,b){return JSON.stringify([a,b].sort())}
 function navIcon(k,fallback){const img=safeImage(S.settings.navIcons?.[k]);return img?`<img src="${esc(img)}" alt="">`:esc(fallback||NAV_BANDS.flatMap(b=>b[1]).find(t=>t[0]===k)?.[2]||'◆')}
-function renderNavigation(){return NAV_BANDS.map(([label,items],i)=>`<div class="nav-band"><div class="nav-band-label">${label}<small>Азерот · ${i?'отряд':'атлас'}</small></div><div class="nav-scroll" data-band="${i}" onscroll="navOffsets[${i}]=this.scrollLeft">${items.filter(([k])=>k!=='workshop'||!player).map(([k,l,icon])=>`<button title="${esc(l)}" aria-label="${esc(l)}" ${tab===k?'aria-current="page"':''} class="nav-tab ${tab===k?'active':''}" onclick="switchTab('${k}')"><span class="menu-icon">${navIcon(k,icon)}</span><span>${esc(l)}</span></button>`).join('')}</div></div>`).join('')}
+function renderNavigation(){return NAV_BANDS.map(([label,items],i)=>`<div class="nav-band"><div class="nav-band-label">${label}<small>Азерот · ${i?'отряд':'атлас'}</small></div><div class="nav-scroll" data-band="${i}" onscroll="navOffsets[${i}]=this.scrollLeft">${items.filter(([k])=>k!=='workshop'||!player).map(([k,l,icon])=>`<button title="${esc(l)}" aria-label="${esc(l)}" ${tab===k?'aria-current="page"':''} class="nav-tab ${tab===k?'active':''}" onclick="switchTab('${k}')"><span class="menu-icon">${navIcon(k,icon)}</span><span>${esc(kitNavLabel(k,l))}</span></button>`).join('')}</div></div>`).join('')}
 function restoreNavScroll(){document.querySelectorAll('.nav-scroll').forEach(el=>{el.scrollLeft=navOffsets[+el.dataset.band]||0;const b=el.querySelector('.active');if(b){const er=el.getBoundingClientRect(),br=b.getBoundingClientRect();if(br.left<er.left)el.scrollLeft-=er.left-br.left+4;else if(br.right>er.right)el.scrollLeft+=br.right-er.right+4}})}
-function editNavIcons(){if(player)return;openModal('Иконки верхнего меню',`<p class="muted">Загрузите квадратные иконки для каждого раздела. Они сохраняются в кампании и входят в JSON. Можно вернуть стандартный символ.</p>${NAV_BANDS.map(([l,items])=>`<h3 class="rule">${l}</h3><div class="icon-edit-grid">${items.map(([k,name,icon])=>`<div class="icon-edit-row"><span class="menu-icon">${navIcon(k,icon)}</span><span class="icon-edit-name">${esc(name)}</span><button onclick="chooseNavIcon('${k}')">Загрузить</button>${S.settings.navIcons[k]?`<button title="Вернуть стандартную" onclick="resetNavIcon('${k}')">×</button>`:''}</div>`).join('')}</div>`).join('')}<div class="actions"><button class="ghost" onclick="resetAllNavIcons()">Сбросить все</button><button class="primary" onclick="closeModal()">Готово</button></div>`)}
+function editNavIcons(){if(player)return;openModal('Иконки верхнего меню',`<p class="muted">Загрузите квадратные иконки для каждого раздела. Они сохраняются в кампании и входят в JSON. Можно вернуть стандартный символ.</p>${NAV_BANDS.map(([l,items])=>`<h3 class="rule">${l}</h3><div class="icon-edit-grid">${items.map(([k,name,icon])=>`<div class="icon-edit-row"><span class="menu-icon">${navIcon(k,icon)}</span><span class="icon-edit-name">${esc(name)}</span><button onclick="chooseNavIcon('${k}')">Загрузить</button>${['stay','craft'].includes(k)?`<button onclick="pickNavigationIcon('${k}')">Из библиотеки</button>`:''}${S.settings.navIcons[k]||S.settings.navIconIds?.[k]?`<button title="Вернуть стандартную" onclick="resetNavIcon('${k}')">×</button>`:''}</div>`).join('')}</div>`).join('')}<div class="actions"><button class="ghost" onclick="resetAllNavIcons()">Сбросить все</button><button class="primary" onclick="closeModal()">Готово</button></div>`)}
 function chooseNavIcon(k){if(player)return;iconTarget=k;$('navIconFile').click()}
-function resetNavIcon(k){if(player)return;delete S.settings.navIcons[k];commit();editNavIcons()}
-function resetAllNavIcons(){if(player||!confirm('Вернуть стандартные иконки всех разделов?'))return;S.settings.navIcons={};commit();editNavIcons()}
+function resetNavIcon(k){if(player)return;delete S.settings.navIcons[k];if(S.settings.navIconIds)delete S.settings.navIconIds[k];commit();editNavIcons()}
+function resetAllNavIcons(){if(player||!confirm('Вернуть стандартные иконки всех разделов?'))return;S.settings.navIcons={};S.settings.navIconIds={};commit();editNavIcons()}
 $('navIconFile').onchange=async e=>{const f=e.target.files[0],k=iconTarget;e.target.value='';if(!f||player||!NAV_BANDS.some(b=>b[1].some(t=>t[0]===k)))return;try{const url=await readImage(f);if(!url)throw Error('Неверный формат изображения');const img=new Image();await new Promise((ok,fail)=>{img.onload=ok;img.onerror=()=>fail(Error('Не удалось декодировать изображение'));img.src=url});if(player)return;const c=document.createElement('canvas');c.width=c.height=128;const size=Math.min(img.width,img.height);c.getContext('2d').drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,128,128);S.settings.navIcons[k]=c.toDataURL('image/png');commit();editNavIcons();toast('Иконка сохранена')}catch(err){toast(err.message)}};
 function visibleDiplomacy(r){const a=faction(r.a),b=faction(r.b);return !!a&&!!b&&visibleFaction(a)&&visibleFaction(b)&&(!player||!r.hidden)}
 function dipInfo(r){return DIP_STATES.find(x=>x[0]===r.state)||DIP_STATES[2]}
@@ -6012,12 +7065,12 @@ const tables = {
   items: [
     "Каталог предметов",
     "engine.items",
-    "id name category quality value_gp:num desc? icon? image? unit? profession_id:@professions? stackable:bool? properties:json?",
+    "id name category quality value_gp:num desc? icon? iconId? image? unit? profession_id:@professions? stackable:bool? properties:json?",
   ],
   professions: [
     "Профессии",
     "engine.professions",
-    "id name kind? summary? description? special? icon? tools:json? skill?",
+    "id name kind? summary? description? special? icon? iconId? image? tools:json? skill?",
   ],
   recipes: [
     "Рецепты",
@@ -7980,64 +9033,6 @@ function gameIcon(symbol, image) {
     "</span>"
   );
 }
-function gameHero(hero, stay) {
-  if (!hero)
-    return '<p class="muted">Назначенный герой появится здесь после привязки аккаунта.</p>';
-  const member = heroOf(S, hero),
-    p = profile(S, hero);
-  return (
-    '<div class="game-hero">' +
-    gameIcon("♙", member.image) +
-    "<div><strong>" +
-    esc(memberName(member)) +
-    '</strong><p class="muted">' +
-    esc(
-      [p.race, p.class, "Уровень " + p.level, "БВ +" + bv(p)]
-        .filter(Boolean)
-        .join(" · "),
-    ) +
-    "</p>" +
-    (tab === "stay" && p.professions.length
-      ? '<p class="stay-professions">' +
-        esc(
-          S.engine.professions
-            .filter((record) => p.professions.includes(record.id))
-            .map((record) => record.name)
-            .join(" · "),
-        ) +
-        "</p>"
-      : "") +
-    '</div><div id="gameHeroSelect"></div>' +
-    (tab === "stay" ? visualAction("Личные сумки", "bagPage()", "ghost") : "") +
-    "</div>" +
-    (stay
-      ? '<div class="game-time"><label for="stayTime">Игровое время <strong>' +
-        timeLabel(remaining(S, hero)) +
-        " / " +
-        timeLabel(stay.hours * stay.days) +
-        "</strong></label>" +
-        '<progress id="stayTime" max="' +
-        stay.hours * stay.days +
-        '" value="' +
-        remaining(S, hero) +
-        '"></progress></div>'
-      : '<p class="muted">Игровое время появится с началом стоянки.</p>')
-  );
-}
-function bindGameHero(hero) {
-  const rows = heroRows();
-  if (rows.length < 2 || !$("gameHeroSelect")) return;
-  $("gameHeroSelect").innerHTML = pick(
-    "Активный персонаж",
-    "gameHero",
-    rows.map((m) => [m.id, memberName(m)]),
-    hero,
-  );
-  $("gameHero").onchange = () => {
-    activeHero = val("gameHero");
-    render();
-  };
-}
 function timeLabel(hours) {
   const minutes = Math.round(hours * 60);
   return [
@@ -8066,6 +9061,7 @@ function stayAdmin() {
     '<div class="actions" id="stayAdmin"></div>',
   );
   const box = $("stayAdmin");
+  box.append(button("Обложка раздела", () => editSectionCover("stay")));
   if (stay)
     box.append(
       button("Параметры стоянки", () => stayForm(stay)),
@@ -8162,10 +9158,12 @@ function activityDialog(hero, profession, stay) {
     (r) => r.region_id === stay.region && r.profession_id === profession.id,
   );
   const loot = activityLoot(ids)
-    .map((item) => gameIcon(item.icon, item.image) + " " + esc(item.name))
+    .map((item) => itemIcon(item) + " " + esc(item.name))
     .join(" · ");
   const body =
-    "<p>" +
+    '<img class="kit-modal-cover" src="' +
+    esc(kitActivityPicture(profession.id)) +
+    '" alt=""><p>' +
     esc(
       profession.description ||
         profession.summary ||
@@ -8218,7 +9216,7 @@ function activityDialog(hero, profession, stay) {
           "</p>" +
           "<p>" +
           (item
-            ? gameIcon(item.icon, item.image) +
+            ? itemIcon(item) +
               esc(item.name) +
               " × " +
               esc(result.qty) +
@@ -8233,7 +9231,7 @@ function activityDialog(hero, profession, stay) {
         button("К занятиям", closeModal),
       );
     },
-    "Начать занятие",
+    "Отправиться на вылазку",
   );
   const show = () => {
     const info = choice
@@ -8280,16 +9278,97 @@ function staffWorkDialog() {
     }),
   );
 }
+function kitStayHero(hero, stay) {
+  if (!hero) return emptyScene("Ваш герой не назначен.");
+  const member = heroOf(S, hero),
+    hours = remaining(S, hero),
+    total = stay.hours * stay.days;
+  const p = profile(S, hero);
+  const known = S.engine.professions
+    .filter((profession) => p.professions.includes(profession.id))
+    .map((profession) => profession.name);
+  return (
+    '<div class="kit-panel kit-today"><div class="eyebrow">Ваш герой</div>' +
+    '<div class="kit-row">' +
+    kitAvatar(member) +
+    '<div class="kit-grow"><b>' +
+    esc(memberName(member)) +
+    '</b><div class="muted">' +
+    esc(kitHeroDescription(p)) +
+    "</div>" +
+    (known.length ? "<small>" + esc(known.join(" · ")) + "</small>" : "") +
+    "</div></div>" +
+    '<div class="kit-time"><span class="muted">Свободное время</span><b>' +
+    esc(timeLabel(hours)) +
+    " <small>/ " +
+    esc(timeLabel(total)) +
+    "</small></b></div>" +
+    '<div class="kit-progress" role="progressbar" aria-label="Свободное время" aria-valuenow="' +
+    hours +
+    '" aria-valuemax="' +
+    total +
+    '"><i style="width:' +
+    (hours / total) * 100 +
+    '%"></i></div>' +
+    '<div class="kit-quick">' +
+    kitLink("Сумки", "bagPage()", "bank") +
+    kitLink("Ремесло", "openCraftTab('recipes')", "craft") +
+    kitLink("Герой", "openAffPerson('hero'," + jsid(hero) + ")", "company") +
+    "</div></div>"
+  );
+}
+function kitActivityCard({
+  name,
+  picture,
+  icon,
+  stamp = "",
+  description,
+  loot = "",
+  status,
+  reason = "",
+  action,
+}) {
+  const card = button(name, action);
+  card.className = "kit-artcard" + (reason ? " kit-locked" : "");
+  card.innerHTML =
+    '<img class="kit-card-art" src="' +
+    esc(picture) +
+    '" alt="" loading="lazy">' +
+    (stamp ? '<span class="kit-stamp">' + esc(stamp) + "</span>" : "") +
+    '<div class="kit-card-content"><div class="kit-row">' +
+    icon +
+    "<h3>" +
+    esc(name) +
+    "</h3></div>" +
+    '<p class="muted">' +
+    esc(description) +
+    '</p>' +
+    (loot
+      ? '<small class="kit-card-loot" title="' + esc(loot) + '">' + esc(loot) + '</small>'
+      : '') +
+    '<span class="kit-badge' +
+    (reason ? " kit-no" : "") +
+    '">' +
+    esc(reason || status) +
+    "</span></div>";
+  return card;
+}
 function renderStay() {
   const stay = currentStay(S),
-    master = !player,
-    hero = chosen();
-  const root = $("main");
+    hero = chosen(),
+    root = $("main"),
+    master = !player;
+  const customArt = safeImage(S.settings.visual?.covers?.stay);
   if (!stay) {
     root.innerHTML =
-      '<div class="screen game-screen"><section class="card game-cover"><h2>Стоянка</h2><p>Сейчас · ' +
+      '<div class="atlas-kit kit-stay"><section class="kit-wideart"><img class="kit-cover-image" src="' +
+      esc(customArt || kitArtUrl("camp")) +
+      '" alt="">' +
+      '<div class="kit-herotext"><div class="eyebrow">' +
       esc(phases[S.journey ? "travel" : S.engine.phase]) +
-      '</p><p class="muted">Добыча, отдых и местные поручения станут доступны, когда компания разобьёт стоянку.</p><div class="actions" id="stayActions"></div></section></div>';
+      "</div>" +
+      "<h2>Стоянка</h2><p>Добыча, отдых и местные поручения станут доступны, когда компания разобьёт стоянку.</p></div>" +
+      '<div class="kit-hero-actions" id="stayActions"></div></section></div>';
     $("stayActions").append(button("Открыть карту", () => switchTab("map")));
     if (master && !S.journey)
       $("stayActions").append(
@@ -8302,61 +9381,77 @@ function renderStay() {
       $("stayActions").append(button("Управление стоянкой", stayAdmin));
     return;
   }
-  const region = S.engine.regions.find((r) => r.id === stay.region),
-    place = node(stay.location);
-  const illustration = safeImage(stay.image) || safeImage(region?.image);
+  const region = S.engine.regions.find((r) => r.id === stay.region);
+  const place = locLabel(stay.location);
+  const cover =
+    safeImage(stay.image) ||
+    safeImage(region?.image) ||
+    customArt ||
+    kitArtUrl("camp");
+  const description =
+    stay.description ||
+    region?.description ||
+    "Компания остановилась, чтобы пополнить припасы и подготовиться к дороге.";
+  const actions = master
+    ? '<div id="stayAdminLink" class="kit-hero-actions">' +
+      kitLink("Управление стоянкой", "stayAdmin()", "gear", "kit-small") +
+      "</div>"
+    : "";
   root.innerHTML =
-    '<div class="screen game-screen"><section class="card game-cover">' +
-    (illustration
-      ? '<img class="stay-illustration" src="' + esc(illustration) + '" alt="">'
-      : "") +
-    '<div class="game-intro"><div><p class="eyebrow">' +
+    '<div class="atlas-kit kit-stay"><section class="kit-wideart">' +
+    '<img class="kit-cover-image" src="' +
+    esc(cover) +
+    '" alt="">' +
+    '<div class="kit-herotext"><div class="eyebrow">' +
     esc(
-      [region?.continent, region?.name].filter(Boolean).join(" · ") ||
-        "Стоянка компании",
+      [region?.continent, region?.name, "День " + S.company.day]
+        .filter(Boolean)
+        .join(" · "),
     ) +
-    "</p>" +
-    "<h2>" +
-    esc(stay.name || (place && visibleNode(place) ? place.name : "Стоянка")) +
-    "</h2>" +
-    "<p>" +
-    esc(
-      stay.description ||
-        region?.description ||
-        "Компания остановилась, чтобы пополнить припасы и подготовиться к дороге.",
-    ) +
-    "</p>" +
-    '<p class="muted">' +
-    esc(
-      stay.days +
-        " дн. · начало в день " +
-        stay.start +
-        " · завершение в день " +
-        (stay.start + stay.days) +
-        " · " +
-        S.company.year +
-        " год",
-    ) +
-    (place && visibleNode(place) ? " · " + esc(place.name) : "") +
-    '</p></div><div id="stayAdminLink"></div></div>' +
-    (stay.limits ? '<p class="notice">' + esc(stay.limits) + "</p>" : "") +
-    gameHero(hero, stay) +
+    "</div><h2>" +
+    esc(stay.name || place || "Стоянка") +
+    "</h2><p>" +
+    esc(description) +
+    '</p><p class="kit-stay-dates">' +
+    esc(`${stay.days} дн. · День ${stay.start}–${stay.start + stay.days}`) +
+    "</p></div>" +
+    actions +
     "</section>" +
-    '<section class="game-section"><h3>Добыча и исследование</h3><div id="activitiesGrid" class="activity-grid"></div></section>' +
-    '<section class="game-section"><h3>Дела компании</h3><div id="stayTasks" class="activity-grid stay-task-grid"></div></section></div>';
-  bindGameHero(hero);
-  if (master)
-    $("stayAdminLink").append(button("Управление стоянкой", stayAdmin));
-  const grid = $("activitiesGrid"),
-    tasks = $("stayTasks");
-  const professions = S.engine.professions.filter(
-    (p) =>
-      p.kind === "gathering" ||
-      S.engine.loot.some(
-        (r) => r.region_id === stay.region && r.profession_id === p.id,
-      ),
-  );
-  if (hero && owned(actor, hero))
+    '<div class="kit-staylayout"><section>' +
+    kitSubhead("Чем займёмся сегодня?", "Добыча и исследование") +
+    (stay.limits ? '<p class="kit-notice">' + esc(stay.limits) + "</p>" : "") +
+    '<div class="kit-activitygrid" id="activitiesGrid"></div>' +
+    kitSubhead("Местные дела") +
+    '<div class="kit-panel kit-task-panel" id="stayTasks"></div></section>' +
+    '<aside class="kit-sticky"><div class="kit-toolbar">' +
+    kitHeroSelect(hero) +
+    "</div>" +
+    kitStayHero(hero, stay) +
+    kitSubhead("Сегодня") +
+    '<div class="kit-panel">' +
+    kitStayHistory(hero, stay, place) +
+    "</div></aside></div></div>";
+  bindKitHero();
+  const list = $("activitiesGrid");
+  if (hero && owned(actor, hero)) {
+    const professions = S.engine.professions.filter(
+      (p) =>
+        p.kind === "gathering" ||
+        S.engine.loot.some(
+          (row) => row.region_id === stay.region && row.profession_id === p.id,
+        ),
+    );
+    const order = [
+      "mining",
+      "herbalism",
+      "hunt",
+      "fishing",
+      "archaeology",
+      "skinning",
+    ];
+    const rank = (id) =>
+      order.includes(id) ? order.indexOf(id) : order.length;
+    professions.sort((a, b) => rank(a.id) - rank(b.id));
     for (const profession of professions) {
       if (
         profession.id === "skinning" &&
@@ -8367,95 +9462,145 @@ function renderStay() {
       const rows = S.engine.loot.filter(
         (r) => r.region_id === stay.region && r.profession_id === profession.id,
       );
-      const loot = activityLoot(rows)
-        .map((i) => i.name)
-        .join(", ");
-      const card = button(profession.name, () =>
-        activityDialog(hero, profession, stay),
+      list.append(
+        kitActivityCard({
+          name: profession.name,
+          picture: kitActivityPicture(profession.id),
+          icon: professionIcon(profession),
+          description: profession.summary || "Региональное занятие",
+          loot: activityLoot(rows).map((item) => item.name).join(", "),
+          stamp: rows.length
+            ? timeLabel(profession.id === "skinning" ? 1 / 6 : rows[0].hours || 1)
+            : "",
+          status: "Доступно",
+          reason: state.reason,
+          action: () => activityDialog(hero, profession, stay),
+        }),
       );
-      card.className =
-        "activity-card" + (state.reason ? " activity-unavailable" : "");
-      card.innerHTML =
-        gameIcon(profession.icon) +
-        "<strong>" +
-        esc(profession.name) +
-        "</strong><span>" +
-        esc(profession.summary || "Региональное занятие") +
-        "</span>" +
-        (rows.length
-          ? "<small>" +
-            timeLabel(
-              profession.id === "skinning" ? 1 / 6 : rows[0].hours || 1,
-            ) +
-            (loot ? " · " + esc(loot) : "") +
-            "</small>"
-          : "") +
-        '<small class="' +
-        (state.reason ? "activity-reason" : "game-good") +
-        '">' +
-        esc(state.reason || "Доступно") +
-        "</small>";
-      grid.append(card);
     }
-  if (!grid.children.length)
-    grid.innerHTML =
-      '<p class="muted">Выберите героя, чтобы увидеть доступные занятия.</p>';
-  if (hero && owned(actor, hero)) {
-    tasks.append(
-      button("Заняться ремеслом", () => openCraftTab("recipes")),
-      button("Местные поручения", localBoard),
-      button("Расписание и история", plansPage),
-      button("Отдохнуть", () =>
-        commandForm(
-          "Отдых",
-          input(
-            "Часов",
-            "rh",
-            "number",
-            1,
-            'min="1" max="' + Math.floor(remaining(S, hero)) + '"',
-          ),
-          "rest",
-          () => ({ hero, hours: num("rh") }),
-        ),
-      ),
+    list.append(
+      kitActivityCard({
+        name: "Ремесло",
+        picture: kitArtUrl("market"),
+        icon: uiIcon("craft"),
+        stamp: "Книга рецептов",
+        description: "Создавайте предметы и продолжайте проекты.",
+        status: "Открыть",
+        action: () => openCraftTab("recipes"),
+      }),
     );
-    if (remaining(S, hero) < 1) tasks.lastElementChild.disabled = true;
+  }
+  if (!list.children.length)
+    list.innerHTML = emptyScene("Выберите героя, чтобы увидеть занятия.");
+  drawKitStayTasks(hero, stay, master);
+}
+function kitStayHistory(hero, stay, place) {
+  const rows = stay.history
+    .filter((row) => row.hero === hero)
+    .slice(-3)
+    .reverse();
+  return rows.length
+    ? rows
+        .map(
+          (row) =>
+            '<p class="kit-listrow"><small>' +
+            esc(
+              "День " +
+                row.day +
+                " · " +
+                (S.engine.professions.find((p) => p.id === row.activity)
+                  ?.name || row.activity) +
+                " · " +
+                timeLabel(row.hours),
+            ) +
+            "</small></p>",
+        )
+        .join("")
+    : '<p class="kit-listrow"><small>' +
+        esc(
+          "День " +
+            stay.start +
+            " · Компания разбила стоянку" +
+            (place ? " · " + place : "") +
+            " · " +
+            stay.days +
+            " дн.",
+        ) +
+        "</small></p>";
+}
+function drawKitStayTasks(hero, stay, master) {
+  const box = $("stayTasks");
+  function task(name, detail, icon, action) {
+    const control = button(name, action);
+    control.className = "kit-listrow";
+    control.setAttribute("aria-label", name);
+    control.innerHTML =
+      uiIcon(icon) +
+      '<span class="kit-grow"><b>' +
+      esc(name) +
+      "</b><small>" +
+      esc(detail) +
+      '</small></span><span aria-hidden="true">›</span>';
+    box.append(control);
+    return control;
+  }
+  if (hero && owned(actor, hero)) {
+    const local = S.contracts.filter(
+      (q) => q.type === "local" && questAvailable(S, q, hero),
+    );
+    if (local[0])
+      task(
+        local[0].title,
+        "Местное поручение · " + timeLabel(local[0].hours),
+        "contracts",
+        () => localBoard(local[0].id),
+      );
+    task(
+      "Местные поручения",
+      local.length
+        ? "Доступные поручения · " + local.length
+        : "Пока нет доступных поручений",
+      "contracts",
+      () => localBoard(),
+    );
+    task("Отдохнуть", "Провести время у костра", "rest", () =>
+      commandForm(
+        "Отдых",
+        input(
+          "Часов",
+          "rh",
+          "number",
+          1,
+          'min="1" max="' + Math.floor(remaining(S, hero)) + '"',
+        ),
+        "rest",
+        () => ({ hero, hours: num("rh") }),
+      ),
+    ).disabled = remaining(S, hero) < 1;
+    task(
+      "Расписание и история",
+      "Записки о времени на стоянке",
+      "journal",
+      plansPage,
+    );
   }
   if (
     master &&
     S.company.staff.length &&
     S.engine.projects.some((j) => j.status === "active")
   )
-    tasks.append(button("Работа специалистов", staffWorkDialog));
-  const taskArt = [
-    ["⚒", "Рецепты и незавершённые проекты"],
-    ["!", "Работа для жителей региона"],
-    ["▤", "Записки о времени на стоянке"],
-    ["☾", "Восстановить силы"],
-    ["⚙", "Распределить работу в лагере"],
-  ];
-  [...tasks.children].forEach((item, i) => {
-    const [icon, caption] = taskArt[i];
-    const title = item.textContent;
-    item.innerHTML =
-      gameIcon(icon) +
-      "<strong>" +
-      esc(title) +
-      "</strong><small>" +
-      esc(caption) +
-      "</small>";
-    item.setAttribute("aria-label", title);
-    item.classList.add("activity-card");
-    if (item.disabled) item.classList.add("activity-unavailable");
-  });
-  if (!tasks.children.length)
-    tasks.innerHTML =
-      '<p class="muted">Дела компании доступны назначенным героям.</p>';
+    task(
+      "Работа специалистов",
+      "Распределить работу в лагере",
+      "gear",
+      staffWorkDialog,
+    );
+  if (!box.children.length)
+    box.innerHTML = emptyScene("Дела компании доступны назначенным героям.");
 }
 
-let craftTab = "professions",
-  craftProfession = "",
+let craftTab = "recipes",
+  craftProfession = null,
   craftRecipe = "",
   craftQuery = "",
   craftQuality = "",
@@ -8536,32 +9681,108 @@ function recipeQuality(item) {
   const row = ITEM_QUAL.find(([key]) => key === item?.quality);
   return row ? row[1] : "Обычный";
 }
+function craftTabButton(label, id, container) {
+  const b = button(label, () => {
+    craftTab = id;
+    renderCraft();
+  });
+  b.className = "kit-small";
+  b.setAttribute("aria-pressed", String(craftTab === id));
+  container.append(b);
+}
 function renderCraft() {
-  const hero = chosen();
+  const hero = chosen(),
+    member = hero ? heroOf(S, hero) : null,
+    p = hero ? profile(S, hero) : null;
+  const cover = safeImage(S.settings.visual?.covers?.craft);
+  if (craftProfession == null && S.engine.recipes.length)
+    craftProfession = S.engine.recipes[0].profession_id;
   $("main").innerHTML =
-    '<div class="screen game-screen"><section class="card game-cover"><div class="game-intro"><h2>Ремесло</h2><div class="actions" id="craftHeroLinks"></div></div>' +
-    gameHero(hero, currentStay(S)) +
-    '</section><div class="actions game-tabs" id="craftTabs"></div><section id="craftBody"></section></div>';
-  bindGameHero(hero);
-  if (hero) $("craftHeroLinks").append(button("Личные сумки", bagPage));
-  if (!player)
-    $("craftHeroLinks").append(button("Редактор профессий", professionEditor));
+    '<div class="atlas-kit kit-craft"><div class="kit-sectionhead ' +
+    (cover ? "kit-section-art" : "") +
+    '">' +
+    (cover
+      ? '<img class="kit-cover-image" src="' + esc(cover) + '" alt="">'
+      : "") +
+    '<div><div class="eyebrow">Атлас · Кампания</div><h2>Ремесло</h2>' +
+    "<p>Книга профессий, известные рецепты и работа над предметами.</p></div>" +
+    kitHeroSelect(hero) +
+    "</div>" +
+    '<div class="kit-toolbar kit-craft-hero">' +
+    (member
+      ? '<div class="kit-row kit-grow">' +
+        kitAvatar(member) +
+        "<div><b>" +
+        esc(memberName(member)) +
+        "</b><small>" +
+        esc(`Уровень ${p.level} · Бонус владения +${bv(p)}`) +
+        "</small></div></div>" +
+        '<small class="kit-inline">' +
+        uiIcon("time") +
+        esc(timeLabel(remaining(S, hero)) + " доступно") +
+        "</small>" +
+        kitLink("Личные сумки", "bagPage()", "bank", "kit-small")
+      : '<span class="muted">Герой не назначен</span>') +
+    (!player
+      ? visualMenu(
+          "Управление ремеслом",
+          visualAction("Редактор профессий", "professionEditor()") +
+            visualAction("Обложка раздела", "editSectionCover('craft')"),
+        )
+      : "") +
+    "</div>" +
+    '<div id="craftProfessionPills" class="kit-tabs"></div><section id="craftBody"></section>' +
+    '<div id="craftTabs" class="kit-craft-views" aria-label="Виды ремесла"></div></div>';
+  bindKitHero();
+  const tabs = $("craftTabs");
   for (const [id, label] of [
     ["professions", "Профессии"],
     ["recipes", "Книга рецептов"],
     ["projects", "Проекты"],
-  ]) {
-    const b = button(label, () => {
-      craftTab = id;
-      renderCraft();
-    });
-    b.setAttribute("aria-pressed", String(craftTab === id));
-    $("craftTabs").append(b);
-  }
+  ])
+    craftTabButton(label, id, tabs);
   const root = $("craftBody");
   if (craftTab === "professions") renderProfessionCards(root, hero);
-  if (craftTab === "recipes") renderRecipeList(root, hero);
+  if (craftTab === "recipes") {
+    drawProfessionPills();
+    renderRecipeList(root, hero);
+    $("craftBody").insertAdjacentHTML(
+      "afterend",
+      '<section id="craftProjectsPreview">' +
+        kitSubhead("Производственные проекты") +
+        '<div id="craftProjectRows" class="kit-panel"></div></section>',
+    );
+    renderProjects($("craftProjectRows"), hero);
+  }
   if (craftTab === "projects") renderProjects(root, hero);
+}
+function drawProfessionPills() {
+  const table = S.engine.professions.filter((p) =>
+    S.engine.recipes.some((r) => r.profession_id === p.id),
+  );
+  const order = ["smithing", "alchemy", "cooking"];
+  const rank = (id) => (order.includes(id) ? order.indexOf(id) : order.length);
+  table.sort((a, b) => rank(a.id) - rank(b.id));
+  const bar = $("craftProfessionPills");
+  for (const p of table) {
+    const btn = button(p.name, () => {
+      craftProfession = p.id;
+      craftRecipe = "";
+      renderCraft();
+    });
+    btn.className = "kit-tab";
+    btn.setAttribute("aria-pressed", String(craftProfession === p.id));
+    btn.innerHTML = professionIcon(p) + esc(p.name);
+    bar.append(btn);
+  }
+  const all = button("Все рецепты", () => {
+    craftProfession = "";
+    craftRecipe = "";
+    renderCraft();
+  });
+  all.className = "kit-tab";
+  all.setAttribute("aria-pressed", String(!craftProfession));
+  if (table.length) bar.append(all);
 }
 let professionGroup = "gathering";
 function renderProfessionCards(root, hero) {
@@ -8601,7 +9822,7 @@ function renderProfessionCards(root, hero) {
     card.className = "card profession-card";
     card.innerHTML =
       "<h3>" +
-      gameIcon(profession.icon) +
+      professionIcon(profession) +
       esc(profession.name) +
       "</h3>" +
       "<small>" +
@@ -8637,6 +9858,10 @@ function renderProfessionCards(root, hero) {
       "</details>";
     const controls = document.createElement("div");
     controls.className = "actions";
+    if (!player)
+      controls.append(
+        button("Иконка профессии", () => pickProfessionIcon(profession.id)),
+      );
     if (profession.kind === "gathering")
       controls.append(button("К занятиям", () => switchTab("stay")));
     else
@@ -8661,11 +9886,6 @@ function renderProfessionCards(root, hero) {
     grid.textContent = "В этой группе пока нет профессий.";
 }
 function renderRecipeList(root, hero) {
-  function showRecipeView(open) {
-    root.classList.toggle("mobile-recipe-open", open);
-    if (open) $("recipeBack").focus();
-    else $("recipeList").querySelector('[aria-pressed="true"]')?.focus();
-  }
   root.className = "";
   if (!S.engine.recipes.length) {
     root.innerHTML =
@@ -8678,8 +9898,15 @@ function renderRecipeList(root, hero) {
   }
   const p = hero ? profile(S, hero) : null;
   root.innerHTML =
-    '<div class="card recipe-filters">' +
-    input("Поиск по рецептам", "recipeQuery", "search", craftQuery) +
+    '<div class="kit-recipe-layout"><div class="kit-recipe-sidebar"><div class="eyebrow">Рецепты профессии</div>' +
+    input(
+      "Поиск рецептов",
+      "recipeQuery",
+      "search",
+      craftQuery,
+      'placeholder="Поиск рецепта"',
+    ) +
+    '<details class="kit-recipe-filters"><summary>Фильтры и сортировка</summary>' +
     pick(
       "Профессия",
       "recipeProfession",
@@ -8714,7 +9941,7 @@ function renderRecipeList(root, hero) {
       ],
       craftSort,
     ) +
-    '</div><div class="recipe-layout"><div id="recipeList" class="recipe-list" aria-label="Рецепты"></div><article id="recipeDetail" class="card recipe-detail"></article></div>';
+    '</details><div id="recipeList" class="kit-recipe-list" aria-label="Рецепты"></div></div><article id="recipeDetail" class="kit-recipe-detail"></article></div>';
   function refresh() {
     craftQuery = val("recipeQuery");
     craftProfession = val("recipeProfession");
@@ -8761,7 +9988,6 @@ function renderRecipeList(root, hero) {
     const selected = rows.find((x) => x.r.id === craftRecipe) || rows[0];
     detail.hidden = !selected;
     if (!selected) {
-      root.classList.remove("mobile-recipe-open");
       list.textContent = "Рецепты по выбранным фильтрам не найдены.";
       return;
     }
@@ -8770,33 +9996,25 @@ function renderRecipeList(root, hero) {
       const b = button(row.r.name, () => {
         craftRecipe = row.r.id;
         refresh();
-        if (matchMedia("(max-width: 700px)").matches) showRecipeView(true);
+        if (matchMedia("(max-width: 700px)").matches)
+          detail.scrollIntoView({ block: "start" });
       });
-      b.className = "recipe-option";
+      b.className = "recipe-option kit-recipe";
       b.setAttribute("aria-pressed", String(row === selected));
       b.innerHTML =
-        gameIcon(row.item?.icon, row.item?.image) +
-        '<span><strong class="rarity-' +
+        itemIcon(row.item) +
+        '<span class="kit-grow"><strong class="rarity-' +
         esc(row.item?.quality || "common") +
         '">' +
         esc(row.r.name) +
         "</strong><small>" +
         timeLabel(row.quote?.work ?? row.r.hours) +
         " · " +
-        esc(recipeQuality(row.item)) +
-        "</small></span>" +
-        '<small class="' +
-        (row.reasons.length ? "game-bad" : "game-good") +
-        '">' +
-        esc(row.reasons[0] || "Доступно") +
-        "</small>";
+        esc(professionRanks[(row.r.rank || 2) - 2] || recipeQuality(row.item)) +
+        '</small></span><span aria-hidden="true">›</span>';
       list.append(b);
     }
     renderRecipeDetail(detail, hero, p, selected.r, selected.item);
-    const back = button("К списку рецептов", () => showRecipeView(false));
-    back.className = "recipe-back";
-    back.id = "recipeBack";
-    detail.prepend(back);
   }
   for (const id of [
     "recipeQuery",
@@ -8821,14 +10039,29 @@ function renderRecipeDetail(root, hero, p, r, item) {
     ...(r.locations || []).map((id) => node(id)?.name || id),
   ];
   root.innerHTML =
-    "<h3>" +
-    gameIcon(item?.icon, item?.image) +
-    esc(r.name) +
-    '</h3><p class="rarity-' +
+    '<div class="kit-row">' +
+    itemIcon(item) +
+    '<div class="kit-grow"><div class="eyebrow">' +
+    esc(
+      (profession?.name || "Ремесло") +
+        " · " +
+        (professionRanks[(r.rank || 2) - 2] || "БВ +" + r.rank),
+    ) +
+    '</div><h3 class="rarity-' +
     esc(item?.quality || "common") +
     '">' +
-    esc(recipeQuality(item)) +
-    "</p><p>" +
+    esc(r.name) +
+    "</h3></div>" +
+    (!player && item
+      ? visualMenu(
+          "Действия с рецептом",
+          visualAction(
+            "Иконка предмета",
+            "pickRecipeItemIcon(" + jsid(item.id) + ")",
+          ),
+        )
+      : "") +
+    '</div><p class="kit-recipe-description muted">' +
     esc(
       r.description ||
         r.desc ||
@@ -8836,21 +10069,21 @@ function renderRecipeDetail(root, hero, p, r, item) {
         item?.description ||
         "Описание предмета пока не добавлено.",
     ) +
-    '</p><p class="muted">' +
-    esc(
-      (profession?.name || "Профессия не задана") + " · БВ +" + (r.rank || 2),
-    ) +
-    "</p>" +
+    "</p><small>" +
+    esc(recipeQuality(item)) +
+    "</small>" +
     (requirements.length
-      ? "<p>Место и оборудование · " + esc(requirements.join(" · ")) + "</p>"
+      ? '<p class="muted">' + esc(requirements.join(" · ")) + "</p>"
       : "") +
-    '<div id="craftInputs"></div><div id="craftCosts"></div><div class="actions" id="craftSubmit"></div>';
+    '<div id="craftCosts"></div><div class="kit-recipe-actions"><div id="craftInputs"></div><div id="craftSubmit"></div></div>' +
+    '<div id="craftNotice" class="kit-notice" role="status"></div>';
   if (!hero) {
     $("craftCosts").textContent =
       "Выберите героя, чтобы сверить материалы и время.";
     return;
   }
   $("craftInputs").innerHTML =
+    '<div class="kit-quantity"><button type="button" id="craftQtyMinus" aria-label="Уменьшить количество">−</button>' +
     input(
       "Количество",
       "craftQty",
@@ -8858,6 +10091,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
       1,
       'min="1" max="1000" step="1"',
     ) +
+    '<button type="button" id="craftQtyPlus" aria-label="Увеличить количество">+</button></div>' +
     (r.gold
       ? "<details><summary>Оплатить часть стоимости ресурсом</summary>" +
         pick(
@@ -8901,7 +10135,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
       if (create.isConnected) refresh();
     }
   });
-  create.className = "primary";
+  create.className = "primary kit-create";
   $("craftSubmit").append(create);
   function refresh() {
     const box = $("craftCosts");
@@ -8909,20 +10143,20 @@ function renderRecipeDetail(root, hero, p, r, item) {
       const quote = projectQuote(S, payload());
       const reasons = recipeAvailability(hero, p, r, quote);
       create.disabled = !!reasons.length || !owned(actor, hero);
-      create.textContent =
-        quote.work > remaining(S, hero) && !create.disabled
-          ? "Начать проект"
-          : "Создать";
+      const needsProject = quote.work > remaining(S, hero) && !create.disabled;
+      const label = needsProject ? "Начать проект" : "Создать";
+      create.setAttribute("aria-label", label);
+      create.innerHTML = uiIcon("craft") + esc(label + " ×" + payload().qty);
       box.innerHTML =
-        "<h4>Необходимые материалы</h4>" +
+        kitSubhead("Реагенты", "В сумках / Нужно") +
         (quote.materials.length
           ? quote.materials
               .map((x) => {
                 const material = S.engine.items.find((i) => i.id === x.item);
                 return (
-                  '<div class="material-line">' +
-                  gameIcon(material?.icon, material?.image) +
-                  "<span>" +
+                  '<div class="material-line kit-ingredient">' +
+                  itemIcon(material) +
+                  '<span class="kit-grow">' +
                   esc(material?.name || x.item) +
                   '</span><strong class="' +
                   (x.have >= x.qty ? "game-good" : "game-bad") +
@@ -8933,31 +10167,47 @@ function renderRecipeDetail(root, hero, p, r, item) {
               })
               .join("")
           : '<p class="muted">Ингредиенты не требуются.</p>') +
-        "<p>Время · " +
+        '<div class="kit-ingredient">' +
+        uiIcon("time") +
+        '<span class="kit-grow">Время изготовления</span><b>' +
         timeLabel(quote.work) +
-        ' · <span class="' +
-        (quote.wallet >= quote.cost ? "game-good" : "game-bad") +
-        '">' +
-        esc(quote.cost + " зм") +
-        "</span> · Результат × " +
-        esc(payload().qty * r.quantity) +
-        "</p>" +
-        (reasons.length
-          ? '<p class="game-bad">' + esc(reasons.join(" · ")) + "</p>"
-          : quote.work > remaining(S, hero)
-            ? '<p class="muted">Материалы будут зарезервированы. Часы можно внести в разделе проектов.</p>'
-            : "");
+        "</b></div>" +
+        (quote.cost
+          ? '<div class="kit-ingredient">' +
+            uiIcon("coins") +
+            '<span class="kit-grow">Стоимость</span><b>' +
+            esc(quote.cost + " зм") +
+            "</b></div>"
+          : "");
+      $("craftNotice").textContent = reasons.length
+        ? reasons.join(" · ")
+        : needsProject
+          ? "Материалы будут зарезервированы. Работу можно продолжить в проектах."
+          : "Результат ×" +
+            payload().qty * r.quantity +
+            ". Материалы и время будут списаны при создании.";
     } catch (error) {
       create.disabled = true;
-      box.textContent = error.message;
+      $("craftNotice").textContent = error.message;
     }
   }
+  for (const [id, delta] of [
+    ["craftQtyMinus", -1],
+    ["craftQtyPlus", 1],
+  ])
+    $(id).onclick = () => {
+      $("craftQty").value = Math.min(
+        1000,
+        Math.max(1, (Number(val("craftQty")) || 1) + delta),
+      );
+      refresh();
+    };
   for (const id of ["craftQty", "craftResource", "craftCredit"])
     if ($(id)) $(id).oninput = refresh;
   refresh();
 }
 function renderProjects(root, hero) {
-  root.className = "stack";
+  root.classList.add("kit-projects");
   const groups = { active: [], paused: [], done: [] };
   const labels = {
     active: "Активные",
@@ -8977,8 +10227,9 @@ function renderProjects(root, hero) {
   }
   for (const [key, rows] of Object.entries(groups)) {
     const section = document.createElement("section");
-    section.className = "card game-section";
+    section.className = "kit-project-group";
     section.innerHTML = "<h3>" + labels[key] + "</h3>";
+    if (!rows.length && root.id === "craftProjectRows") continue;
     if (!rows.length)
       section.insertAdjacentHTML(
         "beforeend",
@@ -9007,7 +10258,8 @@ function renderProjects(root, hero) {
         cancelled: "Отменён",
       };
       row.innerHTML =
-        "<h4>" +
+        '<h4 class="kit-row">' +
+        itemIcon(S.engine.items.find((item) => item.id === j.recipe.item_id)) +
         esc(j.name) +
         "</h4><p>" +
         esc(
@@ -9073,7 +10325,9 @@ function renderProjects(root, hero) {
     }
     root.append(section);
   }
-  if (!S.engine.projects.length)
+  if (!root.children.length && root.id === "craftProjectRows")
+    root.innerHTML = emptyScene("Пока нет производственных проектов.");
+  if (!S.engine.projects.length && root.id !== "craftProjectRows")
     root.append(
       button("Открыть книгу рецептов", () => openCraftTab("recipes")),
     );
@@ -11137,39 +12391,6 @@ onRender.push(() => {
   main.dataset.scene = tab;
   if (tab === "home") prepareHomeVisuals();
   if (tab === "camp") campVisuals();
-  if (tab === "stay" || tab === "craft") {
-    main.querySelector(".screen")?.classList.add("visual-screen");
-    const controls = $("stayAdminLink");
-    const cover = main.querySelector(".game-cover");
-    const image = S.settings.visual?.covers?.[tab];
-    if (
-      cover &&
-      safeImage(image) &&
-      !(tab === "stay" && cover.querySelector(".stay-illustration"))
-    )
-      cover.insertAdjacentHTML(
-        "afterbegin",
-        sectionArt(image, "cover", "", "game-cover-art"),
-      );
-    if (!player && cover) {
-      const format = visualAction(
-        "Изменить обложку",
-        "editSectionCover(" + jsid(tab) + ")",
-      );
-      if (controls)
-        controls.innerHTML = visualMenu(
-          "Управление стоянкой",
-          visualAction("Управление стоянкой", "stayAdmin()") + format,
-        );
-      else {
-        const target = tab === "craft" ? $("craftHeroLinks") : $("stayActions");
-        target?.insertAdjacentHTML(
-          "beforeend",
-          visualMenu("Оформление раздела", format),
-        );
-      }
-    }
-  }
   const panel = $("engineActions");
   if (panel) {
     const box = panel.closest(".engine-panel");
@@ -11201,6 +12422,461 @@ onRender.push(() => {
     box?.classList.add("context-panel");
   }
 });
+
+const iconDefaults = {"nav": {"home": "places:goldshire", "map": "misc:Map_01", "news": "misc:Note_01", "people": "creatures:human", "factions": "armour:GuildTabard_01", "diplomacy": "misc:Tournaments_banner_Human", "worldbook": "misc:Book_01", "codex": "misc:Book_04", "company": "armour:Shield_Naxxramas_D_01", "camp": "places:Barrens_01", "stay": "places:Durotar", "craft": "misc:Gear_01", "bank": "misc:Bag_01", "contracts": "trade:Scroll", "mail": "misc:NOTE_02", "chronicle": "misc:Book_05", "achievements": "misc:Trophy_Argent", "journal": "misc:Book_07", "help": "misc:Book_09", "workshop": "misc:Wrench_01"}, "professions": {"mining": "trade:GrindingStone_01", "herbalism": "misc:Herb_02", "fishing": "misc:Fish_01", "archaeology": "misc:Shovel_01", "skinning": "armour:Leather_01", "hunt": "weapons:Bow_01", "smithing": "trade:Copper_01", "alchemy": "trade:Elixir_01", "cooking": "misc:Fork-Knife", "enchanting": "trade:Disenchant", "engineering": "misc:Gear_01", "inscription": "trade:Scroll", "jewelry": "trade:Gem_01", "leather": "armour:Leather_01", "tailor": "trade:Frostweave_Bolt"}, "items": {"ore": "trade:Copper_01", "silver": "trade:Cobalt", "bloom": "misc:Herb_02", "leaf": "misc:Herb_03", "hide": "armour:Leather_01", "meat": "misc:Food_132_Meat", "fish": "misc:Fish_03", "shard": "trade:DreamShard_01", "bar": "trade:Bronze", "wire": "trade:DelicateCopperWire", "hook": "misc:Gear_02", "nail": "trade:FelIronBolts", "oil": "trade:LeadedVial", "ink": "trade:CrystalVial", "meal": "misc:Food_121_ButterMeat", "soup": "misc:27_BlueSoup", "strap": "armour:Leather_04", "ring": "trade:Gem_11", "stranglekelp": "misc:Herb_15", "blackmouth": "misc:Fish_05", "water-breathing": "trade:Elixir_05", "game-fat": "misc:Food_134_Meat", "river-perch": "misc:Fish_07"}, "components": {"search": "misc:Map02", "bell": "misc:Bell_01", "hero": "creatures:human", "time": "misc:PocketWatch_01", "rest": "places:ElwynnForest", "coins": "misc:Coin_01", "gear": "misc:Gear_02", "check": "trade:Certificate"}};
+let iconIndexRequest;
+
+function iconPath(id) {
+  const parts =
+    typeof id === "string" &&
+    /^(armour|weapons|creatures|places|trade|misc):([A-Za-z0-9_-][A-Za-z0-9_.-]*)$/.exec(
+      id,
+    );
+  return parts ? "assets/icons/" + parts[1] + "/" + parts[2] + ".png" : "";
+}
+function libraryIconSrc(record, defaultId) {
+  return (
+    safeImage(record?.image) ||
+    safeImage(record?.icon) ||
+    iconPath(record?.iconId) ||
+    iconPath(defaultId)
+  );
+}
+function libraryIcon(record, defaultId, fallback = "◆") {
+  const src = libraryIconSrc(record, defaultId);
+  return (
+    '<span class="kit-iconbox" aria-hidden="true">' +
+    (src
+      ? '<img src="' + esc(src) + '" alt="">'
+      : esc(record?.icon || fallback)) +
+    "</span>"
+  );
+}
+function professionIcon(profession) {
+  return libraryIcon(
+    profession,
+    iconDefaults.professions[profession?.id],
+    "⚒",
+  );
+}
+function itemIcon(item) {
+  return libraryIcon(item, iconDefaults.items[item?.item_id || item?.id]);
+}
+function uiIcon(name) {
+  return libraryIcon(
+    null,
+    iconDefaults.components[name] || iconDefaults.nav[name],
+  );
+}
+function loadIconIndex() {
+  iconIndexRequest ??= fetch("icons.json")
+    .then((response) => {
+      if (!response.ok) throw Error("Не удалось открыть icons.json.");
+      return response.json();
+    })
+    .catch((error) => {
+      iconIndexRequest = null;
+      throw error;
+    });
+  return iconIndexRequest;
+}
+
+function openIconPicker({
+  category = "",
+  current = {},
+  onSave,
+  allowUpload = true,
+}) {
+  const dialog = document.createElement("dialog");
+  dialog.className = "atlas-icon-picker";
+  dialog.setAttribute("aria-label", "Библиотека иконок");
+  document.body.append(dialog);
+  let selected = current.iconId || "",
+    image = safeImage(current.image),
+    page = 0;
+  let icons = [],
+    filtered = [];
+  const perPage = 48,
+    key = (id) => dialog.querySelector("#" + id);
+  dialog.innerHTML =
+    '<header><h2>Библиотека иконок</h2><button type="button" id="closeIcons" aria-label="Закрыть">×</button></header>' +
+    '<div class="icon-filters"><label>Имя файла<input id="iconSearch" type="search" placeholder="Например, Copper"></label>' +
+    '<label>Категория<select id="iconCategory"><option value="">Все категории</option></select></label></div>' +
+    '<p id="iconPickerStatus" role="status">Загрузка библиотеки…</p><label id="iconLocalIndex" hidden>Открыть icons.json<input id="iconLocalFile" type="file" accept=".json,application/json"></label><div id="iconResults" class="icon-picker-grid"></div>' +
+    '<nav class="icon-pagination" aria-label="Страницы иконок"><button id="iconPrev">Назад</button>' +
+    '<span id="iconPage"></span><button id="iconNext">Далее</button></nav>' +
+    '<div class="icon-picker-preview"><div id="iconPreview"></div><div><strong>Предпросмотр</strong><p id="iconSelected"></p></div></div>' +
+    (allowUpload
+      ? '<div class="icon-upload"><label>Своя иконка<input id="iconUpload" type="file" accept="image/*"></label>' +
+        '<button type="button" id="removeCustomIcon">Убрать свою</button></div>'
+      : "") +
+    '<footer><button type="button" id="clearIconChoice">Использовать стандартную</button>' +
+    '<button type="button" class="primary" id="saveIconChoice">Применить</button></footer>';
+  function preview() {
+    const entry = icons.find((x) => x.id === selected);
+    key("iconPreview").innerHTML = libraryIcon(
+      { image, iconId: selected },
+      current.defaultId,
+    );
+    key("iconSelected").textContent = image
+      ? "Показана своя иконка. Она имеет приоритет над библиотекой."
+      : entry?.file ||
+        (selected ? "Иконка из библиотеки" : "Стандартная иконка");
+    if (key("removeCustomIcon")) key("removeCustomIcon").disabled = !image;
+  }
+  function showPage() {
+    const pages = Math.max(1, Math.ceil(filtered.length / perPage));
+    page = Math.min(page, pages - 1);
+    key("iconResults").innerHTML = filtered
+      .slice(page * perPage, (page + 1) * perPage)
+      .map(
+        (entry) =>
+          '<button type="button" aria-pressed="' +
+          (entry.id === selected) +
+          '" data-icon-id="' +
+          esc(entry.id) +
+          '" title="' +
+          esc(entry.file) +
+          '">' +
+          '<img src="' +
+          esc(entry.path) +
+          '" loading="lazy" alt=""><span>' +
+          esc(entry.file) +
+          "</span></button>",
+      )
+      .join("");
+    key("iconPage").textContent = page + 1 + " / " + pages;
+    key("iconPrev").disabled = page === 0;
+    key("iconNext").disabled = page + 1 === pages;
+  }
+  function search() {
+    const query = key("iconSearch").value.trim().toLowerCase(),
+      cat = key("iconCategory").value;
+    filtered = icons.filter(
+      (entry) =>
+        (!cat || entry.categories.includes(cat)) &&
+        entry.file.toLowerCase().includes(query),
+    );
+    page = 0;
+    key("iconPickerStatus").textContent = filtered.length
+      ? "Найдено: " + filtered.length
+      : "Иконок с таким именем нет.";
+    showPage();
+  }
+  key("iconSearch").oninput = search;
+  key("iconCategory").onchange = search;
+  key("iconResults").onclick = (event) => {
+    const target = event.target.closest("[data-icon-id]");
+    if (!target) return;
+    key("iconResults")
+      .querySelector('[aria-pressed="true"]')
+      ?.setAttribute("aria-pressed", "false");
+    selected = target.dataset.iconId;
+    target.setAttribute("aria-pressed", "true");
+    preview();
+  };
+  key("iconPrev").onclick = () => {
+    page--;
+    showPage();
+  };
+  key("iconNext").onclick = () => {
+    page++;
+    showPage();
+  };
+  key("clearIconChoice").onclick = () => {
+    selected = "";
+    showPage();
+    preview();
+  };
+  if (allowUpload) {
+    key("iconUpload").onchange = async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      const save = key("saveIconChoice");
+      save.disabled = true;
+      try {
+        image = await readImage(file);
+        preview();
+      } catch (error) {
+        key("iconPickerStatus").textContent = error.message;
+      } finally {
+        save.disabled = false;
+      }
+    };
+    key("removeCustomIcon").onclick = () => {
+      image = "";
+      key("iconUpload").value = "";
+      preview();
+    };
+  }
+  key("saveIconChoice").onclick = () => {
+    try {
+      onSave({ iconId: selected, image });
+      dialog.close();
+    } catch (error) {
+      key("iconPickerStatus").textContent = error.message;
+    }
+  };
+  key("closeIcons").onclick = () => dialog.close();
+  dialog.addEventListener("close", () => dialog.remove(), { once: true });
+  dialog.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") event.stopPropagation();
+  });
+  dialog.showModal();
+  preview();
+  function setRegistry(registry) {
+    if (!dialog.open) return;
+    if (!Array.isArray(registry?.icons) || !registry.categories)
+      throw Error("Неверный формат icons.json.");
+    icons = registry.icons.filter(
+      (entry) =>
+        entry &&
+        typeof entry.file === "string" &&
+        Array.isArray(entry.categories) &&
+        iconPath(entry.id) &&
+        iconPath(entry.id) === entry.path,
+    );
+    key("iconCategory").replaceChildren(
+      new Option("Все категории", ""),
+      ...Object.entries(registry.categories).map(
+        ([id, name]) => new Option(name, id),
+      ),
+    );
+    key("iconCategory").value = Object.hasOwn(registry.categories, category)
+      ? category
+      : "";
+    key("iconLocalIndex").hidden = true;
+    search();
+    preview();
+  }
+  key("iconLocalFile").onchange = async (event) => {
+    if (!event.target.files[0]) return;
+    try {
+      setRegistry(JSON.parse(await event.target.files[0].text()));
+    } catch (error) {
+      key("iconPickerStatus").textContent = error.message;
+    }
+  };
+  loadIconIndex()
+    .then(setRegistry)
+    .catch(() => {
+      if (!dialog.open) return;
+      key("iconPickerStatus").textContent =
+        "Откройте icons.json из папки Атласа или запустите приложение через localhost.";
+      key("iconLocalIndex").hidden = false;
+      showPage();
+    });
+}
+function pickProfessionIcon(id) {
+  if (player) return;
+  const p = S.engine.professions.find((x) => x.id === id);
+  if (!p) return;
+  openIconPicker({
+    category: "professions",
+    current: { ...p, defaultId: iconDefaults.professions[id] },
+    onSave: (choice) => {
+      if (player) return;
+      Object.assign(p, choice);
+      commit();
+    },
+  });
+}
+function pickRecipeItemIcon(id) {
+  if (player) return;
+  const item = S.engine.items.find((x) => x.id === id);
+  if (!item) return;
+  const categories = {
+    Материалы: "resources",
+    Оружие: "equipment",
+    Броня: "equipment",
+    "Магические предметы": "magic",
+    Припасы: "consumables",
+    "Ездовые питомцы": "mounts",
+  };
+  openIconPicker({
+    category: categories[item.category] || "",
+    current: { ...item, defaultId: iconDefaults.items[id] },
+    onSave: (choice) => {
+      if (player) return;
+      Object.assign(item, choice);
+      commit();
+    },
+  });
+}
+function pickNavigationIcon(key) {
+  if (player || !["stay", "craft"].includes(key)) return;
+  openIconPicker({
+    category: "navigation",
+    current: {
+      iconId: S.settings.navIconIds?.[key],
+      image: S.settings.navIcons?.[key],
+      defaultId: iconDefaults.nav[key],
+    },
+    onSave: ({ iconId, image }) => {
+      if (player) return;
+      (S.settings.navIconIds ??= {})[key] = iconId;
+      (S.settings.navIcons ??= {})[key] = image;
+      commit();
+      editNavIcons();
+    },
+  });
+}
+
+const kitActivityArt = {
+  mining: "forge",
+  herbalism: "forest",
+  hunt: "camp",
+  fishing: "fish",
+  archaeology: "ruins",
+  skinning: "forest",
+  smithing: "forge",
+  alchemy: "market",
+  cooking: "market",
+};
+const kitNavLabels = {
+  people: "Персонажи",
+  worldbook: "Хроники",
+  company: "Герои",
+  bank: "Сумки и банк",
+  contracts: "Задания",
+  achievements: "Ачивки",
+};
+function kitNavLabel(key, label) {
+  return tab === "stay" || tab === "craft" ? kitNavLabels[key] || label : label;
+}
+function kitArtUrl(key) {
+  return "assets/ui-kit/" + key + ".webp";
+}
+function kitActivityPicture(id) {
+  return kitArtUrl(kitActivityArt[id] || "forest");
+}
+function kitAvatar(member) {
+  const image =
+    safeImage(member?.image) || iconPath(iconDefaults.components.hero);
+  return '<img class="kit-avatar" src="' + esc(image) + '" alt="">';
+}
+function kitHeroSelect(id) {
+  const heroes = heroRows();
+  if (heroes.length < 2) return "";
+  return (
+    '<select id="gameHero" class="kit-field" aria-label="Активный герой">' +
+    heroes
+      .map(
+        (member) =>
+          '<option value="' +
+          esc(member.id) +
+          '"' +
+          (member.id === id ? " selected" : "") +
+          ">" +
+          esc(memberName(member)) +
+          "</option>",
+      )
+      .join("") +
+    "</select>"
+  );
+}
+function bindKitHero() {
+  if ($("gameHero"))
+    $("gameHero").onchange = () => {
+      activeHero = val("gameHero");
+      render();
+    };
+}
+function kitLink(label, action, icon, className = "") {
+  return (
+    '<button type="button" class="' +
+    className +
+    '" onclick="' +
+    action +
+    '">' +
+    (icon ? uiIcon(icon) : "") +
+    esc(label) +
+    "</button>"
+  );
+}
+function kitHeroDescription(p) {
+  return [p.race, p.class, `Уровень ${p.level}`, `БВ +${bv(p)}`]
+    .filter(Boolean)
+    .join(" · ");
+}
+function kitSubhead(title, side = "") {
+  return (
+    '<div class="kit-subhead"><h3>' +
+    esc(title) +
+    "</h3>" +
+    (side ? "<small>" + esc(side) + "</small>" : "") +
+    "</div>"
+  );
+}
+function kitUpdateNavigation() {
+  const inPilot = tab === "stay" || tab === "craft";
+  document.body.classList.toggle("atlas-kit-active", inPilot);
+  const top = $("kitTop");
+  if (!inPilot) {
+    top.hidden = true;
+    return;
+  }
+  const hero = chosen(),
+    member = hero ? heroOf(S, hero) : null;
+  const here = locLabel(S.company.location),
+    phase = phases[S.journey ? "travel" : S.engine.phase];
+  const notes = uxNotifications().some(
+    (row) => !uxReadSet()[1].has(row.notification),
+  );
+  top.hidden = false;
+  top.innerHTML =
+    '<button class="kit-brand" onclick="switchTab(\'home\')" aria-label="Главная">' +
+    uiIcon("map") +
+    "<span><strong>Атлас расколотого мира</strong><small>Хроники Азерота</small></span></button>" +
+    '<div class="kit-topmeta"><span class="kit-day">День ' +
+    esc(S.company.day) +
+    " · <b>" +
+    esc(S.company.year) +
+    "-й год</b></span>" +
+    '<span class="kit-location">' +
+    esc(phase) +
+    (here ? " · <b>" + esc(here) + "</b>" : "") +
+    "</span>" +
+    '<button class="kit-topicon" onclick="uxSearch()" aria-label="Поиск">' +
+    uiIcon("search") +
+    "</button>" +
+    '<button class="kit-topicon' +
+    (notes ? " kit-unread" : "") +
+    '" onclick="uxInbox()" aria-label="Уведомления">' +
+    uiIcon("bell") +
+    "</button>" +
+    '<button class="kit-topicon" id="kitAccount" onclick="accountMenu()" aria-label="Профиль">' +
+    kitAvatar(member) +
+    "</button>" +
+    '<b class="kit-username">' +
+    esc(actor.name) +
+    "</b>" +
+    visualMenu(
+      "Атлас",
+      visualAction("Избранное", "uxFavorites()") +
+        (!player
+          ? visualAction("Иконки меню", "editNavIcons()") +
+            visualAction("Экспорт JSON", "exportData()") +
+            visualAction("Импорт", "$(\'importFile\').click()") +
+            visualAction("Архив", "uxArchiveView()") +
+            visualAction("История", "uxHistory()")
+          : ""),
+    ) +
+    "</div>";
+}
+onRender.push(kitUpdateNavigation);
+const existingNavIcon = navIcon;
+navIcon = function (key, fallback) {
+  const custom = safeImage(S.settings.navIcons?.[key]);
+  const chosenId = S.settings.navIconIds?.[key];
+  if (custom) return '<img src="' + esc(custom) + '" alt="">';
+  const path =
+    iconPath(chosenId) ||
+    (tab === "stay" || tab === "craft" ? iconPath(iconDefaults.nav[key]) : "");
+  return path
+    ? '<img src="' + esc(path) + '" alt="">'
+    : existingNavIcon(key, fallback);
+};
 
 boot();
 </script></body></html>

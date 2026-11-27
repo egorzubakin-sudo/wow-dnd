@@ -448,6 +448,11 @@
           "optional": true
         },
         {
+          "name": "iconId",
+          "type": "text",
+          "optional": true
+        },
+        {
           "name": "image",
           "type": "text",
           "optional": true
@@ -526,6 +531,16 @@
         },
         {
           "name": "icon",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "iconId",
+          "type": "text",
+          "optional": true
+        },
+        {
+          "name": "image",
           "type": "text",
           "optional": true
         },

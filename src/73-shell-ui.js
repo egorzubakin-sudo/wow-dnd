@@ -443,39 +443,6 @@ onRender.push(() => {
   main.dataset.scene = tab;
   if (tab === "home") prepareHomeVisuals();
   if (tab === "camp") campVisuals();
-  if (tab === "stay" || tab === "craft") {
-    main.querySelector(".screen")?.classList.add("visual-screen");
-    const controls = $("stayAdminLink");
-    const cover = main.querySelector(".game-cover");
-    const image = S.settings.visual?.covers?.[tab];
-    if (
-      cover &&
-      safeImage(image) &&
-      !(tab === "stay" && cover.querySelector(".stay-illustration"))
-    )
-      cover.insertAdjacentHTML(
-        "afterbegin",
-        sectionArt(image, "cover", "", "game-cover-art"),
-      );
-    if (!player && cover) {
-      const format = visualAction(
-        "Изменить обложку",
-        "editSectionCover(" + jsid(tab) + ")",
-      );
-      if (controls)
-        controls.innerHTML = visualMenu(
-          "Управление стоянкой",
-          visualAction("Управление стоянкой", "stayAdmin()") + format,
-        );
-      else {
-        const target = tab === "craft" ? $("craftHeroLinks") : $("stayActions");
-        target?.insertAdjacentHTML(
-          "beforeend",
-          visualMenu("Оформление раздела", format),
-        );
-      }
-    }
-  }
   const panel = $("engineActions");
   if (panel) {
     const box = panel.closest(".engine-panel");

@@ -1,4 +1,5 @@
 """Assemble the offline edition from the v0.9 shell, rules, and local modules."""
+import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,6 +18,8 @@ for name in ('rules', 'demo'):
     data = read(ROOT / 'data' / f'{name}.json').replace('<', r'\u003c')
     modules = insert(modules, f'/*BUNDLED_{name.upper()}*/ null', data)
 
+icons = json.loads(read(ROOT / 'icons.json'))
+modules = insert(modules, '/*ATLAS_ICON_DEFAULTS*/ null', json.dumps(icons['defaults'], ensure_ascii=False))
 shell = insert(read(SRC/'atlas-shell.html'), '/* ATLAS_MODULES */', modules)
-shell = insert(shell, '<!-- ATLAS_STYLES -->', '<style>' + read(SRC/'atlas.css') + '</style>')
+shell = insert(shell, '<!-- ATLAS_STYLES -->', '<style>' + read(SRC/'atlas.css') + '\n' + read(SRC/'atlas-kit.css') + '</style>')
 (ROOT / 'index.html').write_text(shell, encoding='utf-8')

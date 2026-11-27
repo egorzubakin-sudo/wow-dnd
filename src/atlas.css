@@ -1488,11 +1488,6 @@ body {
     display: inline-block;
     margin-bottom: 0.7rem;
   }
-  #craftBody:not(.mobile-recipe-open) #recipeDetail,
-  .mobile-recipe-open #recipeList,
-  .mobile-recipe-open .recipe-filters {
-    display: none;
-  }
   #recipeList {
     max-height: none;
   }

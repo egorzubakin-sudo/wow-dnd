@@ -1,5 +1,5 @@
-let craftTab = "professions",
-  craftProfession = "",
+let craftTab = "recipes",
+  craftProfession = null,
   craftRecipe = "",
   craftQuery = "",
   craftQuality = "",
@@ -80,32 +80,108 @@ function recipeQuality(item) {
   const row = ITEM_QUAL.find(([key]) => key === item?.quality);
   return row ? row[1] : "Обычный";
 }
+function craftTabButton(label, id, container) {
+  const b = button(label, () => {
+    craftTab = id;
+    renderCraft();
+  });
+  b.className = "kit-small";
+  b.setAttribute("aria-pressed", String(craftTab === id));
+  container.append(b);
+}
 function renderCraft() {
-  const hero = chosen();
+  const hero = chosen(),
+    member = hero ? heroOf(S, hero) : null,
+    p = hero ? profile(S, hero) : null;
+  const cover = safeImage(S.settings.visual?.covers?.craft);
+  if (craftProfession == null && S.engine.recipes.length)
+    craftProfession = S.engine.recipes[0].profession_id;
   $("main").innerHTML =
-    '<div class="screen game-screen"><section class="card game-cover"><div class="game-intro"><h2>Ремесло</h2><div class="actions" id="craftHeroLinks"></div></div>' +
-    gameHero(hero, currentStay(S)) +
-    '</section><div class="actions game-tabs" id="craftTabs"></div><section id="craftBody"></section></div>';
-  bindGameHero(hero);
-  if (hero) $("craftHeroLinks").append(button("Личные сумки", bagPage));
-  if (!player)
-    $("craftHeroLinks").append(button("Редактор профессий", professionEditor));
+    '<div class="atlas-kit kit-craft"><div class="kit-sectionhead ' +
+    (cover ? "kit-section-art" : "") +
+    '">' +
+    (cover
+      ? '<img class="kit-cover-image" src="' + esc(cover) + '" alt="">'
+      : "") +
+    '<div><div class="eyebrow">Атлас · Кампания</div><h2>Ремесло</h2>' +
+    "<p>Книга профессий, известные рецепты и работа над предметами.</p></div>" +
+    kitHeroSelect(hero) +
+    "</div>" +
+    '<div class="kit-toolbar kit-craft-hero">' +
+    (member
+      ? '<div class="kit-row kit-grow">' +
+        kitAvatar(member) +
+        "<div><b>" +
+        esc(memberName(member)) +
+        "</b><small>" +
+        esc(`Уровень ${p.level} · Бонус владения +${bv(p)}`) +
+        "</small></div></div>" +
+        '<small class="kit-inline">' +
+        uiIcon("time") +
+        esc(timeLabel(remaining(S, hero)) + " доступно") +
+        "</small>" +
+        kitLink("Личные сумки", "bagPage()", "bank", "kit-small")
+      : '<span class="muted">Герой не назначен</span>') +
+    (!player
+      ? visualMenu(
+          "Управление ремеслом",
+          visualAction("Редактор профессий", "professionEditor()") +
+            visualAction("Обложка раздела", "editSectionCover('craft')"),
+        )
+      : "") +
+    "</div>" +
+    '<div id="craftProfessionPills" class="kit-tabs"></div><section id="craftBody"></section>' +
+    '<div id="craftTabs" class="kit-craft-views" aria-label="Виды ремесла"></div></div>';
+  bindKitHero();
+  const tabs = $("craftTabs");
   for (const [id, label] of [
     ["professions", "Профессии"],
     ["recipes", "Книга рецептов"],
     ["projects", "Проекты"],
-  ]) {
-    const b = button(label, () => {
-      craftTab = id;
-      renderCraft();
-    });
-    b.setAttribute("aria-pressed", String(craftTab === id));
-    $("craftTabs").append(b);
-  }
+  ])
+    craftTabButton(label, id, tabs);
   const root = $("craftBody");
   if (craftTab === "professions") renderProfessionCards(root, hero);
-  if (craftTab === "recipes") renderRecipeList(root, hero);
+  if (craftTab === "recipes") {
+    drawProfessionPills();
+    renderRecipeList(root, hero);
+    $("craftBody").insertAdjacentHTML(
+      "afterend",
+      '<section id="craftProjectsPreview">' +
+        kitSubhead("Производственные проекты") +
+        '<div id="craftProjectRows" class="kit-panel"></div></section>',
+    );
+    renderProjects($("craftProjectRows"), hero);
+  }
   if (craftTab === "projects") renderProjects(root, hero);
+}
+function drawProfessionPills() {
+  const table = S.engine.professions.filter((p) =>
+    S.engine.recipes.some((r) => r.profession_id === p.id),
+  );
+  const order = ["smithing", "alchemy", "cooking"];
+  const rank = (id) => (order.includes(id) ? order.indexOf(id) : order.length);
+  table.sort((a, b) => rank(a.id) - rank(b.id));
+  const bar = $("craftProfessionPills");
+  for (const p of table) {
+    const btn = button(p.name, () => {
+      craftProfession = p.id;
+      craftRecipe = "";
+      renderCraft();
+    });
+    btn.className = "kit-tab";
+    btn.setAttribute("aria-pressed", String(craftProfession === p.id));
+    btn.innerHTML = professionIcon(p) + esc(p.name);
+    bar.append(btn);
+  }
+  const all = button("Все рецепты", () => {
+    craftProfession = "";
+    craftRecipe = "";
+    renderCraft();
+  });
+  all.className = "kit-tab";
+  all.setAttribute("aria-pressed", String(!craftProfession));
+  if (table.length) bar.append(all);
 }
 let professionGroup = "gathering";
 function renderProfessionCards(root, hero) {
@@ -145,7 +221,7 @@ function renderProfessionCards(root, hero) {
     card.className = "card profession-card";
     card.innerHTML =
       "<h3>" +
-      gameIcon(profession.icon) +
+      professionIcon(profession) +
       esc(profession.name) +
       "</h3>" +
       "<small>" +
@@ -181,6 +257,10 @@ function renderProfessionCards(root, hero) {
       "</details>";
     const controls = document.createElement("div");
     controls.className = "actions";
+    if (!player)
+      controls.append(
+        button("Иконка профессии", () => pickProfessionIcon(profession.id)),
+      );
     if (profession.kind === "gathering")
       controls.append(button("К занятиям", () => switchTab("stay")));
     else
@@ -205,11 +285,6 @@ function renderProfessionCards(root, hero) {
     grid.textContent = "В этой группе пока нет профессий.";
 }
 function renderRecipeList(root, hero) {
-  function showRecipeView(open) {
-    root.classList.toggle("mobile-recipe-open", open);
-    if (open) $("recipeBack").focus();
-    else $("recipeList").querySelector('[aria-pressed="true"]')?.focus();
-  }
   root.className = "";
   if (!S.engine.recipes.length) {
     root.innerHTML =
@@ -222,8 +297,15 @@ function renderRecipeList(root, hero) {
   }
   const p = hero ? profile(S, hero) : null;
   root.innerHTML =
-    '<div class="card recipe-filters">' +
-    input("Поиск по рецептам", "recipeQuery", "search", craftQuery) +
+    '<div class="kit-recipe-layout"><div class="kit-recipe-sidebar"><div class="eyebrow">Рецепты профессии</div>' +
+    input(
+      "Поиск рецептов",
+      "recipeQuery",
+      "search",
+      craftQuery,
+      'placeholder="Поиск рецепта"',
+    ) +
+    '<details class="kit-recipe-filters"><summary>Фильтры и сортировка</summary>' +
     pick(
       "Профессия",
       "recipeProfession",
@@ -258,7 +340,7 @@ function renderRecipeList(root, hero) {
       ],
       craftSort,
     ) +
-    '</div><div class="recipe-layout"><div id="recipeList" class="recipe-list" aria-label="Рецепты"></div><article id="recipeDetail" class="card recipe-detail"></article></div>';
+    '</details><div id="recipeList" class="kit-recipe-list" aria-label="Рецепты"></div></div><article id="recipeDetail" class="kit-recipe-detail"></article></div>';
   function refresh() {
     craftQuery = val("recipeQuery");
     craftProfession = val("recipeProfession");
@@ -305,7 +387,6 @@ function renderRecipeList(root, hero) {
     const selected = rows.find((x) => x.r.id === craftRecipe) || rows[0];
     detail.hidden = !selected;
     if (!selected) {
-      root.classList.remove("mobile-recipe-open");
       list.textContent = "Рецепты по выбранным фильтрам не найдены.";
       return;
     }
@@ -314,33 +395,25 @@ function renderRecipeList(root, hero) {
       const b = button(row.r.name, () => {
         craftRecipe = row.r.id;
         refresh();
-        if (matchMedia("(max-width: 700px)").matches) showRecipeView(true);
+        if (matchMedia("(max-width: 700px)").matches)
+          detail.scrollIntoView({ block: "start" });
       });
-      b.className = "recipe-option";
+      b.className = "recipe-option kit-recipe";
       b.setAttribute("aria-pressed", String(row === selected));
       b.innerHTML =
-        gameIcon(row.item?.icon, row.item?.image) +
-        '<span><strong class="rarity-' +
+        itemIcon(row.item) +
+        '<span class="kit-grow"><strong class="rarity-' +
         esc(row.item?.quality || "common") +
         '">' +
         esc(row.r.name) +
         "</strong><small>" +
         timeLabel(row.quote?.work ?? row.r.hours) +
         " · " +
-        esc(recipeQuality(row.item)) +
-        "</small></span>" +
-        '<small class="' +
-        (row.reasons.length ? "game-bad" : "game-good") +
-        '">' +
-        esc(row.reasons[0] || "Доступно") +
-        "</small>";
+        esc(professionRanks[(row.r.rank || 2) - 2] || recipeQuality(row.item)) +
+        '</small></span><span aria-hidden="true">›</span>';
       list.append(b);
     }
     renderRecipeDetail(detail, hero, p, selected.r, selected.item);
-    const back = button("К списку рецептов", () => showRecipeView(false));
-    back.className = "recipe-back";
-    back.id = "recipeBack";
-    detail.prepend(back);
   }
   for (const id of [
     "recipeQuery",
@@ -365,14 +438,29 @@ function renderRecipeDetail(root, hero, p, r, item) {
     ...(r.locations || []).map((id) => node(id)?.name || id),
   ];
   root.innerHTML =
-    "<h3>" +
-    gameIcon(item?.icon, item?.image) +
-    esc(r.name) +
-    '</h3><p class="rarity-' +
+    '<div class="kit-row">' +
+    itemIcon(item) +
+    '<div class="kit-grow"><div class="eyebrow">' +
+    esc(
+      (profession?.name || "Ремесло") +
+        " · " +
+        (professionRanks[(r.rank || 2) - 2] || "БВ +" + r.rank),
+    ) +
+    '</div><h3 class="rarity-' +
     esc(item?.quality || "common") +
     '">' +
-    esc(recipeQuality(item)) +
-    "</p><p>" +
+    esc(r.name) +
+    "</h3></div>" +
+    (!player && item
+      ? visualMenu(
+          "Действия с рецептом",
+          visualAction(
+            "Иконка предмета",
+            "pickRecipeItemIcon(" + jsid(item.id) + ")",
+          ),
+        )
+      : "") +
+    '</div><p class="kit-recipe-description muted">' +
     esc(
       r.description ||
         r.desc ||
@@ -380,21 +468,21 @@ function renderRecipeDetail(root, hero, p, r, item) {
         item?.description ||
         "Описание предмета пока не добавлено.",
     ) +
-    '</p><p class="muted">' +
-    esc(
-      (profession?.name || "Профессия не задана") + " · БВ +" + (r.rank || 2),
-    ) +
-    "</p>" +
+    "</p><small>" +
+    esc(recipeQuality(item)) +
+    "</small>" +
     (requirements.length
-      ? "<p>Место и оборудование · " + esc(requirements.join(" · ")) + "</p>"
+      ? '<p class="muted">' + esc(requirements.join(" · ")) + "</p>"
       : "") +
-    '<div id="craftInputs"></div><div id="craftCosts"></div><div class="actions" id="craftSubmit"></div>';
+    '<div id="craftCosts"></div><div class="kit-recipe-actions"><div id="craftInputs"></div><div id="craftSubmit"></div></div>' +
+    '<div id="craftNotice" class="kit-notice" role="status"></div>';
   if (!hero) {
     $("craftCosts").textContent =
       "Выберите героя, чтобы сверить материалы и время.";
     return;
   }
   $("craftInputs").innerHTML =
+    '<div class="kit-quantity"><button type="button" id="craftQtyMinus" aria-label="Уменьшить количество">−</button>' +
     input(
       "Количество",
       "craftQty",
@@ -402,6 +490,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
       1,
       'min="1" max="1000" step="1"',
     ) +
+    '<button type="button" id="craftQtyPlus" aria-label="Увеличить количество">+</button></div>' +
     (r.gold
       ? "<details><summary>Оплатить часть стоимости ресурсом</summary>" +
         pick(
@@ -445,7 +534,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
       if (create.isConnected) refresh();
     }
   });
-  create.className = "primary";
+  create.className = "primary kit-create";
   $("craftSubmit").append(create);
   function refresh() {
     const box = $("craftCosts");
@@ -453,20 +542,20 @@ function renderRecipeDetail(root, hero, p, r, item) {
       const quote = projectQuote(S, payload());
       const reasons = recipeAvailability(hero, p, r, quote);
       create.disabled = !!reasons.length || !owned(actor, hero);
-      create.textContent =
-        quote.work > remaining(S, hero) && !create.disabled
-          ? "Начать проект"
-          : "Создать";
+      const needsProject = quote.work > remaining(S, hero) && !create.disabled;
+      const label = needsProject ? "Начать проект" : "Создать";
+      create.setAttribute("aria-label", label);
+      create.innerHTML = uiIcon("craft") + esc(label + " ×" + payload().qty);
       box.innerHTML =
-        "<h4>Необходимые материалы</h4>" +
+        kitSubhead("Реагенты", "В сумках / Нужно") +
         (quote.materials.length
           ? quote.materials
               .map((x) => {
                 const material = S.engine.items.find((i) => i.id === x.item);
                 return (
-                  '<div class="material-line">' +
-                  gameIcon(material?.icon, material?.image) +
-                  "<span>" +
+                  '<div class="material-line kit-ingredient">' +
+                  itemIcon(material) +
+                  '<span class="kit-grow">' +
                   esc(material?.name || x.item) +
                   '</span><strong class="' +
                   (x.have >= x.qty ? "game-good" : "game-bad") +
@@ -477,31 +566,47 @@ function renderRecipeDetail(root, hero, p, r, item) {
               })
               .join("")
           : '<p class="muted">Ингредиенты не требуются.</p>') +
-        "<p>Время · " +
+        '<div class="kit-ingredient">' +
+        uiIcon("time") +
+        '<span class="kit-grow">Время изготовления</span><b>' +
         timeLabel(quote.work) +
-        ' · <span class="' +
-        (quote.wallet >= quote.cost ? "game-good" : "game-bad") +
-        '">' +
-        esc(quote.cost + " зм") +
-        "</span> · Результат × " +
-        esc(payload().qty * r.quantity) +
-        "</p>" +
-        (reasons.length
-          ? '<p class="game-bad">' + esc(reasons.join(" · ")) + "</p>"
-          : quote.work > remaining(S, hero)
-            ? '<p class="muted">Материалы будут зарезервированы. Часы можно внести в разделе проектов.</p>'
-            : "");
+        "</b></div>" +
+        (quote.cost
+          ? '<div class="kit-ingredient">' +
+            uiIcon("coins") +
+            '<span class="kit-grow">Стоимость</span><b>' +
+            esc(quote.cost + " зм") +
+            "</b></div>"
+          : "");
+      $("craftNotice").textContent = reasons.length
+        ? reasons.join(" · ")
+        : needsProject
+          ? "Материалы будут зарезервированы. Работу можно продолжить в проектах."
+          : "Результат ×" +
+            payload().qty * r.quantity +
+            ". Материалы и время будут списаны при создании.";
     } catch (error) {
       create.disabled = true;
-      box.textContent = error.message;
+      $("craftNotice").textContent = error.message;
     }
   }
+  for (const [id, delta] of [
+    ["craftQtyMinus", -1],
+    ["craftQtyPlus", 1],
+  ])
+    $(id).onclick = () => {
+      $("craftQty").value = Math.min(
+        1000,
+        Math.max(1, (Number(val("craftQty")) || 1) + delta),
+      );
+      refresh();
+    };
   for (const id of ["craftQty", "craftResource", "craftCredit"])
     if ($(id)) $(id).oninput = refresh;
   refresh();
 }
 function renderProjects(root, hero) {
-  root.className = "stack";
+  root.classList.add("kit-projects");
   const groups = { active: [], paused: [], done: [] };
   const labels = {
     active: "Активные",
@@ -521,8 +626,9 @@ function renderProjects(root, hero) {
   }
   for (const [key, rows] of Object.entries(groups)) {
     const section = document.createElement("section");
-    section.className = "card game-section";
+    section.className = "kit-project-group";
     section.innerHTML = "<h3>" + labels[key] + "</h3>";
+    if (!rows.length && root.id === "craftProjectRows") continue;
     if (!rows.length)
       section.insertAdjacentHTML(
         "beforeend",
@@ -551,7 +657,8 @@ function renderProjects(root, hero) {
         cancelled: "Отменён",
       };
       row.innerHTML =
-        "<h4>" +
+        '<h4 class="kit-row">' +
+        itemIcon(S.engine.items.find((item) => item.id === j.recipe.item_id)) +
         esc(j.name) +
         "</h4><p>" +
         esc(
@@ -617,7 +724,9 @@ function renderProjects(root, hero) {
     }
     root.append(section);
   }
-  if (!S.engine.projects.length)
+  if (!root.children.length && root.id === "craftProjectRows")
+    root.innerHTML = emptyScene("Пока нет производственных проектов.");
+  if (!S.engine.projects.length && root.id !== "craftProjectRows")
     root.append(
       button("Открыть книгу рецептов", () => openCraftTab("recipes")),
     );

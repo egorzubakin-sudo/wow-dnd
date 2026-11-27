@@ -33,12 +33,12 @@ const tables = {
   items: [
     "Каталог предметов",
     "engine.items",
-    "id name category quality value_gp:num desc? icon? image? unit? profession_id:@professions? stackable:bool? properties:json?",
+    "id name category quality value_gp:num desc? icon? iconId? image? unit? profession_id:@professions? stackable:bool? properties:json?",
   ],
   professions: [
     "Профессии",
     "engine.professions",
-    "id name kind? summary? description? special? icon? tools:json? skill?",
+    "id name kind? summary? description? special? icon? iconId? image? tools:json? skill?",
   ],
   recipes: [
     "Рецепты",
