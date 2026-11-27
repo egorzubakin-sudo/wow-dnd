@@ -65,6 +65,12 @@ function validateBackup(raw) {
     "solutions",
     "rewards",
     "sessions",
+    "markets",
+    "facilities",
+    "craftProperties",
+    "campUpgrades",
+    "localServices",
+    "contentPackages",
   ])
     unique(e[k], k);
   for (const h of Object.values(e.profiles || {})) {
@@ -103,6 +109,31 @@ function validateBackup(raw) {
         "Превышен бюджет стоянки",
       );
   }
+  validateTradeCatalog(raw);
+  for (const [service, tier] of Object.entries(e.facilityTiers || {})) {
+    requireThat(productionServices.includes(service), "Неизвестное сооружение");
+    integer(tier, 2, 3);
+  }
+  for (const stay of e.stays || []) {
+    for (const [service, rental] of Object.entries(stay.rentals || {})) {
+      requireThat(productionServices.includes(service) && rental.node_id === stay.location &&
+        raw.nodes.some((node) => node.id === rental.node_id && node.type === "city"), "Неверная аренда");
+      integer(rental.tier, 1, 3);
+      tradeMoney(rental.cost);
+    }
+  }
+  const packageKeys = new Set();
+  for (const pack of e.contentPackages || []) {
+    contentMetadata(pack);
+    requireThat(Array.isArray(pack.records), "Неверный реестр контента");
+    for (const row of pack.records) {
+      requireThat(Object.hasOwn(tables, row.table) && validId(row.id), "Неверная запись реестра контента");
+      const key = catalogIdentity(row.table, row.id);
+      requireThat(!packageKeys.has(key), "Запись указана в нескольких пакетах");
+      packageKeys.add(key);
+    }
+  }
+  checkPackageGraph(e.contentPackages || []);
   const receipts = new Set();
   for (const r of e.receipts) {
     requireThat(

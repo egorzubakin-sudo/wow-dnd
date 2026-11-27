@@ -501,6 +501,7 @@ openItem = function (id) {
         ? '<p class="record-body">' + esc(x.desc || catalog.desc) + "</p>"
         : "") +
       (details ? "<ul>" + details + "</ul>" : "") +
+      equipmentDetails(x, catalog) +
       '<div class="actions">' +
       uxFavButton("item", id) +
       (x.qty > 0 &&
@@ -517,6 +518,9 @@ openItem = function (id) {
 };
 function questMainActions(q) {
   const id = jsid(q.id);
+  if (q.type === "delivery")
+    return deliveryQuote(S, actor, chosen(), q).reasons.length ? "" :
+      visualAction("Доставить товары", "confirmDelivery(" + id + ")", "primary");
   if (q.type === "local") {
     const hero = chosen();
     return hero && owned(actor, hero) && questAvailable(S, q, hero)
@@ -547,16 +551,16 @@ function questMenu(q) {
       "Изменить",
       q.type === "local"
         ? "errandEditor(S.contracts.find(q=>q.id===" + id + "))"
-        : "editContract(" + id + ")",
+        : q.type === "delivery" ? "editDelivery(" + id + ")" : "editContract(" + id + ")",
     ) +
       visualAction("Выбрать иконку", "pickQuestIcon(" + id + ")") +
-      (q.type !== "local" && q.status !== "done" && !q.rewardReceipt
+      (q.type !== "local" && q.type !== "delivery" && q.status !== "done" && !q.rewardReceipt
         ? visualAction("Настроить награды", "rewardDialog(" + id + ",false)")
         : "") +
       ((q.rewardHidden || q.rewardSecret) && !q.rewardRevealed
         ? visualAction("Открыть награду", "revealReward(" + id + ")")
         : "") +
-      (q.type !== "local"
+      (q.type !== "local" && q.type !== "delivery"
         ? visualAction("Дублировать", "uxDuplicate('contract'," + id + ")")
         : "") +
       visualAction("В архив", "removeContract(" + id + ")", "danger"),
@@ -570,7 +574,7 @@ function questOverview(q) {
     '" aria-pressed="' + active + '" onclick="selectBoardQuest(' + jsid(q.id) +
     ')"><span class="quest-seal" aria-hidden="true">' + questIcon(q) +
     '</span>' + questIllustration(q) + '<span class="kit-grow"><small>' +
-    esc([q.type === "local" ? "Поручение" : "Контракт", CS.find(([key]) => key === q.status)?.[1], questPlace(q)].filter(Boolean).join(" · ")) +
+    esc([q.type === "local" ? "Поручение" : q.type === "delivery" ? "Поставка" : "Контракт", CS.find(([key]) => key === q.status)?.[1], questPlace(q)].filter(Boolean).join(" · ")) +
     '</small><strong>' + esc(q.title) + '</strong><small>' + esc(questGiver(q)) +
     '</small></span><span aria-hidden="true">›</span></button>'
   );
@@ -596,7 +600,7 @@ renderContracts = function () {
         (questFaction === "none" ? !c.faction : c.faction === questFaction)),
   );
   const controls = !player
-    ? visualAction("Новое задание", "editContract()", "primary")
+    ? visualAction("Новое задание", "editContract()", "primary") + visualAction("Новая поставка", "editDelivery()")
     : "";
   const selected = rows.find((q) => q.id === selectedBoardQuest) || rows[0];
   selectedBoardQuest = selected?.id || "";
@@ -634,9 +638,9 @@ renderContracts = function () {
     "</div>" +
     (selected
       ? '<div class="kit-quest-layout"><div class="kit-quest-list">' +
-        [[false, "Контракты"], [true, "Местные поручения"]]
-          .map(([local, title]) => {
-            const portion = rows.filter((q) => (q.type === "local") === local);
+        [["contract", "Контракты"], ["local", "Местные поручения"], ["delivery", "Поставки"]]
+          .map(([kind, title]) => {
+            const portion = rows.filter((q) => kind === "contract" ? !["local", "delivery"].includes(q.type) : q.type === kind);
             return portion.length ? '<section><h3>' + title + '</h3>' +
               portion.map(questOverview).join("") + '</section>' : "";
           }).join("") + '</div><div id="boardQuestDetail" tabindex="-1" aria-label="Выбранное задание">' +
@@ -685,7 +689,7 @@ function questPaper(q, inline = false) {
     '<article class="quest-paper reader"><header><span class="quest-seal" aria-hidden="true">' +
       questIcon(q) +
       "</span>" + questIllustration(q) + "<div><small>" +
-      esc(q.type === "local" ? "Местное поручение" : "Контракт") +
+      esc(q.type === "local" ? "Местное поручение" : q.type === "delivery" ? "Поставка" : "Контракт") +
       "</small><p>" +
       esc(
         [questGiver(q), place, region?.name, questFactionName(q)]
@@ -716,7 +720,7 @@ function questPaper(q, inline = false) {
           ) +
           "</p></section>"
         : "") +
-      questReward(q) +
+      (q.type === "delivery" ? deliveryDetail(q) : questReward(q)) +
       (visible.length
         ? '<div class="structured-loot">' +
           visible

@@ -1,0 +1,12 @@
+{
+  "quests": [
+    {
+      "id": "quest.crossroads.notice",
+      "title": "Дорожное объявление",
+      "location": "crossroads",
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

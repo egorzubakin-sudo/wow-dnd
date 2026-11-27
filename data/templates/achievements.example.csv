@@ -1,2 +1,2 @@
-﻿"id";"title";"category";"body";"points";"engineEvent";"scope";"secret";"hidden";"source"
-"atlas-first-find";"Первый образец";"Ремесло и исследования";"Принести первую находку со стоянки.";"5";"gather";"hero";"";"";"{""origin"":""demo""}"
+﻿"id";"title";"category";"body";"points";"engineEvent";"scope";"secret";"hidden";"source";"extra"
+"atlas-first-find";"Первый образец";"Ремесло и исследования";"Принести первую находку со стоянки.";"5";"gather";"hero";"";"";"{""origin"":""demo""}";"{}"

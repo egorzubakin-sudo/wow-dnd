@@ -1,0 +1,23 @@
+{
+  "originalEquipment": [
+    {
+      "id": "weapon.dnd.dagger",
+      "name": "Кинжал",
+      "category": "Оружие",
+      "quality": "common",
+      "value_gp": 2,
+      "source": {
+        "book": "phb2024",
+        "printed_page": 215
+      },
+      "rules": {
+        "Урон": "1к4 колющего",
+        "Свойства": "Фехтовальное, лёгкое, метательное (20/60 фт)",
+        "Мастерство": "Быстрое",
+        "Вес": "1 фнт",
+        "Книжная цена": "2 зм"
+      },
+      "stackable": false
+    }
+  ]
+}

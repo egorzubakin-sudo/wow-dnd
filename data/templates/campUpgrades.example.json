@@ -1,0 +1,12 @@
+{
+  "campUpgrades": [
+    {
+      "id": "upgrade.armory",
+      "service": "Оружейная",
+      "speed": 10,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

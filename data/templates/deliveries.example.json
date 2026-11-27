@@ -1,0 +1,31 @@
+{
+  "deliveries": [
+    {
+      "id": "quest.demo.tools_delivery",
+      "title": "Инструменты для каравана",
+      "desc": "На рынке ждут партию припасов.",
+      "consignee": "Халдор",
+      "location": "location.demo.trade_crossroads",
+      "giver": "npc.demo.crossroads.blacksmith",
+      "due_year": 27,
+      "due_day": 1000,
+      "stock_source": "personal",
+      "reward_recipient": "hero",
+      "goods": [
+        {
+          "item_id": "goods.demo.smithing.apprentice",
+          "quantity": 1
+        }
+      ],
+      "rewards": [
+        {
+          "type": "gold",
+          "amount": 7
+        }
+      ],
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

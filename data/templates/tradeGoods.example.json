@@ -1,0 +1,17 @@
+{
+  "tradeGoods": [
+    {
+      "id": "goods.demo.smithing.apprentice",
+      "name": "Партия ремонтных инструментов",
+      "category": "Торговые товары",
+      "quality": "common",
+      "value_gp": 24,
+      "profession_id": "smithing",
+      "stackable": true,
+      "source": {
+        "origin": "demo"
+      },
+      "iconId": "misc:Wrench_01"
+    }
+  ]
+}

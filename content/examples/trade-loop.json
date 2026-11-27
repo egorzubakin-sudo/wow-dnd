@@ -1,0 +1,307 @@
+{
+  "format": "atlas-content",
+  "schemaVersion": 1,
+  "id": "demo.trade-loop",
+  "name": "Добыча, производство и рынок",
+  "description": "Учебный пакет для проверки полного цикла. Цены, нормы и сроки настроены для демонстрации.",
+  "version": "1.0.0",
+  "author": "Атлас расколотого мира",
+  "sources": [
+    {
+      "origin": "demo"
+    }
+  ],
+  "dependencies": [],
+  "tables": {
+    "regions": [
+      {
+        "id": "region.kalimdor.trade_example",
+        "name": "Тестовые окрестности Перекрёстка",
+        "continent": "Калимдор",
+        "biome": "Степь",
+        "dc": 10,
+        "tier": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "factions": [
+      {
+        "id": "faction.demo.caravan",
+        "name": "Караван Перекрёстка (демо)",
+        "repPoints": 3000,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "nodes": [
+      {
+        "id": "location.demo.trade_crossroads",
+        "name": "Учебный рынок Перекрёстка",
+        "x": 0.56,
+        "y": 0.58,
+        "type": "city",
+        "regionId": "region.kalimdor.trade_example",
+        "visibility": "known",
+        "faction": "faction.demo.caravan",
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "people": [
+      {
+        "id": "npc.demo.crossroads.blacksmith",
+        "title": "Халдор · кузнец",
+        "source": "Кузнец",
+        "provenance": {
+          "origin": "demo"
+        },
+        "faction": "faction.demo.caravan",
+        "location": "location.demo.trade_crossroads",
+        "body": "Чинит подковы и принимает партии инструментов."
+      }
+    ],
+    "materials": [
+      {
+        "id": "material.demo.copper_ore",
+        "name": "Медная руда (торговое занятие)",
+        "category": "Материалы",
+        "quality": "common",
+        "value_gp": 1,
+        "source": {
+          "origin": "demo"
+        }
+      },
+      {
+        "id": "material.demo.copper_bar",
+        "name": "Медный слиток (торговое занятие)",
+        "category": "Материалы",
+        "quality": "common",
+        "value_gp": 3,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "items": [
+      {
+        "id": "weapon.demo.copper_sword",
+        "name": "Учебный медный меч",
+        "category": "Оружие",
+        "quality": "common",
+        "value_gp": 12,
+        "stackable": false,
+        "source": {
+          "origin": "demo"
+        },
+        "desc": "Авторский тестовый предмет.",
+        "rules": {
+          "Урон": "1к6 рубящего",
+          "Применение": "Авторский пример для кампании"
+        }
+      }
+    ],
+    "tradeGoods": [
+      {
+        "id": "goods.demo.smithing.apprentice",
+        "name": "Партия ремонтных инструментов",
+        "category": "Торговые товары",
+        "quality": "common",
+        "value_gp": 24,
+        "profession_id": "smithing",
+        "stackable": true,
+        "source": {
+          "origin": "demo"
+        },
+        "iconId": "misc:Wrench_01"
+      }
+    ],
+    "recipes": [
+      {
+        "id": "recipe.demo.smithing.copper_bar",
+        "name": "Слиток торговой серии",
+        "profession_id": "smithing",
+        "item_id": "material.demo.copper_bar",
+        "quantity": 1,
+        "hours": 1,
+        "rank": 2,
+        "basic": true,
+        "service": "Оружейная",
+        "facility_rank": 1,
+        "source": {
+          "origin": "demo"
+        }
+      },
+      {
+        "id": "recipe.demo.smithing.copper_sword",
+        "name": "Выковать учебный меч",
+        "profession_id": "smithing",
+        "item_id": "weapon.demo.copper_sword",
+        "quantity": 1,
+        "hours": 4,
+        "rank": 2,
+        "basic": true,
+        "service": "Оружейная",
+        "facility_rank": 2,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "tradeRecipes": [
+      {
+        "id": "recipe.demo.smithing.trade_tools",
+        "name": "Партия ремонтных инструментов",
+        "profession_id": "smithing",
+        "item_id": "goods.demo.smithing.apprentice",
+        "quantity": 1,
+        "hours": 3,
+        "rank": 2,
+        "basic": true,
+        "service": "Оружейная",
+        "facility_rank": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "ingredients": [
+      {
+        "id": "recipe.demo.smithing.copper_bar:material.demo.copper_ore",
+        "recipe_id": "recipe.demo.smithing.copper_bar",
+        "item_id": "material.demo.copper_ore",
+        "quantity": 1,
+        "source": {
+          "origin": "demo"
+        }
+      },
+      {
+        "id": "recipe.demo.smithing.trade_tools:material.demo.copper_bar",
+        "recipe_id": "recipe.demo.smithing.trade_tools",
+        "item_id": "material.demo.copper_bar",
+        "quantity": 2,
+        "source": {
+          "origin": "demo"
+        }
+      },
+      {
+        "id": "recipe.demo.smithing.copper_sword:material.demo.copper_bar",
+        "recipe_id": "recipe.demo.smithing.copper_sword",
+        "item_id": "material.demo.copper_bar",
+        "quantity": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "loot": [
+      {
+        "id": "loot.demo.trade_copper",
+        "region_id": "region.kalimdor.trade_example",
+        "profession_id": "mining",
+        "item_id": "material.demo.copper_ore",
+        "weight": 1,
+        "min_quantity": 7,
+        "max_quantity": 7,
+        "min_margin": -20,
+        "hours": 2,
+        "dc": 1,
+        "stock": 21,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "markets": [
+      {
+        "id": "market.demo.tools",
+        "node_id": "location.demo.trade_crossroads",
+        "item_id": "goods.demo.smithing.apprentice",
+        "faction_id": "faction.demo.caravan",
+        "stock": 1,
+        "demand": 5,
+        "budget": 250,
+        "buy_factor": 1.5,
+        "sell_factor": 1,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "facilities": [
+      {
+        "id": "facility.demo.armory",
+        "service": "Оружейная",
+        "tier2_gp": 30,
+        "tier3_gp": 75,
+        "rent1_gp": 5,
+        "rent2_gp": 15,
+        "rent3_gp": 35,
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "errands": [
+      {
+        "id": "quest.demo.crossroads.mine",
+        "title": "Обычай медников",
+        "desc": "Кузнец просит осмотреть жилу и записать наблюдения.",
+        "hours": 1,
+        "region_id": "region.kalimdor.trade_example",
+        "location": "location.demo.trade_crossroads",
+        "giver": "npc.demo.crossroads.blacksmith",
+        "repeat": "once",
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "solutions": [
+      {
+        "id": "solution.demo.copper_vein",
+        "quest_id": "quest.demo.crossroads.mine",
+        "name": "Осмотреть жилу",
+        "skill": "Расследование",
+        "dc": 10,
+        "success": "Жила найдена.",
+        "failure": "Добыча потребует дополнительного времени.",
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ],
+    "deliveries": [
+      {
+        "id": "quest.demo.tools_delivery",
+        "title": "Инструменты для каравана",
+        "desc": "На рынке ждут партию припасов.",
+        "consignee": "Халдор",
+        "location": "location.demo.trade_crossroads",
+        "giver": "npc.demo.crossroads.blacksmith",
+        "due_year": 27,
+        "due_day": 1000,
+        "stock_source": "personal",
+        "reward_recipient": "hero",
+        "goods": [
+          {
+            "item_id": "goods.demo.smithing.apprentice",
+            "quantity": 1
+          }
+        ],
+        "rewards": [
+          {
+            "type": "gold",
+            "amount": 7
+          }
+        ],
+        "source": {
+          "origin": "demo"
+        }
+      }
+    ]
+  }
+}

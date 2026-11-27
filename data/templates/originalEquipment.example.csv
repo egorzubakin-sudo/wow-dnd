@@ -1,0 +1,2 @@
+﻿"id";"name";"category";"quality";"value_gp";"desc";"icon";"iconId";"image";"unit";"profession_id";"stackable";"hidden";"properties";"original";"rules";"base_item_id";"craft_properties";"craft_slots";"magic_slots";"trade_product";"source";"extra"
+"weapon.dnd.dagger";"Кинжал";"Оружие";"common";"2";"";"";"";"";"";"";"false";"";"";"";"{""Урон"":""1к4 колющего"",""Свойства"":""Фехтовальное, лёгкое, метательное (20/60 фт)"",""Мастерство"":""Быстрое"",""Вес"":""1 фнт"",""Книжная цена"":""2 зм""}";"";"";"";"";"";"{""book"":""phb2024"",""printed_page"":215}";"{}"

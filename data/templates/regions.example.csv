@@ -1,2 +1,2 @@
-﻿"id";"name";"continent";"biome";"dc";"priority";"points";"description";"tier";"levels";"danger";"factions";"image";"source"
-"durotar";"Дуротар";"Калимдор";"Сухие холмы";"10";"0";"[]";"За красными уступами ветер гонит пыль. В обнажившихся жилах поблёскивает медь.";"";"";"";"";"";"{""origin"":""demo""}"
+﻿"id";"name";"continent";"biome";"dc";"priority";"points";"description";"tier";"levels";"danger";"factions";"image";"source";"extra"
+"durotar";"Дуротар";"Калимдор";"Сухие холмы";"10";"0";"[]";"За красными уступами ветер гонит пыль. В обнажившихся жилах поблёскивает медь.";"";"";"";"";"";"{""origin"":""demo""}";"{}"

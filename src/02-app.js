@@ -261,7 +261,7 @@ async function execute(name, payload, key = crypto.randomUUID()) {
   try {
     const next = applyCommand(S, actor, name, payload, key);
     clearTimeout(saveTimer);
-    await dbPut(next);
+    await dbPut(next, name === "contentImport" ? S : null);
     S = next;
     commit();
   } finally {

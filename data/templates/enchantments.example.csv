@@ -1,0 +1,2 @@
+﻿"id";"name";"profession_id";"item_id";"quantity";"hours";"rank";"gold";"basic";"service";"facility_rank";"tempo_class";"tempo_hours";"reference_hours";"time_policy";"trade_product";"tools";"locations";"properties";"experiment";"image";"description";"acquisition";"equipment";"conditions";"source";"extra"
+"recipe.demo.enchant";"Пример формулы";"enchanting";"item.enchanted";"1";"8";"2";"";"";"Зачаровательная";"";"";"";"";"";"";"";"";"{""effect"":""Авторский пример""}";"";"";"";"";"";"";"{""origin"":""demo""}";"{}"

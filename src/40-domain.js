@@ -33,7 +33,7 @@ const tables = {
   items: [
     "Каталог предметов",
     "engine.items",
-    "id name category quality value_gp:num desc? icon? iconId? image? unit? profession_id:@professions? stackable:bool? properties:json?",
+    "id name category quality value_gp:num desc? icon? iconId? image? unit? profession_id:@professions? stackable:bool? hidden:bool? properties:json? original:bool? rules:json? base_item_id:@originalEquipment? craft_properties:json? craft_slots:int? magic_slots:int? trade_product:bool?",
   ],
   professions: [
     "Профессии",
@@ -43,7 +43,42 @@ const tables = {
   recipes: [
     "Рецепты",
     "engine.recipes",
-    "id name profession_id:@professions item_id:@items quantity:pos hours:pos rank:pos gold:num? basic:bool? service? tools:json? locations:json? properties:json? experiment:json? image? description? acquisition? equipment:json? conditions:json?",
+    "id name profession_id:@professions item_id:@items quantity:pos hours:pos rank:pos gold:num? basic:bool? service? facility_rank:pos? tempo_class? tempo_hours:pos? reference_hours:pos? time_policy? trade_product:bool? tools:json? locations:json? properties:json? experiment:json? image? description? acquisition? equipment:json? conditions:json?",
+  ],
+  tradeGoods: ["Торговые товары", "engine.items", ""],
+  tradeRecipes: ["Торговые рецепты", "engine.recipes", ""],
+  markets: [
+    "Местные рынки", "engine.markets",
+    "id node_id:@nodes item_id:@items faction_id:@factions? stock:int demand:int budget:num buy_factor:num sell_factor:num rep_bonuses:json?",
+  ],
+  facilities: [
+    "Производственные сооружения", "engine.facilities",
+    "id service tier2_gp:num tier3_gp:num rent1_gp:num rent2_gp:num rent3_gp:num",
+  ],
+  craftProperties: [
+    "Ремесленные свойства экипировки", "engine.craftProperties",
+    "id name kind trigger action effect limits uses:pos? recovery?",
+  ],
+  originalEquipment: ["Оригинальная экипировка", "engine.items", ""],
+  materials: ["Материалы и реагенты", "engine.items", ""],
+  magicItems: ["Магические предметы", "engine.items", ""],
+  enchantments: ["Рецепты зачарования", "engine.recipes", ""],
+  archaeology: ["Археологические находки", "engine.loot", ""],
+  campUpgrades: [
+    "Эффекты улучшений лагеря", "engine.campUpgrades",
+    "id service profession:@professions? recipes:json? bonus:signed? advantage:bool? discount:int? speed:int? wage:int? productivity:pos?",
+  ],
+  services: [
+    "Местные услуги и наставники", "engine.localServices",
+    "id node_id:@nodes service profession_id:@professions? fee:num? hours:pos? tier:pos? hidden:bool?",
+  ],
+  quests: [
+    "Контракты и задания", "contracts",
+    "id title desc? objectives? giver:@people? faction:@factions? location:@nodes? reward? rewards:json? hidden:bool?",
+  ],
+  deliveries: [
+    "Торговые контракты", "contracts",
+    "id title desc? consignee location:@nodes giver:@people? due_year:pos due_day:pos stock_source reward_recipient goods:json rewards:json hidden:bool?",
   ],
   ingredients: [
     "Ингредиенты",
@@ -89,10 +124,14 @@ const tables = {
   ],
 };
 tables.hunting[2] = tables.fishing[2] = tables.loot[2];
+tables.tradeGoods[2] = tables.originalEquipment[2] = tables.items[2];
+tables.tradeRecipes[2] = tables.enchantments[2] = tables.recipes[2];
+tables.materials[2] = tables.magicItems[2] = tables.items[2];
+tables.archaeology[2] = tables.loot[2];
 function columns(k) {
   return (
     tables[k][2] +
-    (tables[k][2].includes(" source?") ? " provenance:json?" : " source:json?")
+    (tables[k][2].includes(" source?") ? " provenance:json?" : " source:json?") + " extra:json?"
   )
     .split(" ")
     .map((token) => {
@@ -105,6 +144,14 @@ function arr(s, k) {
   return tables[k][1].split(".").reduce((o, key) => (o[key] ??= []), s);
 }
 function subset(k, r) {
+  if (k === "tradeGoods" || k === "tradeRecipes") return r.trade_product === true;
+  if (k === "originalEquipment") return r.original === true;
+  if (k === "materials") return r.category === "Материалы";
+  if (k === "magicItems") return r.category === "Магические предметы";
+  if (k === "enchantments") return r.profession_id === "enchanting" && !!r.properties;
+  if (k === "archaeology") return r.profession_id === "archaeology";
+  if (k === "deliveries") return r.type === "delivery";
+  if (k === "quests") return !["local", "delivery"].includes(r.type);
   if (k === "errands") return r.type === "local";
   if (k === "hunting" || k === "fishing")
     return r.profession_id === (k === "hunting" ? "hunt" : "fishing");
@@ -126,7 +173,8 @@ function csvWrite(rows, names) {
   };
   return (
     "\uFEFF" +
-    [names, ...rows.map((r) => names.map((n) => r[n]))]
+    [names, ...rows.map((row) => names.map((name) => name === "extra"
+      ? Object.fromEntries(Object.entries(row).filter(([key]) => !names.includes(key))) : row[name]))]
       .map((line) => line.map(cell).join(";"))
       .join("\r\n")
   );
@@ -221,11 +269,18 @@ function rowFrom(k, row, categories = []) {
   );
   inspectJSON(row);
   const out = {};
-  for (const c of columns(k)) {
+  const itemTable = ["items", "tradeGoods", "originalEquipment", "materials", "magicItems"].includes(k);
+  const fields = columns(k);
+  for (const c of fields) {
     let v = row[c.name];
-    if (k === "items" && c.name === "quality") v ??= row.rarity;
-    if (k === "items" && c.name === "desc") v ??= row.description;
-    if (["professions", "recipes"].includes(k) && c.name === "description")
+    if (c.name === "category") {
+      if (k === "tradeGoods") v = TRADE_CATEGORY;
+      if (k === "materials") v = "Материалы";
+      if (k === "magicItems") v = "Магические предметы";
+    }
+    if (itemTable && c.name === "quality") v ??= row.rarity;
+    if (itemTable && c.name === "desc") v ??= row.description;
+    if (["professions", "recipes", "tradeRecipes"].includes(k) && c.name === "description")
       v ??= row.desc;
     if (
       k === "professions" &&
@@ -283,7 +338,28 @@ function rowFrom(k, row, categories = []) {
     }
     out[c.name] = v;
   }
-  if (k === "items")
+  const extra = out.extra;
+  delete out.extra;
+  requireThat(extra == null || (typeof extra === "object" && !Array.isArray(extra)), "extra должен быть объектом");
+  const known = new Set(fields.map((field) => field.name));
+  for (const [key, value] of Object.entries({ ...extra, ...row }))
+    if (!known.has(key)) out[key] = value;
+  if (k === "deliveries") {
+    out.type = "delivery";
+    out.status ??= "available";
+  }
+  if (k === "quests") {
+    requireThat(subset(k, out), "Выберите поручения или поставки");
+    out.status ??= "available";
+  }
+  if (k === "enchantments") requireThat(subset(k, out), "Нужен рецепт зачарования со свойствами");
+  if (k === "archaeology") out.profession_id = "archaeology";
+  if (k === "tradeGoods") out.trade_product = true;
+  if (k === "tradeRecipes") out.trade_product = true;
+  if (["tradeGoods", "tradeRecipes", "markets", "facilities", "craftProperties", "services",
+    "campUpgrades", "deliveries"].includes(k)) out.source ??= { origin: "house" };
+  if (k === "originalEquipment") out.original = true;
+  if (itemTable)
     requireThat(
       [
         "Оружие",
@@ -294,6 +370,7 @@ function rowFrom(k, row, categories = []) {
         "Снаряжение",
         "Ездовые питомцы",
         "Прочее",
+        TRADE_CATEGORY,
         ...categories,
       ].includes(out.category) &&
         ["common", "uncommon", "rare", "epic", "legendary"].includes(
@@ -406,17 +483,19 @@ function rowFrom(k, row, categories = []) {
         ),
       "Некорректные координаты",
     );
+  validateTradeRow(itemTable ? "items" : k === "enchantments" ? "recipes" : k, out);
   return out;
 }
-function planImport(s, pack, mode) {
+function planImport(s, pack, mode, options = {}) {
   requireThat(
     ["new", "update", "skip", "replace"].includes(mode),
     "Неизвестный режим",
   );
   const next = structuredClone(s),
     count = { created: 0, updated: 0, skipped: 0, errors: 0 },
-    issues = [];
+    issues = [], changes = [];
   adventure(next);
+  tradeState(next);
   const check = (fn, label) => {
     try {
       fn();
@@ -432,6 +511,7 @@ function planImport(s, pack, mode) {
       Object.keys(pack).length,
     "Пустой пакет",
   );
+  const replaced = new Set();
   for (const [k, rows] of Object.entries(pack)) {
     requireThat(
       Object.hasOwn(tables, k) && Array.isArray(rows),
@@ -440,6 +520,8 @@ function planImport(s, pack, mode) {
     const target = arr(next, k),
       seen = new Set();
     if (mode === "replace") {
+      requireThat(!replaced.has(tables[k][1]), "Для полной замены выберите один вид каждой коллекции");
+      replaced.add(tables[k][1]);
       for (let i = target.length - 1; i >= 0; i--)
         if (subset(k, target[i])) target.splice(i, 1);
       if (k === "news") next.portal.rumors = [];
@@ -457,16 +539,23 @@ function planImport(s, pack, mode) {
           const old = dest.find((x) => x.id === v.id);
           if (old) {
             requireThat(subset(k, old), "Конфликт с другим типом записи");
-            if (mode === "new") throw Error("ID уже существует");
+            if (mode === "new") {
+              changes.push({ table: k, id: v.id, change: "conflict" });
+              throw Error("ID уже существует");
+            }
             if (mode === "skip") {
               count.skipped++;
+              changes.push({ table: k, id: v.id, change: "skip" });
               return;
             }
+            preserveRuntimeFields(k, old, v, options.resetMarket === true);
             Object.assign(old, v);
             count.updated++;
+            changes.push({ table: k, id: v.id, change: "update" });
           } else {
             dest.push(v);
             count.created++;
+            changes.push({ table: k, id: v.id, change: "new" });
           }
         },
         k + " #" + (i + 1),
@@ -541,10 +630,16 @@ function planImport(s, pack, mode) {
   reference(next.company.location, ids.nodes, "Стоянка компании");
   if (next.journey)
     reference(next.journey.routeId, ids.routes, "Текущий переход");
-  return { next, count, issues };
+  for (const pack of next.engine.contentPackages || []) {
+    for (const row of pack.records)
+      if (records(s, row.table).some((x) => x.id === row.id))
+        reference(row.id, ids[row.table], "Запись пакета " + pack.id);
+  }
+  check(() => validateTradeCatalog(next), "Экономика");
+  return { next, count, issues, changes };
 }
 register("import", "master", (s, p) => {
-  const plan = planImport(s, p.pack, p.mode);
+  const plan = planImport(s, p.pack, p.mode, { resetMarket: true });
   requireThat(!plan.count.errors, plan.issues.join("\n"));
   Object.assign(s, plan.next);
 });

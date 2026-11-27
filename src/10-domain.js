@@ -274,6 +274,7 @@ register("editStay", "master", (s, p) => {
   const location = byId(s.nodes, p.location);
   const region = p.region || regionAt(s, location)?.id || "";
   if (region) byId(s.engine.regions, region);
+  if (stay.location !== location.id) delete stay.rentals;
   const { startDay, ...settings } = p;
   Object.assign(stay, settings, { region });
   s.company.location = location.id;

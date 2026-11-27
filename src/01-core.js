@@ -87,6 +87,11 @@ function applyCommand(source, actor, name, payload, key) {
       "gold",
       "cancelProject",
       "finishContract",
+      "tradeDeal",
+      "tradeDonation",
+      "facilityTier",
+      "facilityRental",
+      "deliverGoods",
       "session",
     ].includes(name)
   ) {
@@ -109,11 +114,11 @@ function applyCommand(source, actor, name, payload, key) {
           change,
         });
     }
-    receipt.gold = next.company.gold - source.company.gold || 0;
+    receipt.gold = Math.round(((next.company.gold || 0) - (source.company.gold || 0)) * 100) / 100;
     receipt.wallets = Object.entries(next.engine.profiles || {})
       .map(([hero, h]) => ({
         hero,
-        change: h.wallet - (source.engine.profiles?.[hero]?.wallet || 0),
+        change: Math.round((h.wallet - (source.engine.profiles?.[hero]?.wallet || 0)) * 100) / 100,
       }))
       .filter((w) => w.change);
     const t = currentStay(source);
@@ -127,6 +132,15 @@ function applyCommand(source, actor, name, payload, key) {
         .filter((x) => x.hours);
     }
   }
+  if (name === "tradeDeal") {
+    const row = localMarket(source, actor).find((market) => market.item_id === payload.item);
+    receipt.market = { node: row.node_id, item: row.item_id, side: payload.side,
+      quantity: payload.qty, unit: tradePrices(source, row)[payload.side] };
+  }
+  if (name === "facilityTier" || name === "facilityRental")
+    receipt.facility = { service: payload.service, tier: payload.tier };
+  if (name === "deliverGoods") receipt.contract = payload.id;
+  if (name === "contentImport") receipt.package = { id: payload.pack.id, version: payload.pack.version };
   next.engine.receipts.push(receipt);
   return next;
 }

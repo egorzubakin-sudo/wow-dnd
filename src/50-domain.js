@@ -62,7 +62,7 @@ register("campSettings", "master", (s, p) => {
 });
 function campEffect(s, r) {
   return (
-    (s.company.talents[r.service] && s.engine.campEffects?.[r.service]) || {}
+    (s.company.talents[r.service] && (s.engine.campEffects?.[r.service] || s.engine.campUpgrades?.find((row) => row.service === r.service))) || {}
   );
 }
 register("staffWork", "master", (s, p) => {
@@ -120,13 +120,11 @@ register("train", "hero", (s, p) => {
   );
   const rank = Math.min(6, bv(h));
   h.trained ??= {};
-  requireThat(
-    rank > (h.trained[prof.id] || 2) && t.services.includes("Наставник"),
-    "Нужен наставник и новый ранг",
-  );
-  requireThat(h.wallet >= 2 * rank, "Недостаточно золота");
-  spend(s, p.hero, rank * t.hours, "Обучение: " + prof.name);
-  h.wallet -= 2 * rank;
+  const offer = trainingOffer(s, prof.id, rank);
+  requireThat(rank > (h.trained[prof.id] || 2) && offer, "Нужен наставник и новый ранг");
+  requireThat(h.wallet >= offer.fee, "Недостаточно золота");
+  spend(s, p.hero, offer.hours, "Обучение: " + prof.name);
+  h.wallet = tradeMoney(h.wallet - offer.fee);
   h.trained[prof.id] = rank;
 });
 register("disenchant", "hero", (s, p) => {
@@ -173,6 +171,9 @@ register("enchant", "hero", (s, p) => {
       canCraft(s, p.hero, r),
     "Требуется известная формула зачарования",
   );
+  const template = byId(economy(s).items, x.item_id);
+  requireThat(!template.original && !x.original, "Книжный предмет сохраняет исходные свойства");
+  requireThat(!template.base_item_id || template.magic_slots === 1, "У предмета нет магической ячейки");
   const old = structuredClone(x);
   for (const i of s.engine.ingredients.filter((i) => i.recipe_id === r.id))
     take(s, i.item_id, x.owner, i.quantity);
@@ -243,9 +244,9 @@ register("trainingMode", "master", (s, p) => {
   economy(s).requireTrainer = !!p.on;
 });
 // Contract and session settlement share the same reward reducer as local errands.
-function settleContract(s, q, rows, reveal) {
+function settleContract(s, q, rows, reveal, delivery = null) {
   requireThat(
-    q.type !== "local" && q.status !== "done" && !q.rewardReceipt,
+    q.type !== "local" && (q.type !== "delivery" || delivery) && q.status !== "done" && !q.rewardReceipt,
     "Задание уже завершено или индивидуальное",
   );
   const applied = [];
@@ -265,7 +266,9 @@ function settleContract(s, q, rows, reveal) {
         Number.isFinite(r.amount) && r.amount >= 0,
         "Неверное количество золота",
       );
-      s.company.gold = Math.round((s.company.gold + r.amount) * 100) / 100;
+      const purse = delivery?.rewardHero ? profile(s, delivery.rewardHero) : s.company;
+      const balance = delivery?.rewardHero ? "wallet" : "gold";
+      purse[balance] = Math.round((purse[balance] + r.amount) * 100) / 100;
     } else if (r.type === "item") {
       const id = r.item_id || "reward-" + q.id + "-" + applied.length,
         e = economy(s);
@@ -292,6 +295,7 @@ function settleContract(s, q, rows, reveal) {
     day: s.company.day,
     year: s.company.year,
     rewards: applied,
+    ...(delivery ? { delivery } : {}),
   };
   if (reveal) q.rewardRevealed = true;
   s.journal.unshift({
@@ -386,7 +390,8 @@ register("customCategory", "master", (s, p) => {
 });
 
 function activeEffects(s) {
-  return Object.entries(s.engine.campEffects || {})
+  const effects = Object.fromEntries((s.engine.campUpgrades || []).map((row) => [row.service, row]));
+  return Object.entries({ ...effects, ...s.engine.campEffects })
     .filter(([name]) => s.company.talents[name])
     .map(([, value]) => value);
 }

@@ -1,5 +1,5 @@
 {
- const s=migrate({company:{day:1,gold:500,location:"market",members:[{id:"h"},{id:"other"}],inventory:[],talents:{"Арсенал":true,"Оружейная":true}},nodes:[{id:"market",name:"Рынок"}],factions:[],contracts:[],portal:{achievements:[]}});
+ const s=migrate({company:{day:1,gold:500,location:"market",members:[{id:"h"},{id:"other"}],inventory:[],talents:{"Арсенал":true,"Оружейная":true}},nodes:[{id:"market",name:"Рынок",type:"city"}],factions:[],contracts:[],portal:{achievements:[]}});
  adventure(s); const gm={role:"master",nick:"gm"},p={role:"player",nick:"player",heroes:["h"]};
  profile(s,"h").tools=["Инструменты кузнеца","Инструменты каменщика"];profile(s,"h").wallet=50;
  s.engine.items.push({id:"metal",name:"Слиток",category:"Материалы",quality:"common",value_gp:2});
@@ -26,4 +26,109 @@
  a.engine.items.push({id:"test-magic",name:"Магический предмет",category:"Магические предметы",quality:"rare"});
  a.engine.recipes.push({id:"test-tempo",item_id:"test-magic",hours:400});
  a=run(a,gm,"craftTempo",{ids:["test-tempo"]});assert.equal(byId(a.engine.recipes,"test-tempo").hours,56);assert.equal(byId(a.engine.recipes,"test-tempo").reference_hours,400);
+}
+
+{
+  const gm = { role: "master", nick: "gm" };
+  const player = { role: "player", nick: "smith", heroes: ["h"] };
+  let order = 0;
+  const run = (who, name, payload, key = "economy-" + ++order) => {
+    s = applyCommand(s, who, name, payload, key);
+  };
+  let s = migrate({ version: 1, company: {
+    name: "Компания", day: 1, year: 27, gold: 0, location: "", inventory: [],
+    members: [{ id: "h" }, { id: "other" }], talents: { "Арсенал": true, "Оружейная": true },
+  }, journal: [], nodes: [], factions: [], contracts: [], portal: { people: [], achievements: [] } });
+  adventure(s);
+  const h = profile(s, "h");
+  h.tools = ["Инструменты кузнеца", "Инструменты каменщика"];
+  const pack = structuredClone(tradeLoopFixture);
+  const original = structuredClone(bookEquipmentFixture);
+  const place = pack.tables.nodes[0].id, region = pack.tables.regions[0].id;
+  const mine = pack.tables.loot[0].item_id, goods = pack.tables.tradeGoods[0].id;
+  const [barRecipe, weaponRecipe] = pack.tables.recipes, goodsRecipe = pack.tables.tradeRecipes[0];
+  const delivery = pack.tables.deliveries[0].id;
+  assert.throws(() => run(player, "contentImport", { pack }), /прав/);
+  assert.equal(contentPlan(s, pack).count.errors, 0);
+  run(gm, "contentImport", { pack });
+  run(gm, "contentImport", { pack: original });
+  assert.equal(s.company.inventory.length, 0);
+  assert.equal(s.engine.contentPackages.length, 2);
+  assert.equal(bookEquipmentFixture.tables.originalEquipment.length, 13);
+  assert.equal(byId(s.engine.items, "weapon.dnd.longsword").rules["Урон"], "1к8 рубящего");
+  assert.equal(byId(s.engine.items, "weapon.dnd.longsword").magic_slots, undefined);
+  assert.throws(() => run(gm, "contentImport", { pack }), /уже установлен/);
+  const bad = { ...pack, id: "demo.other", dependencies: [{ id: "core.missing", minVersion: "1.0.0" }] };
+  assert.throws(() => contentPlan(s, bad), /Не хватает зависимости/);
+  assert(contentPlan(s, { ...pack, id: "demo.other" }).issues.some((issue) => /принадлежит demo.trade-loop/.test(issue)));
+  const addon = { ...pack, id: "demo.addon", tables: { ingredients: [{ id: "addon.part", recipe_id: barRecipe.id, item_id: mine, quantity: 1 }] } };
+  assert(contentPlan(s, addon).issues.some((issue) => /явная зависимость/.test(issue)));
+  assert.equal(contentPlan(s, { ...addon, dependencies: [{ id: pack.id, minVersion: "1.0.0" }] }).count.errors, 0);
+  run(gm, "stay", { location: place, region, days: 7, hours: 8, services: [] });
+  gather(s, { hero: "h", profession: "mining" }, (sides) => Math.min(10, sides));
+  run(player, "craft", { hero: "h", recipe: barRecipe.id, qty: 7 });
+  run(player, "craft", { hero: "h", recipe: goodsRecipe.id, qty: 3 });
+  assert.throws(() => run(player, "craft", { hero: "h", recipe: weaponRecipe.id, qty: 1 }), /инфраструктур/);
+  assert.equal(tradePrices(s, s.engine.markets[0]).sell, 25.2);
+  assert.throws(() => run(player, "tradeDeal", { hero: "other", side: "sell", item: goods, qty: 1 }), /прав/);
+  assert.throws(() => run(player, "tradeDeal", { hero: "h", side: "sell", item: goods, qty: 1, unit: 1 }), /Цена изменилась/);
+  run(player, "tradeDeal", { hero: "h", side: "sell", item: goods, qty: 2 }, "once-deal");
+  assert.equal(profile(s, "h").wallet, 50.4);
+  assert.throws(() => run(player, "tradeDeal", { hero: "h", side: "sell", item: goods, qty: 1 }, "once-deal"), /уже применена/);
+  assert.equal(s.engine.receipts.at(-1).wallets[0].change, 50.4);
+  assert.equal(s.engine.receipts.at(-1).market.unit, 25.2);
+  run(player, "tradeDonation", { hero: "h", amount: 50.4 });
+  run(gm, "facilityTier", { service: "Оружейная", tier: 2 });
+  assert.equal(s.company.gold, 20.4);
+  run(player, "craft", { hero: "h", recipe: weaponRecipe.id, qty: 1 });
+  assert(s.company.inventory.some((stack) => stack.item_id === weaponRecipe.item_id));
+  assert.throws(() => run(gm, "finishContract", { id: delivery, rows: [] }), /индивидуальное/);
+  const orderRow = byId(s.contracts, delivery);
+  orderRow.stock_source = "shared";
+  assert.throws(() => run(player, "deliverGoods", { hero: "h", id: delivery }), /общему банку/);
+  orderRow.stock_source = "personal";
+  orderRow.due_day = 1;
+  s.company.day = 2;
+  assert.throws(() => run(player, "deliverGoods", { hero: "h", id: delivery }), /истёк/);
+  orderRow.due_day = 1000;
+  run(player, "deliverGoods", { hero: "h", id: delivery });
+  assert.equal(profile(s, "h").wallet, 7);
+  assert.throws(() => run(player, "deliverGoods", { hero: "h", id: delivery }), /недоступна/);
+  assert.equal(s.engine.receipts.at(-1).items[0].change, -1);
+  const version2 = structuredClone(pack);
+  version2.version = "1.1.0";
+  version2.tables.markets[0].demand = 91;
+  version2.tables.markets[0].sell_factor = 0.8;
+  s.factions[0].repPoints = 8000;
+  run(gm, "contentImport", { pack: version2 });
+  assert.equal(s.engine.markets[0].demand, 3);
+  assert.equal(s.engine.markets[0].sell_factor, 0.8);
+  assert.equal(s.factions[0].repPoints, 8000);
+  assert.equal(byId(s.contracts, delivery).status, "done");
+  const version3 = structuredClone(version2);
+  version3.version = "1.2.0";
+  run(gm, "contentImport", { pack: version3, resetMarket: true });
+  assert.equal(s.engine.markets[0].demand, 91);
+  assert.equal(exportContentPack(s, pack.id).tables.deliveries[0].rewardReceipt, undefined);
+  const names = columns("deliveries").map((field) => field.name);
+  const csv = csvWrite(records(s, "deliveries"), names);
+  assert.equal(rowFrom("deliveries", csvRead(csv)[0]).rewardReceipt.delivery.hero, "h");
+  validateBackup(JSON.parse(JSON.stringify(s)));
+  const corrupted = structuredClone(s);
+  corrupted.engine.markets[0].demand = -1;
+  assert.throws(() => validateBackup(corrupted), /диапазон/);
+  const r = byId(s.engine.recipes, weaponRecipe.id);
+  // A snapshot works at its original duration after the template changes.
+  s.engine.projects.push({ id: "snapshot", recipe: { ...r, hours: 100 }, work: 100, left: 80, status: "active" });
+  r.hours = 100;
+  run(gm, "craftTempo", { ids: [r.id] });
+  assert.equal(byId(s.engine.recipes, r.id).hours, 24);
+  assert.equal(byId(s.engine.projects, "snapshot").recipe.hours, 100);
+  assert.equal(byId(s.engine.projects, "snapshot").left, 80);
+  run(gm, "facilityRental", { service: "Лаборатория", tier: 3, cost: 5 });
+  assert.equal(facilityLevel(s, "Лаборатория"), 3);
+  const nextPlace = { id: "other-city", type: "city" };
+  s.nodes.push(nextPlace);
+  run(gm, "editStay", { location: nextPlace.id, days: 7, hours: 8, services: [] });
+  assert.equal(facilityLevel(s, "Лаборатория"), 0);
 }

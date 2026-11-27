@@ -1,0 +1,2 @@
+﻿"id";"name";"profession_id";"item_id";"quantity";"hours";"rank";"gold";"basic";"service";"facility_rank";"tempo_class";"tempo_hours";"reference_hours";"time_policy";"trade_product";"tools";"locations";"properties";"experiment";"image";"description";"acquisition";"equipment";"conditions";"source";"extra"
+"recipe.demo.smithing.trade_tools";"Партия ремонтных инструментов";"smithing";"goods.demo.smithing.apprentice";"1";"3";"2";"";"true";"Оружейная";"1";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"{""origin"":""demo""}";"{}"

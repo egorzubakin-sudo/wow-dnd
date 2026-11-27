@@ -1,0 +1,14 @@
+{
+  "materials": [
+    {
+      "id": "material.demo.copper_ore",
+      "name": "Медная руда (торговое занятие)",
+      "category": "Материалы",
+      "quality": "common",
+      "value_gp": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

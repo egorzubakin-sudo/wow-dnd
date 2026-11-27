@@ -1,0 +1,2 @@
+﻿"id";"name";"category";"quality";"value_gp";"desc";"icon";"iconId";"image";"unit";"profession_id";"stackable";"hidden";"properties";"original";"rules";"base_item_id";"craft_properties";"craft_slots";"magic_slots";"trade_product";"source";"extra"
+"goods.demo.smithing.apprentice";"Партия ремонтных инструментов";"Торговые товары";"common";"24";"";"";"misc:Wrench_01";"";"";"smithing";"true";"";"";"";"";"";"";"";"";"";"{""origin"":""demo""}";"{}"

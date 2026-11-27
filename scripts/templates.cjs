@@ -11,6 +11,9 @@ for (const file of [
   "20-domain.js",
   "30-domain.js",
   "40-domain.js",
+  "64-trade-catalog-domain.js",
+  "65-trade-domain.js",
+  "66-content-domain.js",
   "41-workshop-ui.js",
 ]) {
   let code = fs.readFileSync(path.join(root, "src", file), "utf8");
@@ -19,6 +22,10 @@ for (const file of [
       new RegExp("/\\*BUNDLED_" + key.toUpperCase() + "\\*/\\s*null"),
       () => fs.readFileSync(path.join(root, "data", key + ".json"), "utf8"),
     );
+  code = code.replace("/*BUNDLED_CONTENT*/ null", () => JSON.stringify({
+    bookEquipment: JSON.parse(fs.readFileSync(path.join(root, "content/core/book-equipment.json"), "utf8")),
+    tradeLoop: JSON.parse(fs.readFileSync(path.join(root, "content/examples/trade-loop.json"), "utf8")),
+  }));
   vm.runInContext(code, context);
 }
 const output = vm.runInContext(

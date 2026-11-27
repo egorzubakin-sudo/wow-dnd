@@ -1,0 +1,19 @@
+{
+  "tradeRecipes": [
+    {
+      "id": "recipe.demo.smithing.trade_tools",
+      "name": "Партия ремонтных инструментов",
+      "profession_id": "smithing",
+      "item_id": "goods.demo.smithing.apprentice",
+      "quantity": 1,
+      "hours": 3,
+      "rank": 2,
+      "basic": true,
+      "service": "Оружейная",
+      "facility_rank": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

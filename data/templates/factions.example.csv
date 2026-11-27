@@ -1,2 +1,2 @@
-﻿"id";"name";"leader";"color";"icon";"repPoints";"hidden";"desc";"source"
-"caravan";"Караванщики";"";"#b99755";"";"";"";"";""
+﻿"id";"name";"leader";"color";"icon";"repPoints";"hidden";"desc";"source";"extra"
+"caravan";"Караванщики";"";"#b99755";"";"";"";"";"";"{}"

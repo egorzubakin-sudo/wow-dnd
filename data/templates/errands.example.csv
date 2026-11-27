@@ -1,2 +1,2 @@
-﻿"id";"title";"desc";"hours";"region_id";"location";"giver";"faction";"conditions";"repeat";"image";"period";"hidden";"source"
-"task-0";"Незадачливый торговец";"Колесо телеги гоблина застряло в канаве.";"1";"";"";"";"";"";"stay";"";"";"";"{""origin"":""demo""}"
+﻿"id";"title";"desc";"hours";"region_id";"location";"giver";"faction";"conditions";"repeat";"image";"period";"hidden";"source";"extra"
+"task-0";"Незадачливый торговец";"Колесо телеги гоблина застряло в канаве.";"1";"";"";"";"";"";"stay";"";"";"";"{""origin"":""demo""}";"{""type"":""local"",""status"":""available""}"

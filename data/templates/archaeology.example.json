@@ -1,0 +1,17 @@
+{
+  "archaeology": [
+    {
+      "id": "loot.archaeology.example",
+      "region_id": "durotar",
+      "profession_id": "archaeology",
+      "item_id": "relic",
+      "weight": 1,
+      "min_quantity": 1,
+      "max_quantity": 1,
+      "min_margin": 0,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

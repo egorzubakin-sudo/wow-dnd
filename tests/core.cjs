@@ -5,9 +5,12 @@ const ctx = vm.createContext({
   structuredClone,
   crypto: require("node:crypto").webcrypto,
   assert,
+  normalize: (state) => state,
+  tradeLoopFixture: JSON.parse(readFileSync("content/examples/trade-loop.json", "utf8")),
+  bookEquipmentFixture: JSON.parse(readFileSync("content/core/book-equipment.json", "utf8")),
 });
 for (const f of readdirSync("src")
-  .filter((f) => f.includes("-domain") || f === "01-core.js")
+  .filter((f) => f.includes("-domain") || ["01-core.js", "45-validation.js"].includes(f))
   .sort())
   vm.runInContext(
     readFileSync("src/" + f, "utf8")

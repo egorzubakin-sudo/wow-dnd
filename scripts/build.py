@@ -18,6 +18,13 @@ for name in ('rules', 'demo'):
     data = read(ROOT / 'data' / f'{name}.json').replace('<', r'\u003c')
     modules = insert(modules, f'/*BUNDLED_{name.upper()}*/ null', data)
 
+content = {
+    'bookEquipment': json.loads(read(ROOT / 'content/core/book-equipment.json')),
+    'tradeLoop': json.loads(read(ROOT / 'content/examples/trade-loop.json')),
+}
+modules = insert(modules, '/*BUNDLED_CONTENT*/ null',
+                 json.dumps(content, ensure_ascii=False).replace('<', r'\u003c'))
+
 icons = json.loads(read(ROOT / 'icons.json'))
 modules = insert(modules, '/*ATLAS_ICON_DEFAULTS*/ null', json.dumps(icons['defaults'], ensure_ascii=False))
 shell = insert(read(SRC/'atlas-shell.html'), '/* ATLAS_MODULES */', modules)

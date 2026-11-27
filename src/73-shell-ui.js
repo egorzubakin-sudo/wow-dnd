@@ -125,6 +125,9 @@ function campVisuals() {
   );
   const tree = body.querySelector(".camp-grid");
   tree.insertAdjacentHTML("beforebegin", kitSubhead("Дерево улучшений", S.company.gold.toLocaleString("ru-RU") + " зм"));
+  const stay = currentStay(S);
+  if (!player && stay && node(stay.location)?.type === "city")
+    body.querySelector(".section-cover-actions")?.insertAdjacentHTML("afterbegin", visualAction("Аренда мастерской", "rentalForm()"));
   const counters = body.querySelector(".home-stats");
   const notice = counters.nextElementSibling;
   const resources = document.createElement("details");
@@ -195,6 +198,14 @@ function campVisuals() {
         manual?.insertAdjacentHTML("afterend", visualMenu("Управление улучшением",
           visualAction("Выбрать иконку", "pickTalentIcon(" + jsid(name) + "," + i + ")"),
         ));
+      }
+      if (productionServices.includes(name)) {
+        const tier = campTier(S, name), level = facilityLevel(S, name);
+        summary.insertAdjacentHTML("beforeend", "<small>" + esc(tier ? "Сооружение · ступень " + tier : "Сооружение не приобретено") + "</small>");
+        if (level > tier) node.insertAdjacentHTML("beforeend", "<p>Местное оборудование · ступень " + level + "</p>");
+        if (!player && tier > 0 && tier < 3)
+          buttons?.insertAdjacentHTML("beforeend", visualAction("Купить оборудование · " + (tier + 1) + " ступень",
+            "facilityUpgradeForm(" + jsid(name) + ")", "primary"));
       }
       row.remove();
       details.append(summary, ...node.childNodes);

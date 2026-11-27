@@ -1,0 +1,2 @@
+﻿"id";"node_id";"item_id";"faction_id";"stock";"demand";"budget";"buy_factor";"sell_factor";"rep_bonuses";"source";"extra"
+"market.demo.tools";"location.demo.trade_crossroads";"goods.demo.smithing.apprentice";"faction.demo.caravan";"1";"5";"250";"1.5";"1";"";"{""origin"":""demo""}";"{}"

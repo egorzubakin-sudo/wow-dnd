@@ -536,6 +536,8 @@ function drawKitStayTasks(hero, stay, master) {
       "contracts",
       () => localBoard(),
     );
+    if (localMarket(S, actor).length)
+      task("Торговля", "Местный рынок", "bank", () => openCraftTab("trade"));
     task("Отдохнуть", "Провести время у костра", "rest", () =>
       commandForm(
         "Отдых",

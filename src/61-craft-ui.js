@@ -27,11 +27,12 @@ function professionRank(p, id) {
     : bv(p);
 }
 function sourceLabel(source) {
-  return source?.book === "wow"
-    ? "D&D: World of Warcraft · с. " + source.printed_page
-    : source?.origin === "house"
-      ? "Домашняя механика Атласа"
-      : "";
+  const names = { phb2024: "Книга игрока D&D 2024", dmg2024: "Руководство мастера D&D 2024", wow: "D&D: World of Warcraft" };
+  if (source?.book && Object.hasOwn(names, source.book))
+    return names[source.book] + " · с. " + source.printed_page;
+  if (source?.origin === "house") return "Домашняя механика Атласа";
+  if (source?.origin === "demo") return "Демонстрационные данные";
+  return "";
 }
 function knownRecipe(p, r) {
   return !!(
@@ -126,18 +127,20 @@ function renderCraft() {
       ? visualMenu(
           "Управление ремеслом",
           visualAction("Редактор профессий", "professionEditor()") +
+            visualAction("Недельный профиль ремесла", "craftTempoForm()") +
             visualAction("Обложка раздела", "editSectionCover('craft')"),
         )
       : "") +
     "</div>" +
-    '<div id="craftProfessionPills" class="kit-tabs"></div><section id="craftBody"></section>' +
-    '<div id="craftTabs" class="kit-craft-views" aria-label="Виды ремесла"></div></div>';
+    '<div id="craftTabs" class="kit-tabs kit-craft-views" aria-label="Виды ремесла"></div>' +
+    '<div id="craftProfessionPills" class="kit-tabs"></div><section id="craftBody"></section></div>';
   bindKitHero();
   const tabs = $("craftTabs");
   for (const [id, label] of [
     ["professions", "Профессии"],
     ["recipes", "Книга рецептов"],
     ["projects", "Проекты"],
+    ["trade", "Торговля"],
   ])
     craftTabButton(label, id, tabs);
   const root = $("craftBody");
@@ -154,6 +157,7 @@ function renderCraft() {
     renderProjects($("craftProjectRows"), hero);
   }
   if (craftTab === "projects") renderProjects(root, hero);
+  if (craftTab === "trade") tradeView(root, hero);
 }
 function drawProfessionPills() {
   const table = S.engine.professions.filter((p) =>
@@ -267,12 +271,13 @@ function renderProfessionCards(root, hero) {
       controls.append(
         button("Рецепты", () => openCraftTab("recipes", profession.id)),
       );
-    if (eligible && S.engine.requireTrainer && bv(p) > rank)
+    const training = eligible && S.engine.requireTrainer && bv(p) > rank ? trainingOffer(S, profession.id, bv(p)) : null;
+    if (training)
       controls.append(
         button("Обучиться", () =>
           commandForm(
             "Обучение",
-            "<p>" + esc(bv(p)) + " дн. · " + esc(bv(p) * 2) + " зм</p>",
+            "<p>" + esc(timeLabel(training.hours) + " · " + goldText(training.fee)) + "</p>",
             "train",
             () => ({ hero, profession: profession.id }),
           ),
@@ -432,7 +437,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
     );
   const profession = S.engine.professions.find((p) => p.id === r.profession_id);
   const requirements = [
-    r.service,
+    r.service && (r.service + (r.facility_rank ? " · ступень " + r.facility_rank : "")),
     ...(r.tools || []),
     ...names(r.equipment),
     ...(r.locations || []).map((id) => node(id)?.name || id),
@@ -474,6 +479,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
     (requirements.length
       ? '<p class="muted">' + esc(requirements.join(" · ")) + "</p>"
       : "") +
+    equipmentDetails(item, item) +
     '<div id="craftCosts"></div><div class="kit-recipe-actions"><div id="craftInputs"></div><div id="craftSubmit"></div></div>' +
     '<div id="craftNotice" class="kit-notice" role="status"></div>';
   if (!hero) {
@@ -793,6 +799,8 @@ function renderWorkshop() {
     '<section class="kit-panel"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div></div>';
   $("workshopLinks").append(
     button("Мастерская данных", () => workshop()),
+    button("Пакеты контента", contentWorkshop),
+    button("Скачать спецификацию для генерации контента", downloadContentSpecification),
     button("Редактор профессий", professionEditor),
   );
   $("demoLinks").append(

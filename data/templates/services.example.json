@@ -1,0 +1,15 @@
+{
+  "services": [
+    {
+      "id": "service.crossroads.mentor",
+      "node_id": "crossroads",
+      "service": "Наставник",
+      "profession_id": "smithing",
+      "fee": 6,
+      "hours": 8,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

@@ -3427,6 +3427,45 @@ body.atlas-kit-active {
     padding: 0 8px 8px;
   }
 }
+
+.trade-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: 18px;
+  align-items: start;
+}
+.trade-wallet { margin-top: 20px; }
+.trade-wallet h3 { margin-bottom: 10px; }
+.trade-wallet p { margin: 8px 0; }
+.trade-offers { display: grid; gap: 10px; }
+.trade-offer .actions { margin-top: 10px; }
+.trade-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  padding: 11px 0;
+}
+.trade-stats span { font-size: 12px; color: var(--kit-muted); }
+.trade-stats b { color: var(--kit-gold2); }
+.trade-editor-row .field:first-child { flex: 2 1 200px; }
+.trade-editor-row .field:nth-child(2) { flex: 1 1 90px; }
+.equipment-rules { display: grid; gap: 6px; padding-left: 0; }
+.equipment-rules > div {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) minmax(0, 3fr);
+  gap: 8px;
+  border-top: 1px solid var(--kit-line);
+  padding: 5px 0;
+}
+.equipment-rules dd { margin: 0; overflow-wrap: anywhere; }
+#installedContent { display: grid; gap: 8px; margin-bottom: 12px; }
+#packageReport { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 700px) {
+  .trade-layout { grid-template-columns: minmax(0, 1fr); }
+  .trade-layout aside { display: contents; }
+  .trade-wallet { grid-row: 1; margin-top: 0; }
+  .trade-production { grid-row: 3; }
+}
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
 <header class="header"><div id="kitTop" hidden></div><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Warcraft · Хроники расколотого мира</div><h1>Атлас расколотого мира</h1></div><div id="uxTools" class="ux-tools"></div><div class="head-actions"><button id="modeBtn" onclick="toggleMode()">Профиль</button><details class="visual-menu" id="atlasOperations" data-context-menu><summary aria-label="Настройки Атласа" title="Настройки Атласа">⋯</summary><div class="visual-menu-panel"><button id="navIconBtn" onclick="editNavIcons()">Иконки меню</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button></div></details><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
 <nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Атлас расколотого мира · D&D 2024 / домашние правила Вольной компании</footer>
@@ -3451,8 +3490,8 @@ const node=id=>S.nodes.find(x=>x.id===id), route=id=>S.routes.find(x=>x.id===id)
 function visibleNode(a){return !player||a.visibility!=='hidden'}function visibleRoute(r){return (!player||r.visibility!=='hidden')&&node(r.a)&&node(r.b)&&visibleNode(node(r.a))&&visibleNode(node(r.b))}function visibleFaction(f){return !player||!f.hidden}
 function toast(msg){$('toast').textContent=msg;$('toast').classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('toast').classList.add('hidden'),3500)}
 function openDB(){return new Promise((ok,fail)=>{const req=indexedDB.open('shattered-atlas-engine',1);req.onupgradeneeded=()=>{req.result.createObjectStore('atlas');req.result.createObjectStore('accounts',{keyPath:'nick'})};req.onsuccess=()=>ok(req.result);req.onerror=()=>fail(req.error)})}
-function dbGet(){return new Promise((ok,fail)=>{const tx=db.transaction('atlas','readonly'),r=tx.objectStore('atlas').get('campaign');r.onsuccess=()=>ok(r.result);r.onerror=()=>fail(r.error)})}
-function dbPut(data){return new Promise((ok,fail)=>{const tx=db.transaction('atlas','readwrite');tx.objectStore('atlas').put(data,'campaign');tx.oncomplete=ok;tx.onerror=()=>fail(tx.error);tx.onabort=()=>fail(tx.error)})}
+function dbGet(key='campaign'){return new Promise((ok,fail)=>{const tx=db.transaction('atlas','readonly'),r=tx.objectStore('atlas').get(key);r.onsuccess=()=>ok(r.result);r.onerror=()=>fail(r.error)})}
+function dbPut(data,backup){return new Promise((ok,fail)=>{const tx=db.transaction('atlas','readwrite'),store=tx.objectStore('atlas');if(backup)store.put(backup,'pre-content-import');store.put(data,'campaign');tx.oncomplete=ok;tx.onerror=()=>fail(tx.error);tx.onabort=()=>fail(tx.error)})}
 function save(){const seq=++saveSeq;clearTimeout(saveTimer);if($('saveState'))$('saveState').textContent='Сохранение…';saveTimer=setTimeout(async()=>{try{if(db)await dbPut(S);else localStorage.setItem('shattered-atlas-v1',JSON.stringify(S));if(seq===saveSeq&&$('saveState'))$('saveState').textContent='Сохранено локально'}catch(e){if($('saveState'))$('saveState').textContent='Не сохранено — экспортируйте JSON';toast('Автосохранение недоступно. Сделайте экспорт JSON.')}},100)}
 function normalize(raw){if(!raw||typeof raw!=='object'||!Array.isArray(raw.nodes)||!Array.isArray(raw.routes)||!Array.isArray(raw.factions)||!raw.company||typeof raw.company!=='object')throw Error('Это не файл кампании атласа.');if(raw.version!==1)throw Error('Неподдерживаемая версия файла.');const base=fresh();const list=(v)=>Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];const out={...base,...raw,company:{...base.company,...raw.company},settings:{...base.settings,...raw.settings}};out.company.day=int(out.company.day,1);out.company.year=int(out.company.year,1);out.company.gold=n(out.company.gold);out.company.members=list(out.company.members);out.company.staff=list(out.company.staff);out.company.talents=out.company.talents&&typeof out.company.talents==='object'?out.company.talents:{};out.nodes=list(raw.nodes).filter(x=>typeof x.id==='string'&&Number.isFinite(Number(x.x))&&Number.isFinite(Number(x.y))).map(x=>({...x,x:clamp(n(x.x),0,1),y:clamp(n(x.y),0,1)}));const ids=new Set(out.nodes.map(x=>x.id));out.routes=list(raw.routes).filter(x=>typeof x.id==='string'&&ids.has(x.a)&&ids.has(x.b)&&x.a!==x.b).map(x=>({...x,min:int(x.min,0,3650),max:Math.max(int(x.min,0,3650),int(x.max,0,3650)),risk:int(x.risk,0,2),events:Array.from({length:6},(_,i)=>String(x.events?.[i]??DEF_EVENTS[i]))}));out.factions=list(raw.factions).filter(x=>typeof x.id==='string');out.journal=list(raw.journal);out.contracts=list(raw.contracts);out.portal=Object.fromEntries(Object.keys(PORTAL).map(k=>[k,list(raw.portal?.[k])]));out.company.development=int(raw.company.development??0);out.worldBook=normalizeBook(raw.worldBook??WORLD_BOOK);if(out.map&&(!/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,/i.test(out.map.src||'')||!n(out.map.w)||!n(out.map.h)))out.map=null;if(!out.routes.some(r=>r.id===out.journey?.routeId))out.journey=null;if(!ids.has(out.company.location))out.company.location='';return prepareAchievements(prepareDiplomacy(prepareAffiliations(prepareV4(out))))}
 async function init(){try{db=await openDB();const old=await dbGet();if(old)S=normalize(old);else{const backup=localStorage.getItem('shattered-atlas-v1');if(backup)S=normalize(JSON.parse(backup))}}catch(e){try{const old=localStorage.getItem('shattered-atlas-v1');if(old)S=normalize(JSON.parse(old))}catch{} }render()}
@@ -3596,7 +3635,7 @@ const REP_LEVELS=[
 const REGIONS=[['kalimdor','Калимдор'],['eastern','Восточные королевства'],['world','Азерот']];
 const DEFAULT_REGION={f0:'eastern',f1:'eastern',f2:'eastern',f3:'eastern',f4:'kalimdor',f5:'kalimdor',f6:'kalimdor',f7:'world',f8:'eastern',f9:'world',f10:'eastern',f11:'eastern',f12:'eastern',f13:'eastern',f14:'eastern',f15:'eastern',f16:'eastern',f17:'eastern',f18:'world',f19:'world'};
 const OLD_REP={'Вражда':-6000,'Настороженность':-3000,'Нейтралитет':0,'Благосклонность':3000,'Доверие':9000,'Покровительство':21000};
-const ITEM_TYPES=['Оружие','Броня','Материалы','Магические предметы','Припасы','Снаряжение','Ездовые питомцы','Прочее'];
+const ITEM_TYPES=['Оружие','Броня','Материалы','Магические предметы','Припасы','Снаряжение','Ездовые питомцы','Прочее','Торговые товары'];
 const ITEM_QUAL=[['common','Обычное','#eee6d0'],['uncommon','Необычное','#65cf48'],['rare','Редкое','#62a8ff'],['epic','Эпическое','#bb81ed'],['legendary','Легендарное','#f7a640']];
 const repClamp=v=>Math.max(-6000,Math.min(42999,Math.trunc(n(v))));
 function reputation(f){let p=repClamp(f.repPoints);return REP_LEVELS.slice().reverse().find(l=>p>=l.min)||REP_LEVELS[0]}
@@ -3643,7 +3682,7 @@ function nodeQuestList(a){const qs=questsAt(a);return `<div class="quest-node-li
 function focusQuestMap(id){const c=S.contracts.find(x=>x.id===id),a=node(c?.location);if(!c||!a||!visibleNode(a)||player&&c.hidden)return;closeModal();const d=dims();if(!view)resetView();view.x=a.x*d.w-view.w/2;view.y=a.y*d.h-view.h/2;selected={type:'node',id:a.id};switchTab('map')}
 function openMapQuest(id){const c=S.contracts.find(x=>x.id===id);if(!c||c.archived||player&&c.hidden)return;openModal(c.title,`<div class="quest-card ${esc(c.status)}"><div class="quest-heading"><span class="quest-mark">${questIcon(c)}</span><div><h3>${esc(c.title)}</h3><span>${esc([questGiver(c),questFactionName(c),questPlace(c)].filter(Boolean).join(' · '))}</span></div></div><div class="quest-content"><p>${esc(c.desc||'')}</p>${c.objectives?`<h4>Цели задания</h4><p>${esc(c.objectives)}</p>`:''}${questReward(c)}${structuredSummary(c)}</div></div><div class="actions">${!player&&c.status==='available'?`<button class="primary" onclick="closeModal();questStatus(${jsid(id)},'active')">Принять</button>`:''}${!player&&c.status==='active'?`<button class="primary" onclick="rewardDialog(${jsid(id)},true)">Завершить</button>`:''}${!player?`<button onclick="editContract(${jsid(id)})">Изменить</button>`:''}<button onclick="closeModal();questFilter='all';questFaction='';switchTab('contracts')">Доска заданий</button></div>`)}
 const REWARD_TYPES=[['gold','Золото'],['rep','Репутация'],['item','Предмет'],['charter','Верительная грамота']];
-function rewardText(r){if(r.type==='gold')return `${r.amount} зм`;if(r.type==='rep')return `${faction(r.faction)&&visibleFaction(faction(r.faction))?faction(r.faction).name:'Фракция'}: ${r.amount>=0?'+':''}${r.amount} репутации`;if(r.type==='charter')return `${faction(r.faction)&&visibleFaction(faction(r.faction))?faction(r.faction).name:'Фракция'} · ${r.text||'Грамота'}`;if(r.type==='item')return `${r.name||'Предмет'} ×${r.qty||1} · ${ownerLabel(r.owner)}`;return ''}
+function rewardText(r){if(r.type==='gold')return `${r.amount} зм`;if(r.type==='rep')return `${faction(r.faction)&&visibleFaction(faction(r.faction))?faction(r.faction).name:'Фракция'}: ${r.amount>=0?'+':''}${r.amount} репутации`;if(r.type==='charter')return `${faction(r.faction)&&visibleFaction(faction(r.faction))?faction(r.faction).name:'Фракция'} · ${r.text||'Грамота'}`;if(r.type==='item')return `${r.name||S.engine?.items?.find(x=>x.id===r.item_id)?.name||'Предмет'} ×${r.qty||r.quantity||1}${r.owner!=null?' · '+ownerLabel(r.owner):''}`;return ''}
 function structuredSummary(c){const awarded=c.rewardReceipt,rs=awarded?.rewards||c.rewards||[],visible=rs.filter(r=>!player||awarded||(!c.rewardHidden||c.rewardRevealed)&&(!r.secret||c.rewardRevealed));if(!rs.length&&!awarded)return '';return `<div class="reward-summary"><h4>${awarded?'Полученные награды':'Награды к начислению'}</h4>${visible.map(r=>`<p>${r.type==='item'&&safeImage(r.image)?`<img src="${esc(r.image)}" alt="" style="width:22px;height:22px;object-fit:cover;vertical-align:middle;border:1px solid #977b42;margin-right:5px">`:''}${esc(rewardText(r))}${!player&&r.secret&&!awarded?' <span class="reward-secret-label">· скрыто</span>':''}</p>`).join('')||'<p>Награды пока неизвестны или отсутствуют.</p>'}${awarded?`<small>Выдано: день ${esc(awarded.day)} · повторное начисление заблокировано</small>`:''}</div>`}
 function rewardRow(r,i,c){const p='rw'+i+'_',types=REWARD_TYPES,fs=S.factions.map(f=>[f.id,f.name]),rType=r.type||'gold';return `<div class="reward-row" data-index="${i}"><div class="row"><b>${esc(types.find(t=>t[0]===rType)?.[1]||'Награда')} № ${i+1}</b><button type="button" class="ghost danger" onclick="removeRewardRow(${i})">Удалить</button></div>${rType==='gold'?field('Количество золота',p+'amount',r.amount??0,'number','min="0" step="0.01" required'):rType==='rep'?selectField('Фракция',p+'faction',[['','Выберите фракцию'],...fs],r.faction||c.faction||'')+field('Очки репутации (+ / −)',p+'amount',r.amount??0,'number','step="1" required'):rType==='charter'?selectField('Фракция',p+'faction',[['','Выберите фракцию'],...fs],r.faction||c.faction||'')+area('Текст грамоты / подпись',p+'text',r.text||''): `${field('Название предмета',p+'name',r.name||'','text','required')}<div class="cols">${selectField('Категория',p+'category',[...ITEM_TYPES,...(S.engine?.categories||[])].map(t=>[t,t]),r.category||'Материалы')}${selectField('Качество',p+'quality',ITEM_QUAL.map(q=>[q[0],q[1]]),r.quality||'common')}</div><div class="cols">${field('Количество',p+'qty',r.qty??1,'number','min="1" max="100000" step="1" required')}${field('Символ',p+'icon',r.icon||'◆','text','maxlength="8"')}</div>${selectField('Кому передать',p+'owner',ownerOptions(r.owner),r.owner||'')}${area('Описание / свойства',p+'desc',r.desc||'')}<div class="field"><label>Иконка предмета</label><input id="${p}image" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/avif" onchange="rewardImage(${i},this)"><small id="${p}imageLabel">${safeImage(r.image)?'Иконка сохранена':'Можно загрузить изображение'}</small></div>${safeImage(r.image)?`<button type="button" onclick="clearRewardImage(${i})">Убрать иконку</button>`:''}`}${check('Скрытая награда до раскрытия',p+'secret',r.secret)}</div>`}
 let rewardSession=null;
@@ -3880,6 +3919,11 @@ function applyCommand(source, actor, name, payload, key) {
       "gold",
       "cancelProject",
       "finishContract",
+      "tradeDeal",
+      "tradeDonation",
+      "facilityTier",
+      "facilityRental",
+      "deliverGoods",
       "session",
     ].includes(name)
   ) {
@@ -3902,11 +3946,11 @@ function applyCommand(source, actor, name, payload, key) {
           change,
         });
     }
-    receipt.gold = next.company.gold - source.company.gold || 0;
+    receipt.gold = Math.round(((next.company.gold || 0) - (source.company.gold || 0)) * 100) / 100;
     receipt.wallets = Object.entries(next.engine.profiles || {})
       .map(([hero, h]) => ({
         hero,
-        change: h.wallet - (source.engine.profiles?.[hero]?.wallet || 0),
+        change: Math.round((h.wallet - (source.engine.profiles?.[hero]?.wallet || 0)) * 100) / 100,
       }))
       .filter((w) => w.change);
     const t = currentStay(source);
@@ -3920,6 +3964,15 @@ function applyCommand(source, actor, name, payload, key) {
         .filter((x) => x.hours);
     }
   }
+  if (name === "tradeDeal") {
+    const row = localMarket(source, actor).find((market) => market.item_id === payload.item);
+    receipt.market = { node: row.node_id, item: row.item_id, side: payload.side,
+      quantity: payload.qty, unit: tradePrices(source, row)[payload.side] };
+  }
+  if (name === "facilityTier" || name === "facilityRental")
+    receipt.facility = { service: payload.service, tier: payload.tier };
+  if (name === "deliverGoods") receipt.contract = payload.id;
+  if (name === "contentImport") receipt.package = { id: payload.pack.id, version: payload.pack.version };
   next.engine.receipts.push(receipt);
   return next;
 }
@@ -4187,7 +4240,7 @@ async function execute(name, payload, key = crypto.randomUUID()) {
   try {
     const next = applyCommand(S, actor, name, payload, key);
     clearTimeout(saveTimer);
-    await dbPut(next);
+    await dbPut(next, name === "contentImport" ? S : null);
     S = next;
     commit();
   } finally {
@@ -4526,6 +4579,7 @@ register("editStay", "master", (s, p) => {
   const location = byId(s.nodes, p.location);
   const region = p.region || regionAt(s, location)?.id || "";
   if (region) byId(s.engine.regions, region);
+  if (stay.location !== location.id) delete stay.rentals;
   const { startDay, ...settings } = p;
   Object.assign(stay, settings, { region });
   s.company.location = location.id;
@@ -6758,6 +6812,7 @@ function deposit(s, item_id, owner, qty, extra = {}) {
   integer(qty, 1);
   const item = byId(economy(s).items, item_id),
     bag = s.company.inventory;
+  requireThat(!item.original || !extra.properties, "Книжный предмет сохраняет исходные свойства");
   const existing = bag.find(
     (x) =>
       x.item_id === item_id &&
@@ -6770,6 +6825,11 @@ function deposit(s, item_id, owner, qty, extra = {}) {
     existing.qty = integer(existing.qty + qty);
     return;
   }
+  const base = item.base_item_id && byId(s.engine.items, item.base_item_id);
+  const snapshot = base ? {
+    rules: structuredClone(base.rules),
+    craftedTraits: (item.craft_properties || []).map((id) => structuredClone(byId(s.engine.craftProperties, id))),
+  } : {};
   if (item.stackable === false || extra.properties) {
     requireThat(
       qty <= 1000,
@@ -6778,6 +6838,7 @@ function deposit(s, item_id, owner, qty, extra = {}) {
     for (let i = 0; i < qty; i++)
       bag.push({
         ...item,
+        ...snapshot,
         ...extra,
         id: crypto.randomUUID(),
         owner,
@@ -7024,14 +7085,9 @@ function gather(s, p, die = dice) {
 }
 register("gather", "hero", (s, p) => gather(s, p));
 function facilities(s, r) {
-  const t = currentStay(s);
-  return (
-    !!t &&
-    (!r.service ||
-      s.company.talents[r.service] ||
-      t.services?.includes(r.service)) &&
-    (!r.locations?.length || r.locations.includes(t.location))
-  );
+  const stay = currentStay(s);
+  return !!stay && (!r.service || facilityLevel(s, r.service) >= (r.facility_rank || 1)) &&
+    (!r.locations?.length || r.locations.includes(stay.location));
 }
 function canCraft(s, hero, r) {
   const h = profile(s, hero);
@@ -7762,7 +7818,7 @@ const tables = {
   items: [
     "Каталог предметов",
     "engine.items",
-    "id name category quality value_gp:num desc? icon? iconId? image? unit? profession_id:@professions? stackable:bool? properties:json?",
+    "id name category quality value_gp:num desc? icon? iconId? image? unit? profession_id:@professions? stackable:bool? hidden:bool? properties:json? original:bool? rules:json? base_item_id:@originalEquipment? craft_properties:json? craft_slots:int? magic_slots:int? trade_product:bool?",
   ],
   professions: [
     "Профессии",
@@ -7772,7 +7828,42 @@ const tables = {
   recipes: [
     "Рецепты",
     "engine.recipes",
-    "id name profession_id:@professions item_id:@items quantity:pos hours:pos rank:pos gold:num? basic:bool? service? tools:json? locations:json? properties:json? experiment:json? image? description? acquisition? equipment:json? conditions:json?",
+    "id name profession_id:@professions item_id:@items quantity:pos hours:pos rank:pos gold:num? basic:bool? service? facility_rank:pos? tempo_class? tempo_hours:pos? reference_hours:pos? time_policy? trade_product:bool? tools:json? locations:json? properties:json? experiment:json? image? description? acquisition? equipment:json? conditions:json?",
+  ],
+  tradeGoods: ["Торговые товары", "engine.items", ""],
+  tradeRecipes: ["Торговые рецепты", "engine.recipes", ""],
+  markets: [
+    "Местные рынки", "engine.markets",
+    "id node_id:@nodes item_id:@items faction_id:@factions? stock:int demand:int budget:num buy_factor:num sell_factor:num rep_bonuses:json?",
+  ],
+  facilities: [
+    "Производственные сооружения", "engine.facilities",
+    "id service tier2_gp:num tier3_gp:num rent1_gp:num rent2_gp:num rent3_gp:num",
+  ],
+  craftProperties: [
+    "Ремесленные свойства экипировки", "engine.craftProperties",
+    "id name kind trigger action effect limits uses:pos? recovery?",
+  ],
+  originalEquipment: ["Оригинальная экипировка", "engine.items", ""],
+  materials: ["Материалы и реагенты", "engine.items", ""],
+  magicItems: ["Магические предметы", "engine.items", ""],
+  enchantments: ["Рецепты зачарования", "engine.recipes", ""],
+  archaeology: ["Археологические находки", "engine.loot", ""],
+  campUpgrades: [
+    "Эффекты улучшений лагеря", "engine.campUpgrades",
+    "id service profession:@professions? recipes:json? bonus:signed? advantage:bool? discount:int? speed:int? wage:int? productivity:pos?",
+  ],
+  services: [
+    "Местные услуги и наставники", "engine.localServices",
+    "id node_id:@nodes service profession_id:@professions? fee:num? hours:pos? tier:pos? hidden:bool?",
+  ],
+  quests: [
+    "Контракты и задания", "contracts",
+    "id title desc? objectives? giver:@people? faction:@factions? location:@nodes? reward? rewards:json? hidden:bool?",
+  ],
+  deliveries: [
+    "Торговые контракты", "contracts",
+    "id title desc? consignee location:@nodes giver:@people? due_year:pos due_day:pos stock_source reward_recipient goods:json rewards:json hidden:bool?",
   ],
   ingredients: [
     "Ингредиенты",
@@ -7818,10 +7909,14 @@ const tables = {
   ],
 };
 tables.hunting[2] = tables.fishing[2] = tables.loot[2];
+tables.tradeGoods[2] = tables.originalEquipment[2] = tables.items[2];
+tables.tradeRecipes[2] = tables.enchantments[2] = tables.recipes[2];
+tables.materials[2] = tables.magicItems[2] = tables.items[2];
+tables.archaeology[2] = tables.loot[2];
 function columns(k) {
   return (
     tables[k][2] +
-    (tables[k][2].includes(" source?") ? " provenance:json?" : " source:json?")
+    (tables[k][2].includes(" source?") ? " provenance:json?" : " source:json?") + " extra:json?"
   )
     .split(" ")
     .map((token) => {
@@ -7834,6 +7929,14 @@ function arr(s, k) {
   return tables[k][1].split(".").reduce((o, key) => (o[key] ??= []), s);
 }
 function subset(k, r) {
+  if (k === "tradeGoods" || k === "tradeRecipes") return r.trade_product === true;
+  if (k === "originalEquipment") return r.original === true;
+  if (k === "materials") return r.category === "Материалы";
+  if (k === "magicItems") return r.category === "Магические предметы";
+  if (k === "enchantments") return r.profession_id === "enchanting" && !!r.properties;
+  if (k === "archaeology") return r.profession_id === "archaeology";
+  if (k === "deliveries") return r.type === "delivery";
+  if (k === "quests") return !["local", "delivery"].includes(r.type);
   if (k === "errands") return r.type === "local";
   if (k === "hunting" || k === "fishing")
     return r.profession_id === (k === "hunting" ? "hunt" : "fishing");
@@ -7855,7 +7958,8 @@ function csvWrite(rows, names) {
   };
   return (
     "\uFEFF" +
-    [names, ...rows.map((r) => names.map((n) => r[n]))]
+    [names, ...rows.map((row) => names.map((name) => name === "extra"
+      ? Object.fromEntries(Object.entries(row).filter(([key]) => !names.includes(key))) : row[name]))]
       .map((line) => line.map(cell).join(";"))
       .join("\r\n")
   );
@@ -7950,11 +8054,18 @@ function rowFrom(k, row, categories = []) {
   );
   inspectJSON(row);
   const out = {};
-  for (const c of columns(k)) {
+  const itemTable = ["items", "tradeGoods", "originalEquipment", "materials", "magicItems"].includes(k);
+  const fields = columns(k);
+  for (const c of fields) {
     let v = row[c.name];
-    if (k === "items" && c.name === "quality") v ??= row.rarity;
-    if (k === "items" && c.name === "desc") v ??= row.description;
-    if (["professions", "recipes"].includes(k) && c.name === "description")
+    if (c.name === "category") {
+      if (k === "tradeGoods") v = TRADE_CATEGORY;
+      if (k === "materials") v = "Материалы";
+      if (k === "magicItems") v = "Магические предметы";
+    }
+    if (itemTable && c.name === "quality") v ??= row.rarity;
+    if (itemTable && c.name === "desc") v ??= row.description;
+    if (["professions", "recipes", "tradeRecipes"].includes(k) && c.name === "description")
       v ??= row.desc;
     if (
       k === "professions" &&
@@ -8012,7 +8123,28 @@ function rowFrom(k, row, categories = []) {
     }
     out[c.name] = v;
   }
-  if (k === "items")
+  const extra = out.extra;
+  delete out.extra;
+  requireThat(extra == null || (typeof extra === "object" && !Array.isArray(extra)), "extra должен быть объектом");
+  const known = new Set(fields.map((field) => field.name));
+  for (const [key, value] of Object.entries({ ...extra, ...row }))
+    if (!known.has(key)) out[key] = value;
+  if (k === "deliveries") {
+    out.type = "delivery";
+    out.status ??= "available";
+  }
+  if (k === "quests") {
+    requireThat(subset(k, out), "Выберите поручения или поставки");
+    out.status ??= "available";
+  }
+  if (k === "enchantments") requireThat(subset(k, out), "Нужен рецепт зачарования со свойствами");
+  if (k === "archaeology") out.profession_id = "archaeology";
+  if (k === "tradeGoods") out.trade_product = true;
+  if (k === "tradeRecipes") out.trade_product = true;
+  if (["tradeGoods", "tradeRecipes", "markets", "facilities", "craftProperties", "services",
+    "campUpgrades", "deliveries"].includes(k)) out.source ??= { origin: "house" };
+  if (k === "originalEquipment") out.original = true;
+  if (itemTable)
     requireThat(
       [
         "Оружие",
@@ -8023,6 +8155,7 @@ function rowFrom(k, row, categories = []) {
         "Снаряжение",
         "Ездовые питомцы",
         "Прочее",
+        TRADE_CATEGORY,
         ...categories,
       ].includes(out.category) &&
         ["common", "uncommon", "rare", "epic", "legendary"].includes(
@@ -8135,17 +8268,19 @@ function rowFrom(k, row, categories = []) {
         ),
       "Некорректные координаты",
     );
+  validateTradeRow(itemTable ? "items" : k === "enchantments" ? "recipes" : k, out);
   return out;
 }
-function planImport(s, pack, mode) {
+function planImport(s, pack, mode, options = {}) {
   requireThat(
     ["new", "update", "skip", "replace"].includes(mode),
     "Неизвестный режим",
   );
   const next = structuredClone(s),
     count = { created: 0, updated: 0, skipped: 0, errors: 0 },
-    issues = [];
+    issues = [], changes = [];
   adventure(next);
+  tradeState(next);
   const check = (fn, label) => {
     try {
       fn();
@@ -8161,6 +8296,7 @@ function planImport(s, pack, mode) {
       Object.keys(pack).length,
     "Пустой пакет",
   );
+  const replaced = new Set();
   for (const [k, rows] of Object.entries(pack)) {
     requireThat(
       Object.hasOwn(tables, k) && Array.isArray(rows),
@@ -8169,6 +8305,8 @@ function planImport(s, pack, mode) {
     const target = arr(next, k),
       seen = new Set();
     if (mode === "replace") {
+      requireThat(!replaced.has(tables[k][1]), "Для полной замены выберите один вид каждой коллекции");
+      replaced.add(tables[k][1]);
       for (let i = target.length - 1; i >= 0; i--)
         if (subset(k, target[i])) target.splice(i, 1);
       if (k === "news") next.portal.rumors = [];
@@ -8186,16 +8324,23 @@ function planImport(s, pack, mode) {
           const old = dest.find((x) => x.id === v.id);
           if (old) {
             requireThat(subset(k, old), "Конфликт с другим типом записи");
-            if (mode === "new") throw Error("ID уже существует");
+            if (mode === "new") {
+              changes.push({ table: k, id: v.id, change: "conflict" });
+              throw Error("ID уже существует");
+            }
             if (mode === "skip") {
               count.skipped++;
+              changes.push({ table: k, id: v.id, change: "skip" });
               return;
             }
+            preserveRuntimeFields(k, old, v, options.resetMarket === true);
             Object.assign(old, v);
             count.updated++;
+            changes.push({ table: k, id: v.id, change: "update" });
           } else {
             dest.push(v);
             count.created++;
+            changes.push({ table: k, id: v.id, change: "new" });
           }
         },
         k + " #" + (i + 1),
@@ -8270,14 +8415,21 @@ function planImport(s, pack, mode) {
   reference(next.company.location, ids.nodes, "Стоянка компании");
   if (next.journey)
     reference(next.journey.routeId, ids.routes, "Текущий переход");
-  return { next, count, issues };
+  for (const pack of next.engine.contentPackages || []) {
+    for (const row of pack.records)
+      if (records(s, row.table).some((x) => x.id === row.id))
+        reference(row.id, ids[row.table], "Запись пакета " + pack.id);
+  }
+  check(() => validateTradeCatalog(next), "Экономика");
+  return { next, count, issues, changes };
 }
 register("import", "master", (s, p) => {
-  const plan = planImport(s, p.pack, p.mode);
+  const plan = planImport(s, p.pack, p.mode, { resetMarket: true });
   requireThat(!plan.count.errors, plan.issues.join("\n"));
   Object.assign(s, plan.next);
 });
 
+const contentExamples = {"bookEquipment": {"format": "atlas-content", "schemaVersion": 1, "id": "core.book-equipment", "name": "Книжная экипировка", "description": "Стартовая подборка проверенной экипировки. Рыночная цена 0 означает, что мастер её ещё не назначил.", "version": "1.0.0", "author": "Атлас расколотого мира", "sources": [{"book": "phb2024", "printed_page": 215}, {"book": "phb2024", "printed_page": 219}, {"book": "wow", "printed_page": 108}, {"book": "wow", "printed_page": 109}, {"book": "dmg2024", "printed_page": 233}], "dependencies": [], "tables": {"originalEquipment": [{"id": "weapon.dnd.dagger", "name": "Кинжал", "category": "Оружие", "quality": "common", "value_gp": 2, "source": {"book": "phb2024", "printed_page": 215}, "rules": {"Урон": "1к4 колющего", "Свойства": "Фехтовальное, лёгкое, метательное (20/60 фт)", "Мастерство": "Быстрое", "Вес": "1 фнт", "Книжная цена": "2 зм"}, "stackable": false}, {"id": "weapon.dnd.longsword", "name": "Длинный меч", "category": "Оружие", "quality": "common", "value_gp": 15, "source": {"book": "phb2024", "printed_page": 215}, "rules": {"Урон": "1к8 рубящего", "Свойства": "Универсальное (1к10)", "Мастерство": "Ослабляющее", "Вес": "3 фнт", "Книжная цена": "15 зм"}, "stackable": false}, {"id": "weapon.dnd.warhammer", "name": "Боевой молот", "category": "Оружие", "quality": "common", "value_gp": 15, "source": {"book": "phb2024", "printed_page": 215}, "rules": {"Урон": "1к8 дробящего", "Свойства": "Универсальное (1к10)", "Мастерство": "Отталкивающее", "Вес": "5 фнт", "Книжная цена": "15 зм"}, "stackable": false}, {"id": "weapon.dnd.short_sword", "name": "Короткий меч", "category": "Оружие", "quality": "common", "value_gp": 10, "source": {"book": "phb2024", "printed_page": 215}, "rules": {"Урон": "1к6 колющего", "Свойства": "Фехтовальное, лёгкое", "Мастерство": "Отвлекающее", "Вес": "2 фнт", "Книжная цена": "10 зм"}, "stackable": false}, {"id": "weapon.dnd.greataxe", "name": "Секира", "category": "Оружие", "quality": "common", "value_gp": 30, "source": {"book": "phb2024", "printed_page": 215}, "rules": {"Урон": "1к12 рубящего", "Свойства": "Тяжёлое, двуручное", "Мастерство": "Рассекающее", "Вес": "7 фнт", "Книжная цена": "30 зм"}, "stackable": false}, {"id": "weapon.dnd.longbow", "name": "Длинный лук", "category": "Оружие", "quality": "common", "value_gp": 50, "source": {"book": "phb2024", "printed_page": 215}, "rules": {"Урон": "1к8 колющего", "Свойства": "Боеприпас (стрела, 150/600 фт), тяжёлое, двуручное", "Мастерство": "Замедляющее", "Вес": "2 фнт", "Книжная цена": "50 зм"}, "stackable": false}, {"id": "armor.dnd.leather", "name": "Кожаный доспех", "category": "Броня", "quality": "common", "value_gp": 10, "source": {"book": "phb2024", "printed_page": 219}, "rules": {"Класс Защиты": "11 + модификатор Ловкости", "Тип": "Лёгкий", "Требование Силы": "—", "Скрытность": "—", "Вес": "10 фнт", "Книжная цена": "10 зм"}, "stackable": false}, {"id": "armor.dnd.chain_mail", "name": "Кольчуга", "category": "Броня", "quality": "common", "value_gp": 75, "source": {"book": "phb2024", "printed_page": 219}, "rules": {"Класс Защиты": "16", "Тип": "Тяжёлый", "Требование Силы": "13", "Скрытность": "Помеха", "Вес": "55 фнт", "Книжная цена": "75 зм"}, "stackable": false}, {"id": "armor.dnd.shield", "name": "Щит", "category": "Броня", "quality": "common", "value_gp": 10, "source": {"book": "phb2024", "printed_page": 219}, "rules": {"Класс Защиты": "+2", "Тип": "Щит, надеть и снять действием Использование", "Требование Силы": "—", "Скрытность": "—", "Вес": "6 фнт", "Книжная цена": "10 зм"}, "stackable": false}, {"id": "armor.wow.defias_leather", "name": "Кожаный доспех Братства Справедливости", "category": "Броня", "quality": "rare", "value_gp": 0, "source": {"book": "wow", "printed_page": 108}, "rules": {"Основа": "Кожаный доспех", "Класс Защиты": "11 + модификатор Ловкости", "Настройка": "Не требуется", "Каменщицкий камуфляж": "При ношении преимущество на проверки Ловкости (Скрытность), чтобы укрыться за каменными предметами или постройками.", "Слияние с камнем": "Из доспеха можно сотворить Meld into Stone. Повторное применение доступно на следующем рассвете."}, "stackable": false}, {"id": "item.wow.experimental_goblin_jetpack", "name": "Экспериментальный гоблинский реактивный ранец", "category": "Магические предметы", "quality": "rare", "value_gp": 0, "source": {"book": "wow", "printed_page": 108}, "rules": {"Тип": "Чудесный предмет", "Настройка": "Требуется", "Включение": "Действие Магия, пока ранец надет.", "Эффект": "Скорость полёта 60 фт. Длительность 1 час. Можно закончить досрочно действием Магия. В воздухе при отключении персонаж падает.", "Восстановление": "1к12 ч. после отключения."}, "stackable": false}, {"id": "item.wow.flask_of_the_titans", "name": "Настой титанов", "category": "Припасы", "quality": "epic", "value_gp": 0, "source": {"book": "wow", "printed_page": 109}, "rules": {"Редкость книги": "Очень редкое", "Тип": "Зелье", "Эффект": "При выпивании текущие и максимальные Хиты увеличиваются на 30 на 1 час."}, "stackable": true}, {"id": "item.dnd.rope_of_climbing", "name": "Верёвка лазания", "category": "Магические предметы", "quality": "uncommon", "value_gp": 0, "stackable": false, "source": {"book": "dmg2024", "printed_page": 233}, "rules": {"Тип": "Чудесный предмет", "Настройка": "Не требуется", "Длина": "60 фт", "Нагрузка": "До 3000 фнт", "Управление": "Действием Магия, держа один конец. Другой конец перемещается к точке в пределах длины верёвки на 10 фт сразу и в начале каждого следующего хода до прибытия или команды остановиться. Верёвка может зацепиться, открепиться, завязать или развязать узлы или свернуться.", "Узлы": "С интервалом 1 фт. Длина уменьшается до 50 фт, проверки лазания по ней с преимуществом.", "Прочность": "КЗ 20, 20 хитов, иммунитет к психическому урону и яду. Восстанавливает 1 хит за 5 минут, пока имеет хотя бы 1 хит. При 0 хитов уничтожается."}}]}}, "tradeLoop": {"format": "atlas-content", "schemaVersion": 1, "id": "demo.trade-loop", "name": "Добыча, производство и рынок", "description": "Учебный пакет для проверки полного цикла. Цены, нормы и сроки настроены для демонстрации.", "version": "1.0.0", "author": "Атлас расколотого мира", "sources": [{"origin": "demo"}], "dependencies": [], "tables": {"regions": [{"id": "region.kalimdor.trade_example", "name": "Тестовые окрестности Перекрёстка", "continent": "Калимдор", "biome": "Степь", "dc": 10, "tier": 1, "source": {"origin": "demo"}}], "factions": [{"id": "faction.demo.caravan", "name": "Караван Перекрёстка (демо)", "repPoints": 3000, "source": {"origin": "demo"}}], "nodes": [{"id": "location.demo.trade_crossroads", "name": "Учебный рынок Перекрёстка", "x": 0.56, "y": 0.58, "type": "city", "regionId": "region.kalimdor.trade_example", "visibility": "known", "faction": "faction.demo.caravan", "source": {"origin": "demo"}}], "people": [{"id": "npc.demo.crossroads.blacksmith", "title": "Халдор · кузнец", "source": "Кузнец", "provenance": {"origin": "demo"}, "faction": "faction.demo.caravan", "location": "location.demo.trade_crossroads", "body": "Чинит подковы и принимает партии инструментов."}], "materials": [{"id": "material.demo.copper_ore", "name": "Медная руда (торговое занятие)", "category": "Материалы", "quality": "common", "value_gp": 1, "source": {"origin": "demo"}}, {"id": "material.demo.copper_bar", "name": "Медный слиток (торговое занятие)", "category": "Материалы", "quality": "common", "value_gp": 3, "source": {"origin": "demo"}}], "items": [{"id": "weapon.demo.copper_sword", "name": "Учебный медный меч", "category": "Оружие", "quality": "common", "value_gp": 12, "stackable": false, "source": {"origin": "demo"}, "desc": "Авторский тестовый предмет.", "rules": {"Урон": "1к6 рубящего", "Применение": "Авторский пример для кампании"}}], "tradeGoods": [{"id": "goods.demo.smithing.apprentice", "name": "Партия ремонтных инструментов", "category": "Торговые товары", "quality": "common", "value_gp": 24, "profession_id": "smithing", "stackable": true, "source": {"origin": "demo"}, "iconId": "misc:Wrench_01"}], "recipes": [{"id": "recipe.demo.smithing.copper_bar", "name": "Слиток торговой серии", "profession_id": "smithing", "item_id": "material.demo.copper_bar", "quantity": 1, "hours": 1, "rank": 2, "basic": true, "service": "Оружейная", "facility_rank": 1, "source": {"origin": "demo"}}, {"id": "recipe.demo.smithing.copper_sword", "name": "Выковать учебный меч", "profession_id": "smithing", "item_id": "weapon.demo.copper_sword", "quantity": 1, "hours": 4, "rank": 2, "basic": true, "service": "Оружейная", "facility_rank": 2, "source": {"origin": "demo"}}], "tradeRecipes": [{"id": "recipe.demo.smithing.trade_tools", "name": "Партия ремонтных инструментов", "profession_id": "smithing", "item_id": "goods.demo.smithing.apprentice", "quantity": 1, "hours": 3, "rank": 2, "basic": true, "service": "Оружейная", "facility_rank": 1, "source": {"origin": "demo"}}], "ingredients": [{"id": "recipe.demo.smithing.copper_bar:material.demo.copper_ore", "recipe_id": "recipe.demo.smithing.copper_bar", "item_id": "material.demo.copper_ore", "quantity": 1, "source": {"origin": "demo"}}, {"id": "recipe.demo.smithing.trade_tools:material.demo.copper_bar", "recipe_id": "recipe.demo.smithing.trade_tools", "item_id": "material.demo.copper_bar", "quantity": 2, "source": {"origin": "demo"}}, {"id": "recipe.demo.smithing.copper_sword:material.demo.copper_bar", "recipe_id": "recipe.demo.smithing.copper_sword", "item_id": "material.demo.copper_bar", "quantity": 1, "source": {"origin": "demo"}}], "loot": [{"id": "loot.demo.trade_copper", "region_id": "region.kalimdor.trade_example", "profession_id": "mining", "item_id": "material.demo.copper_ore", "weight": 1, "min_quantity": 7, "max_quantity": 7, "min_margin": -20, "hours": 2, "dc": 1, "stock": 21, "source": {"origin": "demo"}}], "markets": [{"id": "market.demo.tools", "node_id": "location.demo.trade_crossroads", "item_id": "goods.demo.smithing.apprentice", "faction_id": "faction.demo.caravan", "stock": 1, "demand": 5, "budget": 250, "buy_factor": 1.5, "sell_factor": 1, "source": {"origin": "demo"}}], "facilities": [{"id": "facility.demo.armory", "service": "Оружейная", "tier2_gp": 30, "tier3_gp": 75, "rent1_gp": 5, "rent2_gp": 15, "rent3_gp": 35, "source": {"origin": "demo"}}], "errands": [{"id": "quest.demo.crossroads.mine", "title": "Обычай медников", "desc": "Кузнец просит осмотреть жилу и записать наблюдения.", "hours": 1, "region_id": "region.kalimdor.trade_example", "location": "location.demo.trade_crossroads", "giver": "npc.demo.crossroads.blacksmith", "repeat": "once", "source": {"origin": "demo"}}], "solutions": [{"id": "solution.demo.copper_vein", "quest_id": "quest.demo.crossroads.mine", "name": "Осмотреть жилу", "skill": "Расследование", "dc": 10, "success": "Жила найдена.", "failure": "Добыча потребует дополнительного времени.", "source": {"origin": "demo"}}], "deliveries": [{"id": "quest.demo.tools_delivery", "title": "Инструменты для каравана", "desc": "На рынке ждут партию припасов.", "consignee": "Халдор", "location": "location.demo.trade_crossroads", "giver": "npc.demo.crossroads.blacksmith", "due_year": 27, "due_day": 1000, "stock_source": "personal", "reward_recipient": "hero", "goods": [{"item_id": "goods.demo.smithing.apprentice", "quantity": 1}], "rewards": [{"type": "gold", "amount": 7}], "source": {"origin": "demo"}}]}}};
 function downloadText(filename, body, type = "application/json") {
   const a = document.createElement("a"),
     url = URL.createObjectURL(new Blob([body], { type }));
@@ -8317,6 +8469,25 @@ const sampleRows = {
     day: 1,
     year: 27,
   },
+  campUpgrades: { id: "upgrade.armory", service: "Оружейная", speed: 10, source: { origin: "demo" } },
+  services: { id: "service.crossroads.mentor", node_id: "crossroads", service: "Наставник", profession_id: "smithing", fee: 6, hours: 8, source: { origin: "demo" } },
+  quests: { id: "quest.crossroads.notice", title: "Дорожное объявление", location: "crossroads", source: { origin: "demo" } },
+  craftProperties: {
+    id: "trait.demo.riposte", name: "Учебная контратака", kind: "counterattack", action: "reaction",
+    trigger: "Видимое существо в досягаемости промахивается по владельцу рукопашной атакой.",
+    effect: "Сделать одну рукопашную атаку этим оружием.",
+    limits: "Одна атака, не является действием Атака и не запускает другие дополнительные атаки.",
+    uses: 1, recovery: "После продолжительного отдыха", source: { origin: "demo" },
+  },
+  enchantments: {
+    id: "recipe.demo.enchant", name: "Пример формулы", profession_id: "enchanting", item_id: "item.enchanted",
+    quantity: 1, hours: 8, rank: 2, service: "Зачаровательная", properties: { effect: "Авторский пример" },
+    source: { origin: "demo" },
+  },
+  archaeology: {
+    id: "loot.archaeology.example", region_id: "durotar", profession_id: "archaeology",
+    item_id: "relic", weight: 1, min_quantity: 1, max_quantity: 1, min_margin: 0, source: { origin: "demo" },
+  },
   codex: {
     id: "copper-notes",
     title: "Медные жилы",
@@ -8327,7 +8498,9 @@ function sampleRow(k) {
   if (k === "professions") return rulebook.professions[0];
   if (k === "fishing" || k === "hunting")
     return demoPack.loot.find((r) => subset(k, r));
-  const example = demoPack[k]?.[0] || sampleRows[k];
+  if (k === "originalEquipment") return contentExamples.bookEquipment.tables.originalEquipment[0];
+  if (k === "magicItems") return contentExamples.bookEquipment.tables.originalEquipment.find((row) => row.category === "Магические предметы");
+  const example = demoPack[k]?.[0] || sampleRows[k] || contentExamples.tradeLoop.tables[k]?.[0];
   if (k === "regions") {
     const { image, ...region } = example;
     return region;
@@ -8354,13 +8527,138 @@ const formatNotes = {
     "tools: массив альтернативных владений инструментом. Пустой массив снимает требование. skill: название обязательного навыка. kind: gathering или production. summary: текст карточки. description и special: механика и особые правила.",
   news: "kind: news или rumors. day и year используют календарь компании.",
 };
+Object.assign(formatNotes, {
+  tradeGoods: "Абстрактная партия: common/uncommon/rare, value_gp > 0, stackable=true, profession_id, без боевых свойств.",
+  tradeRecipes: "Обычный движок проектов. Ингредиенты задаются отдельно. Ступень производственной мастерской = rank−1. Упаковка не увеличивает стоимость сырья.",
+  markets: "buy_factor — цена для покупателя, sell_factor — цена, которую платит скупщик. rep_bonuses — [[очки, доля поправки], ...] по возрастанию. stock, demand и budget — текущие остатки.",
+  facilities: "service — название существующего улучшения. tier2_gp и tier3_gp — настройки стоимости оборудования, rent1_gp–rent3_gp — аренда на стоянку.",
+  craftProperties: "kind — вид эффекта. action — тип действия. Обязательны триггер, точный эффект, ограничения и источник house/demo. uses и recovery задаются вместе.",
+  originalEquipment: "rules — исходные книжные характеристики, source содержит book и printed_page. value_gp — отдельно настраиваемая цена кампании. Книжные предметы без авторских ячеек.",
+  deliveries: "goods — [{item_id,quantity}], rewards — [{type:'gold',amount}, ...]. stock_source: personal/shared. reward_recipient: hero/company.",
+  services: "Наставник может ограничиваться profession_id. fee — цена в зм, hours — время обучения. Для предложений аренды используйте service, tier и fee.",
+  campUpgrades: "Эффекты открытого улучшения. Ручные настройки кампании имеют приоритет. discount и speed указываются в процентах.",
+  enchantments: "Рецепт профессии enchanting со свойствами properties. Дополнительные эффекты хранятся отдельно от книжной характеристики.",
+  magicItems: "Представление категории «Магические предметы» из общего каталога.",
+  materials: "Представление категории «Материалы» из общего каталога.",
+  quests: "Обычные контракты. Поставки и индивидуальные поручения используют отдельные схемы.",
+  archaeology: "Региональные таблицы с profession_id=archaeology.",
+});
 formatNotes.hunting = formatNotes.fishing = formatNotes.loot;
+const formatEnums = {
+  quality: ["common", "uncommon", "rare", "epic", "legendary"],
+  stock_source: ["personal", "shared"], reward_recipient: ["hero", "company"],
+  action: ["attack", "bonus", "reaction", "magic", "utilize", "passive", "other"],
+  tempo_class: ["consumable", "equipment", "magic", "manual"],
+  visibility: ["known", "rumor", "hidden"], when: ["success", "failure"],
+  repeat: ["once", "stay", "day", "period"], time_policy: ["atlas-weekly"],
+  state: ["alliance", "cooperation", "neutral", "truce", "tension", "hostility", "war"],
+  kind: { professions: ["gathering", "production"], news: ["news", "rumors"] },
+  type: { rewards: ["gold", "rep", "item", "contact", "discover", "achievement"] },
+};
+const fieldPurposes = {
+  id: "Постоянный ключ записи", name: "Отображаемое имя", title: "Отображаемый заголовок",
+  desc: "Описание в карточке", description: "Полное описание механики", summary: "Краткое описание для списка",
+  body: "Текст записи", status: "Текущее состояние маршрута или задания", special: "Особые правила профессии", source: "Источник или издатель; для правил используйте объект происхождения",
+  provenance: "Структурированный источник записи", extra: "Дополнительные поля, сохраняемые при круговом импорте",
+  category: "Категория интерфейса", quality: "Редкость", kind: "Подтип записи", type: "Тип записи",
+  value_gp: "Цена кампании за единицу", gold: "Золото за экземпляр рецепта", amount: "Размер награды по её типу",
+  min: "Минимальная длительность маршрута", max: "Максимальная длительность маршрута", cost: "Стоимость маршрута",
+  risk: "Уровень риска маршрута", events: "Шесть записей таблицы d6", day: "День кампании", year: "Год кампании",
+  hours: "Длительность занятия или работы", tempo_hours: "Индивидуальный предел недельного профиля",
+  reference_hours: "Длительность до применения профиля", tempo_class: "Класс применения недельного профиля",
+  time_policy: "Отметка применённого профиля", rank: "Минимальный бонус владения",
+  quantity: "Количество экземпляров или материала", min_quantity: "Минимальная выдача", max_quantity: "Максимальная выдача",
+  stock: "Остаток предложения или добычи", demand: "Оставшийся спрос скупщика", budget: "Оставшийся бюджет скупщика",
+  buy_factor: "Множитель цены продавца для героя", sell_factor: "Множитель цены скупки у героя",
+  rep_bonuses: "Пары из порога репутации и доли поправки", repPoints: "Текущая репутация компании",
+  service: "Название сооружения или услуги", facility_rank: "Требуемая ступень сооружения", fee: "Цена местной услуги",
+  tier: "Ступень сооружения или ранг региона", tier2_gp: "Покупка оборудования ступени 2", tier3_gp: "Покупка оборудования ступени 3",
+  rent1_gp: "Аренда ступени 1", rent2_gp: "Аренда ступени 2", rent3_gp: "Аренда ступени 3",
+  original: "Книжная запись", rules: "Исходные характеристики предмета", base_item_id: "Книжная основа авторского предмета",
+  craft_properties: "ID ремесленных свойств", craft_slots: "Разрешённые ремесленные ячейки", magic_slots: "Разрешённые магические ячейки",
+  properties: "Структурированные эффекты предмета или рецепта", trade_product: "Обозначение торговой партии или её рецепта",
+  stackable: "Разрешить объединение экземпляров", basic: "Рецепт не требует отдельного изучения",
+  trigger: "Точное событие применения свойства", action: "Тип расходуемого действия", effect: "Точный эффект",
+  limits: "Ограничения и взаимодействие с другими эффектами", uses: "Число применений", recovery: "Условие восстановления применений",
+  tools: "Названия владений инструментами", equipment: "ID предметов, нужных для работы",
+  locations: "ID допустимых мест", factions: "ID региональных фракций", recipes: "ID рецептов, открываемых улучшением",
+  conditions: "Условия доступности", experiment: "Параметры проверки экспериментального рецепта",
+  acquisition: "Как узнать рецепт", skill: "Название навыка", tool: "Название инструмента", stat: "Код характеристики",
+  dc: "Сложность проверки", weight: "Относительный вес добычи", min_margin: "Минимальное превышение сложности",
+  attempts: "Доступные попытки", rare_chance: "Шанс редкой находки в процентах", fail_text: "Текст при неудаче",
+  biome: "Окружение региона", continent: "Континент", points: "Координаты полигона или очки достижения",
+  priority: "Приоритет наложенных регионов", levels: "Диапазон уровней", danger: "Уровень опасности",
+  x: "Нормализованная координата по горизонтали", y: "Нормализованная координата по вертикали",
+  visibility: "Видимость на карте", state: "Дипломатическое состояние", leader: "Имя главы фракции",
+  color: "Цвет на карте", icon: "Символ иконки", iconId: "ID из icons.json", image: "Растровый data URL",
+  unit: "Подпись единицы предмета", hidden: "Скрыто от игроков", secret: "Скрытая награда или достижение",
+  origin: "Пометка происхождения", due_year: "Год окончания срока поставки", due_day: "Последний допустимый день",
+  consignee: "Кому передают поставку", stock_source: "Откуда списываются товары", reward_recipient: "Кому начисляется награда",
+  goods: "Строки поставки с item_id и quantity", rewards: "Строки структурированных наград",
+  reward: "Текст награды", objectives: "Цели задания", encounter: "Сообщить о встрече после решения",
+  when: "Условие выдачи награды", success: "Текст успешного решения", failure: "Текст неудачного решения",
+  repeat: "Периодичность поручения", period: "Интервал повторения поручения",
+  engineEvent: "Событие движка для достижения", scope: "Кому выдаётся достижение",
+  bonus: "Поправка к проверке", advantage: "Предоставить преимущество", discount: "Снижение цены",
+  speed: "Сокращение времени", wage: "Оплата специалиста", productivity: "Работа специалиста в день",
+};
+const fieldUnits = {
+  value_gp: "зм", gold: "зм", cost: "зм", fee: "зм", budget: "зм", wage: "зм",
+  tier2_gp: "зм", tier3_gp: "зм", rent1_gp: "зм", rent2_gp: "зм", rent3_gp: "зм",
+  hours: "ч", tempo_hours: "ч", reference_hours: "ч", productivity: "ч/день", min: "дни", max: "дни",
+  speed: "%", discount: "%", rare_chance: "%", day: "игровые дни", due_day: "игровые дни", period: "игровые дни",
+  quantity: "шт.", stock: "шт.", demand: "шт.", buy_factor: "множитель", sell_factor: "множитель", repPoints: "очки",
+};
+const fieldLimits = {
+  id: "1–128 символов: буквы, цифры, точка, двоеточие, дефис, подчёркивание",
+  x: "0–1", y: "0–1", risk: "0–2", facility_rank: "1–3", craft_slots: "0–1", magic_slots: "0–1",
+  buy_factor: "0 < buy_factor ≤ 10", sell_factor: "0 ≤ sell_factor ≤ buy_factor",
+  rep_bonuses: "Пороги возрастают, каждая доля ≥ 0 и < 1", speed: "0–100", discount: "0–100",
+  due_day: "Целый положительный день срока", image: "Растровый data URL",
+};
+const optionalExamples = {
+  description: "Полное описание работы", iconId: "trade:Copper_01", tools: ["Инструменты кузнеца"],
+  equipment: [], factions: [], locations: [], rules: { "Урон": "1к8 рубящего" }, craft_properties: [],
+  conditions: { level: 1 }, experiment: { skill: "История", dc: 15 }, requires: [],
+  rep_bonuses: [[3000, 0.05], [9000, 0.1]], tempo_class: "equipment", tempo_hours: 24,
+  reference_hours: 40, time_policy: "atlas-weekly", provenance: { origin: "house" }, source: { origin: "house" },
+  extra: {}, image: null,
+};
+function describeField(table, field, row) {
+  const key = field.name, reference = field.type.startsWith("@") ? field.type.slice(1) : null;
+  const namedEnum = key === "service" && ["facilities", "tradeRecipes"].includes(table) ? productionServices :
+    key === "service" && table === "services" ? [...productionServices, "Наставник"] :
+    key === "kind" && table === "craftProperties" ? Object.keys(propertyKinds) : formatEnums[key];
+  const kinds = Array.isArray(namedEnum) ? namedEnum : namedEnum?.[table] || null;
+  const fallback = { text: "Пример", int: 0, signed: 0, pos: 1, num: 1.5, ratio: 0.5, bool: false, json: {} };
+  const example = Object.hasOwn(optionalExamples, key) ? optionalExamples[key] :
+    kinds?.[0] ?? (reference ? sampleRow(reference)?.id || "external.record" : fallback[field.type]);
+  return { ...field, purpose: fieldPurposes[key] || (reference ? "ID связанной записи из " + reference : "Поле " + key + " из справочника"),
+    allowed: kinds, constraint: fieldLimits[key] || null,
+    default: key === "stackable" ? true : key === "facility_rank" && ["recipes", "tradeRecipes"].includes(table) ? 1 : field.type === "bool" ? false : null,
+    unit: fieldUnits[key] || null, reference, example: row[key] ?? example };
+}
+function blankContentPackage() {
+  return {
+    format: contentFormat, schemaVersion: 1, id: "campaign.example", name: "Новый пакет",
+    description: "Назначение пакета", version: "1.0.0", author: "Автор", sources: [{ origin: "house" }],
+    dependencies: [], tables: { items: [] },
+  };
+}
 function schemaDoc() {
   return {
     format: "atlas-tables",
     version: 1,
     encoding: "UTF-8",
     csvDelimiter: ";",
+    csvBOM: true,
+    contentPackage: {
+      template: blankContentPackage(), example: contentExamples.tradeLoop,
+      dependency: { id: "core.book-equipment", minVersion: "1.0.0" },
+      versions: "X.Y.Z; при обновлении увеличьте версию",
+      install: "Таблицы одного пакета проверяются вместе. Чужая установленная запись требует зависимости, совпадающий ID чужой записи считается конфликтом.",
+      sources: { allowed: sourceIds, bookFields: ["book", "printed_page"], homeField: "origin" },
+    },
     types: {
       text: "Строка",
       int: "Целое ≥ 0",
@@ -8378,7 +8676,7 @@ function schemaDoc() {
         {
           title: tables[k][0],
           notes: formatNotes[k] || "",
-          fields: columns(k),
+          fields: columns(k).map((field) => describeField(k, field, sampleRow(k))),
           example: sampleRow(k),
         },
       ]),
@@ -8443,9 +8741,9 @@ function workshop(initialTable = "regions") {
     button("Пустой шаблон", () => write("empty", [])),
     button("Пример", () => write("sample", [sampleRow(key())])),
     button("Экспорт", () => write("export", records(S, key()))),
-    button("Описание JSON", () =>
-      downloadText("atlas-schema.json", JSON.stringify(schemaDoc(), null, 2)),
-    ),
+    button("Скачать спецификацию для генерации контента", downloadContentSpecification),
+    button("Редактор записей", () => catalogRecords(key())),
+    button("Пакеты контента", contentWorkshop),
   );
   const reset = () => {
     $("applyTools").replaceChildren();
@@ -8493,7 +8791,7 @@ function workshop(initialTable = "regions") {
           mode = val("tableMode"),
           parsed = val("tableFmt") === "csv" ? csvRead(raw) : JSON.parse(raw);
         const pack = Array.isArray(parsed) ? { [k]: parsed } : parsed,
-          plan = planImport(S, pack, mode);
+          plan = planImport(S, pack, mode, { resetMarket: true });
         const c = plan.count;
         $("importReport").textContent =
           "Создание: " +
@@ -8504,7 +8802,7 @@ function workshop(initialTable = "regions") {
           c.skipped +
           " · ошибки: " +
           c.errors +
-          "\n" +
+          "\n" + listImportChanges(plan.changes) + "\n" +
           plan.issues.slice(0, 30).join("\n") +
           "\n" +
           JSON.stringify(
@@ -8604,6 +8902,12 @@ function validateBackup(raw) {
     "solutions",
     "rewards",
     "sessions",
+    "markets",
+    "facilities",
+    "craftProperties",
+    "campUpgrades",
+    "localServices",
+    "contentPackages",
   ])
     unique(e[k], k);
   for (const h of Object.values(e.profiles || {})) {
@@ -8642,6 +8946,31 @@ function validateBackup(raw) {
         "Превышен бюджет стоянки",
       );
   }
+  validateTradeCatalog(raw);
+  for (const [service, tier] of Object.entries(e.facilityTiers || {})) {
+    requireThat(productionServices.includes(service), "Неизвестное сооружение");
+    integer(tier, 2, 3);
+  }
+  for (const stay of e.stays || []) {
+    for (const [service, rental] of Object.entries(stay.rentals || {})) {
+      requireThat(productionServices.includes(service) && rental.node_id === stay.location &&
+        raw.nodes.some((node) => node.id === rental.node_id && node.type === "city"), "Неверная аренда");
+      integer(rental.tier, 1, 3);
+      tradeMoney(rental.cost);
+    }
+  }
+  const packageKeys = new Set();
+  for (const pack of e.contentPackages || []) {
+    contentMetadata(pack);
+    requireThat(Array.isArray(pack.records), "Неверный реестр контента");
+    for (const row of pack.records) {
+      requireThat(Object.hasOwn(tables, row.table) && validId(row.id), "Неверная запись реестра контента");
+      const key = catalogIdentity(row.table, row.id);
+      requireThat(!packageKeys.has(key), "Запись указана в нескольких пакетах");
+      packageKeys.add(key);
+    }
+  }
+  checkPackageGraph(e.contentPackages || []);
   const receipts = new Set();
   for (const r of e.receipts) {
     requireThat(
@@ -8721,7 +9050,7 @@ register("campSettings", "master", (s, p) => {
 });
 function campEffect(s, r) {
   return (
-    (s.company.talents[r.service] && s.engine.campEffects?.[r.service]) || {}
+    (s.company.talents[r.service] && (s.engine.campEffects?.[r.service] || s.engine.campUpgrades?.find((row) => row.service === r.service))) || {}
   );
 }
 register("staffWork", "master", (s, p) => {
@@ -8779,13 +9108,11 @@ register("train", "hero", (s, p) => {
   );
   const rank = Math.min(6, bv(h));
   h.trained ??= {};
-  requireThat(
-    rank > (h.trained[prof.id] || 2) && t.services.includes("Наставник"),
-    "Нужен наставник и новый ранг",
-  );
-  requireThat(h.wallet >= 2 * rank, "Недостаточно золота");
-  spend(s, p.hero, rank * t.hours, "Обучение: " + prof.name);
-  h.wallet -= 2 * rank;
+  const offer = trainingOffer(s, prof.id, rank);
+  requireThat(rank > (h.trained[prof.id] || 2) && offer, "Нужен наставник и новый ранг");
+  requireThat(h.wallet >= offer.fee, "Недостаточно золота");
+  spend(s, p.hero, offer.hours, "Обучение: " + prof.name);
+  h.wallet = tradeMoney(h.wallet - offer.fee);
   h.trained[prof.id] = rank;
 });
 register("disenchant", "hero", (s, p) => {
@@ -8832,6 +9159,9 @@ register("enchant", "hero", (s, p) => {
       canCraft(s, p.hero, r),
     "Требуется известная формула зачарования",
   );
+  const template = byId(economy(s).items, x.item_id);
+  requireThat(!template.original && !x.original, "Книжный предмет сохраняет исходные свойства");
+  requireThat(!template.base_item_id || template.magic_slots === 1, "У предмета нет магической ячейки");
   const old = structuredClone(x);
   for (const i of s.engine.ingredients.filter((i) => i.recipe_id === r.id))
     take(s, i.item_id, x.owner, i.quantity);
@@ -8902,9 +9232,9 @@ register("trainingMode", "master", (s, p) => {
   economy(s).requireTrainer = !!p.on;
 });
 // Contract and session settlement share the same reward reducer as local errands.
-function settleContract(s, q, rows, reveal) {
+function settleContract(s, q, rows, reveal, delivery = null) {
   requireThat(
-    q.type !== "local" && q.status !== "done" && !q.rewardReceipt,
+    q.type !== "local" && (q.type !== "delivery" || delivery) && q.status !== "done" && !q.rewardReceipt,
     "Задание уже завершено или индивидуальное",
   );
   const applied = [];
@@ -8924,7 +9254,9 @@ function settleContract(s, q, rows, reveal) {
         Number.isFinite(r.amount) && r.amount >= 0,
         "Неверное количество золота",
       );
-      s.company.gold = Math.round((s.company.gold + r.amount) * 100) / 100;
+      const purse = delivery?.rewardHero ? profile(s, delivery.rewardHero) : s.company;
+      const balance = delivery?.rewardHero ? "wallet" : "gold";
+      purse[balance] = Math.round((purse[balance] + r.amount) * 100) / 100;
     } else if (r.type === "item") {
       const id = r.item_id || "reward-" + q.id + "-" + applied.length,
         e = economy(s);
@@ -8951,6 +9283,7 @@ function settleContract(s, q, rows, reveal) {
     day: s.company.day,
     year: s.company.year,
     rewards: applied,
+    ...(delivery ? { delivery } : {}),
   };
   if (reveal) q.rewardRevealed = true;
   s.journal.unshift({
@@ -9045,7 +9378,8 @@ register("customCategory", "master", (s, p) => {
 });
 
 function activeEffects(s) {
-  return Object.entries(s.engine.campEffects || {})
+  const effects = Object.fromEntries((s.engine.campUpgrades || []).map((row) => [row.service, row]));
+  return Object.entries({ ...effects, ...s.engine.campEffects })
     .filter(([name]) => s.company.talents[name])
     .map(([, value]) => value);
 }
@@ -9641,6 +9975,19 @@ function journalPanel() {
     stay: "Начало стоянки",
     closeStay: "Конец стоянки",
     gold: "Перевод золота",
+    tradeDeal: "Рыночная сделка",
+    tradeDonation: "Торговый взнос в казну",
+    tradeMarkets: "Обновлён рынок",
+    tradeProducts: "Обновлено торговое производство",
+    tradeRecipeEdit: "Обновлён торговый рецепт",
+    facilityTier: "Куплено оборудование",
+    facilityRental: "Арендована мастерская",
+    deliverGoods: "Выполнена поставка",
+    deliveryContract: "Настроена поставка",
+    craftTempo: "Изменён темп ремесла",
+    contentImport: "Импорт пакета контента",
+    contentArchive: "Архивирование пакета",
+
   };
   openModal(
     "Журнал операций",
@@ -10260,6 +10607,8 @@ function drawKitStayTasks(hero, stay, master) {
       "contracts",
       () => localBoard(),
     );
+    if (localMarket(S, actor).length)
+      task("Торговля", "Местный рынок", "bank", () => openCraftTab("trade"));
     task("Отдохнуть", "Провести время у костра", "rest", () =>
       commandForm(
         "Отдых",
@@ -10325,11 +10674,12 @@ function professionRank(p, id) {
     : bv(p);
 }
 function sourceLabel(source) {
-  return source?.book === "wow"
-    ? "D&D: World of Warcraft · с. " + source.printed_page
-    : source?.origin === "house"
-      ? "Домашняя механика Атласа"
-      : "";
+  const names = { phb2024: "Книга игрока D&D 2024", dmg2024: "Руководство мастера D&D 2024", wow: "D&D: World of Warcraft" };
+  if (source?.book && Object.hasOwn(names, source.book))
+    return names[source.book] + " · с. " + source.printed_page;
+  if (source?.origin === "house") return "Домашняя механика Атласа";
+  if (source?.origin === "demo") return "Демонстрационные данные";
+  return "";
 }
 function knownRecipe(p, r) {
   return !!(
@@ -10424,18 +10774,20 @@ function renderCraft() {
       ? visualMenu(
           "Управление ремеслом",
           visualAction("Редактор профессий", "professionEditor()") +
+            visualAction("Недельный профиль ремесла", "craftTempoForm()") +
             visualAction("Обложка раздела", "editSectionCover('craft')"),
         )
       : "") +
     "</div>" +
-    '<div id="craftProfessionPills" class="kit-tabs"></div><section id="craftBody"></section>' +
-    '<div id="craftTabs" class="kit-craft-views" aria-label="Виды ремесла"></div></div>';
+    '<div id="craftTabs" class="kit-tabs kit-craft-views" aria-label="Виды ремесла"></div>' +
+    '<div id="craftProfessionPills" class="kit-tabs"></div><section id="craftBody"></section></div>';
   bindKitHero();
   const tabs = $("craftTabs");
   for (const [id, label] of [
     ["professions", "Профессии"],
     ["recipes", "Книга рецептов"],
     ["projects", "Проекты"],
+    ["trade", "Торговля"],
   ])
     craftTabButton(label, id, tabs);
   const root = $("craftBody");
@@ -10452,6 +10804,7 @@ function renderCraft() {
     renderProjects($("craftProjectRows"), hero);
   }
   if (craftTab === "projects") renderProjects(root, hero);
+  if (craftTab === "trade") tradeView(root, hero);
 }
 function drawProfessionPills() {
   const table = S.engine.professions.filter((p) =>
@@ -10565,12 +10918,13 @@ function renderProfessionCards(root, hero) {
       controls.append(
         button("Рецепты", () => openCraftTab("recipes", profession.id)),
       );
-    if (eligible && S.engine.requireTrainer && bv(p) > rank)
+    const training = eligible && S.engine.requireTrainer && bv(p) > rank ? trainingOffer(S, profession.id, bv(p)) : null;
+    if (training)
       controls.append(
         button("Обучиться", () =>
           commandForm(
             "Обучение",
-            "<p>" + esc(bv(p)) + " дн. · " + esc(bv(p) * 2) + " зм</p>",
+            "<p>" + esc(timeLabel(training.hours) + " · " + goldText(training.fee)) + "</p>",
             "train",
             () => ({ hero, profession: profession.id }),
           ),
@@ -10730,7 +11084,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
     );
   const profession = S.engine.professions.find((p) => p.id === r.profession_id);
   const requirements = [
-    r.service,
+    r.service && (r.service + (r.facility_rank ? " · ступень " + r.facility_rank : "")),
     ...(r.tools || []),
     ...names(r.equipment),
     ...(r.locations || []).map((id) => node(id)?.name || id),
@@ -10772,6 +11126,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
     (requirements.length
       ? '<p class="muted">' + esc(requirements.join(" · ")) + "</p>"
       : "") +
+    equipmentDetails(item, item) +
     '<div id="craftCosts"></div><div class="kit-recipe-actions"><div id="craftInputs"></div><div id="craftSubmit"></div></div>' +
     '<div id="craftNotice" class="kit-notice" role="status"></div>';
   if (!hero) {
@@ -11091,6 +11446,8 @@ function renderWorkshop() {
     '<section class="kit-panel"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div></div>';
   $("workshopLinks").append(
     button("Мастерская данных", () => workshop()),
+    button("Пакеты контента", contentWorkshop),
+    button("Скачать спецификацию для генерации контента", downloadContentSpecification),
     button("Редактор профессий", professionEditor),
   );
   $("demoLinks").append(
@@ -11114,6 +11471,1086 @@ function renderWorkshop() {
     $("demoLinks").append(
       document.createTextNode("Демонстрационные данные добавлены."),
     );
+}
+
+const TRADE_CATEGORY = "Торговые товары";
+const TRADE_NAMES = {
+  mining: "Ящик руды", herbalism: "Тюк трав", skinning: "Тюк шкур",
+  fishing: "Бочка рыбы", hunt: "Охотничьи товары", archaeology: "Коллекция древностей",
+  smithing: "Кузнечные товары", alchemy: "Алхимические товары", cooking: "Продовольственные товары",
+  engineering: "Инженерные товары", inscription: "Писчие товары", jewelry: "Ювелирные товары",
+  leather: "Кожевенные товары", tailor: "Текстильные товары", enchanting: "Чародейские товары",
+};
+const TRADE_SERVICES = {
+  smithing: "Оружейная", alchemy: "Лаборатория", cooking: "Полевая кухня",
+  engineering: "Мастерская", jewelry: "Мастерская", leather: "Мастерская",
+  tailor: "Мастерская", enchanting: "Зачаровательная", inscription: "Писарь",
+};
+const productionServices = [...new Set(Object.values(TRADE_SERVICES))];
+const propertyKinds = {
+  extra_attack: "Дополнительная атака", counterattack: "Контратака",
+  damage_dice: "Дополнительные кости урона", control: "Контроль",
+  elemental: "Стихийный эффект", protection: "Защита", limited: "Ограниченная способность",
+};
+const sourceIds = ["phb2024", "dmg2024", "wow", "house", "demo"];
+const bookIds = sourceIds.slice(0, 3);
+const tempoDefaults = { consumable: 4, equipment: 24, common: 8, uncommon: 24, rare: 56, epic: 112 };
+const repTradeDefaults = [[3000, 0.05], [9000, 0.1], [21000, 0.15], [42000, 0.2]];
+
+function tradeMoney(value) {
+  requireThat(typeof value === "number" && Number.isFinite(value) && value >= 0 && value <= 1e9, "Некорректная денежная сумма");
+  return Math.round(value * 100) / 100;
+}
+function tradeNumber(value) {
+  requireThat(typeof value === "number" || (typeof value === "string" && value.trim()), "Ожидалось число");
+  const number = Number(value);
+  requireThat(Number.isFinite(number), "Некорректное число");
+  return number;
+}
+function catalogSource(source, booksOnly = false) {
+  const origin = source?.book || source?.origin;
+  requireThat((booksOnly ? bookIds : sourceIds).includes(origin), "Укажите идентификатор источника");
+  if (bookIds.includes(origin)) integer(source.printed_page, 1, 9999);
+}
+function validateTradeRow(k, row) {
+  if (k === "markets") {
+    for (const key of ["stock", "demand"]) integer(row[key]);
+    for (const key of ["budget", "buy_factor", "sell_factor"]) tradeMoney(row[key]);
+    requireThat(row.buy_factor > 0 && row.sell_factor <= row.buy_factor && row.buy_factor <= 10,
+      "Коэффициенты: 0 ≤ скупка ≤ продажа ≤ 10");
+    if (row.rep_bonuses != null) {
+      requireThat(Array.isArray(row.rep_bonuses), "Ожидались пороги репутации");
+      let threshold = -1;
+      for (const line of row.rep_bonuses) {
+        requireThat(Array.isArray(line) && line.length === 2, "Порог репутации: [очки, скидка]");
+        threshold = integer(line[0], threshold + 1, 42999);
+        requireThat(Number.isFinite(line[1]) && line[1] >= 0 && line[1] < 1, "Скидка от 0 до 1");
+      }
+    }
+  }
+  if (k === "facilities") {
+    requireThat(productionServices.includes(row.service), "Неизвестное сооружение");
+    for (const field of ["tier2_gp", "tier3_gp", "rent1_gp", "rent2_gp", "rent3_gp"]) tradeMoney(row[field]);
+  }
+  if (k === "services") {
+    requireThat(row.service === "Наставник" || productionServices.includes(row.service), "Неизвестная местная услуга");
+    if (row.tier != null) integer(row.tier, 1, 3);
+    if (row.fee != null) tradeMoney(row.fee);
+  }
+  if (k === "campUpgrades") {
+    if (row.bonus != null) integer(row.bonus, -20, 20);
+    if (row.discount != null) integer(row.discount, 0, 100);
+    if (row.speed != null) integer(row.speed, 0, 100);
+    if (row.recipes != null) requireThat(Array.isArray(row.recipes) && row.recipes.every(validId), "Нужен список ID рецептов");
+  }
+  if (k === "craftProperties") {
+    requireThat(Object.hasOwn(propertyKinds, row.kind), "Неизвестное ремесленное свойство");
+    requireThat(["attack", "bonus", "reaction", "magic", "utilize", "passive", "other"].includes(row.action), "Неизвестный тип действия");
+    requireThat(row.trigger?.trim() && row.effect?.trim() && row.limits?.trim(), "Укажите триггер, эффект и ограничения");
+    requireThat(!!row.uses === !!row.recovery && (row.kind !== "limited" || row.uses), "Укажите применения и способ восстановления");
+    requireThat(["house", "demo"].includes(row.source?.origin), "Ремесленные свойства Атласа маркируются как house/demo");
+  }
+  if (["items", "tradeGoods", "originalEquipment"].includes(k)) {
+    if (row.original) {
+      catalogSource(row.source, true);
+      requireThat(row.rules && typeof row.rules === "object" && !Array.isArray(row.rules) && Object.keys(row.rules).length,
+        "Нужны исходные книжные характеристики");
+      requireThat(!row.trade_product && !row.base_item_id && !row.craft_properties?.length &&
+        !row.craft_slots && !row.magic_slots && !row.properties?.enchantment, "Книжному предмету нельзя добавить авторскую модификацию");
+    }
+    if (row.trade_product)
+      requireThat(row.category === TRADE_CATEGORY && row.value_gp > 0 && row.stackable !== false && !row.hidden &&
+        !row.properties && !row.rules && !row.base_item_id && !row.craft_properties?.length &&
+        !row.craft_slots && !row.magic_slots && ["common", "uncommon", "rare"].includes(row.quality),
+        "Торговая партия должна быть открытой, пригодной к складыванию, с положительной ценой и без боевых свойств");
+    if (row.craft_slots != null) integer(row.craft_slots, 0, 1);
+    if (row.magic_slots != null) integer(row.magic_slots, 0, 1);
+    if (row.base_item_id || row.craft_slots || row.magic_slots || row.craft_properties?.length)
+      requireThat(row.base_item_id && row.stackable === false && ["house", "demo"].includes(row.source?.origin),
+        "Авторской экипировке нужна книжная основа, источник house/demo и stackable=false");
+    if (row.craft_properties != null)
+      requireThat(Array.isArray(row.craft_properties) && row.craft_properties.every(validId) &&
+        new Set(row.craft_properties).size === row.craft_properties.length &&
+        row.craft_properties.length <= (row.craft_slots || 0), "Свойства должны помещаться в ремесленные ячейки");
+  }
+  if (["recipes", "tradeRecipes"].includes(k)) {
+    if (row.facility_rank != null) {
+      integer(row.facility_rank, 1, 3);
+      requireThat(productionServices.includes(row.service), "Ступень требует конкретного сооружения");
+    }
+    if (row.tempo_class)
+      requireThat(["consumable", "equipment", "magic", "manual"].includes(row.tempo_class), "Неизвестный класс темпа ремесла");
+    if (row.trade_product) integer(row.rank, 2, 4);
+  }
+}
+
+function tradeStock(s, item, owner) {
+  return s.company.inventory.filter((stack) =>
+    stack.item_id === item && (stack.owner || "") === owner && !stack.hidden && !stack.properties);
+}
+function useTradeStock(s, item, owner, amount) {
+  const rows = tradeStock(s, item, owner);
+  requireThat(rows.reduce((sum, stack) => sum + stack.qty, 0) >= amount, "Недостаточно доступных товаров");
+  for (const row of rows) {
+    const qty = Math.min(row.qty, amount);
+    row.qty -= qty;
+    amount -= qty;
+    if (!amount) break;
+  }
+  s.company.inventory = s.company.inventory.filter((row) => row.qty > 0);
+}
+function marketItem(s, row) {
+  const item = byId(s.engine.items || [], row.item_id);
+  requireThat(!item.hidden && item.stackable !== false && !item.properties && !item.original &&
+    !item.base_item_id && item.value_gp > 0, "Нужен открытый товар с положительной ценой, допускающий стопки");
+  return item;
+}
+function validateTradeCatalog(s) {
+  const e = s.engine, pairs = new Set(), services = new Set();
+  for (const row of e.markets || []) {
+    validateTradeRow("markets", row);
+    byId(s.nodes, row.node_id);
+    if (row.faction_id) byId(s.factions, row.faction_id);
+    marketItem(s, row);
+    const key = JSON.stringify([row.node_id, row.item_id]);
+    requireThat(!pairs.has(key), "Повтор товара на одном рынке");
+    pairs.add(key);
+  }
+  for (const row of e.facilities || []) {
+    validateTradeRow("facilities", row);
+    requireThat(!services.has(row.service), "Повтор сооружения: " + row.service);
+    services.add(row.service);
+  }
+  for (const row of e.localServices || []) {
+    validateTradeRow("services", row);
+    byId(s.nodes, row.node_id);
+    if (row.profession_id) byId(e.professions, row.profession_id);
+  }
+  const upgrades = new Set();
+  for (const row of e.campUpgrades || []) {
+    validateTradeRow("campUpgrades", row);
+    requireThat(!upgrades.has(row.service), "Дублируется улучшение лагеря");
+    upgrades.add(row.service);
+    for (const id of row.recipes || []) byId(e.recipes || [], id);
+  }
+  for (const row of e.craftProperties || []) validateTradeRow("craftProperties", row);
+  for (const row of e.items || []) {
+    validateTradeRow("items", row);
+    if (row.base_item_id)
+      requireThat(byId(e.items, row.base_item_id).original === true, "Основа должна быть книжным предметом");
+    for (const id of row.craft_properties || []) byId(e.craftProperties || [], id);
+  }
+  for (const r of e.recipes || []) {
+    validateTradeRow("recipes", r);
+    if (r.properties && e.items?.some((item) => item.id === r.item_id && item.original))
+      throw Error("Рецепт книжного предмета не может добавлять авторские свойства");
+    if (!r.trade_product) continue;
+    const p = byId(e.professions, r.profession_id), item = byId(e.items, r.item_id);
+    requireThat(item.trade_product && item.profession_id === p.id && !r.properties && !r.experiment,
+      "Торговый рецепт производит торговую партию своей профессии");
+    requireThat(item.quality === ["common", "uncommon", "rare"][r.rank - 2], "Качество товара должно совпадать с рангом рецепта");
+    if (p.kind === "production")
+      requireThat(r.service === TRADE_SERVICES[p.id] && r.facility_rank === r.rank - 1,
+        "Нужна ступень мастерской, равная рангу рецепта минус один");
+    const materials = (e.ingredients || []).filter((line) => line.recipe_id === r.id);
+    requireThat(materials.length, "Нет ингредиентов торгового рецепта: " + r.id);
+    let inputValue = 0;
+    for (const line of materials) {
+      const material = byId(e.items, line.item_id);
+      requireThat(["Материалы", "Припасы"].includes(material.category) &&
+        !material.original && !material.hidden && material.stackable !== false, "Нужно сырьё или припасы");
+      inputValue += (material.value_gp || 0) * line.quantity;
+    }
+    if (p.kind === "gathering") {
+      requireThat(!r.service && item.value_gp * r.quantity <= inputValue + 1e-8, "Упаковка не увеличивает стоимость сырья");
+    }
+  }
+  for (const contract of s.contracts || []) if (contract.type === "delivery") validateDelivery(s, contract);
+}
+
+function tradeId(profession, rank) {
+  return "trade-" + profession + "-" + rank;
+}
+function tradeState(s) {
+  const e = economy(s);
+  for (const key of ["markets", "facilities", "craftProperties"]) e[key] ??= [];
+  return e;
+}
+
+register("tradeMarkets", "master", (s, p) => {
+  requireThat(Array.isArray(p.rows) && p.rows.length > 0 && p.rows.length <= 1000, "Нужно от 1 до 1000 позиций");
+  const e = tradeState(s), seen = new Set();
+  for (const input of p.rows) {
+    const key = JSON.stringify([input.node_id, input.item_id]);
+    requireThat(!seen.has(key), "Повтор товара на одном рынке");
+    seen.add(key);
+    const old = e.markets.find((x) => x.node_id === input.node_id && x.item_id === input.item_id);
+    const row = rowFrom("markets", { ...input, id: old?.id || input.id || crypto.randomUUID() });
+    const sameId = e.markets.find((x) => x.id === row.id);
+    requireThat(!sameId || sameId === old, "ID позиции рынка занят");
+    if (old) Object.assign(old, row);
+    else e.markets.push(row);
+  }
+  validateTradeCatalog(s);
+});
+
+function tradePrices(s, row) {
+  const item = marketItem(s, row), faction = s.factions.find((f) => f.id === row.faction_id);
+  requireThat(!row.faction_id || (faction && !faction.hidden && (faction.repPoints ?? 0) >= 0),
+    "Торговля с фракцией недоступна");
+  const bonus = (row.rep_bonuses ?? repTradeDefaults).filter(([points]) => (faction?.repPoints || 0) >= points).at(-1)?.[1] || 0;
+  const buy = tradeMoney(Math.max(0.01, Math.ceil(item.value_gp * row.buy_factor * (1 - bonus) * 100 - 1e-8) / 100));
+  const sell = tradeMoney(Math.min(Math.max(0, buy - 0.01), Math.floor(item.value_gp * row.sell_factor * (1 + bonus) * 100 + 1e-8) / 100));
+  return { buy, sell, bonus };
+}
+function localMarket(s, actor) {
+  const stay = currentStay(s), place = s.nodes.find((node) => node.id === stay?.location);
+  if (!place || s.journey || s.engine.phase !== "stay" || (actor?.role !== "master" && place.visibility === "hidden")) return [];
+  return (s.engine.markets || []).filter((row) => row.node_id === stay.location &&
+    (actor?.role === "master" || !row.faction_id || s.factions.some((f) => f.id === row.faction_id && !f.hidden)));
+}
+register("tradeDeal", "hero", (s, p, actor) => {
+  const h = profile(s, p.hero), row = localMarket(s, actor).find((x) => x.item_id === p.item);
+  requireThat(row, "Торговля возможна только на текущей стоянке");
+  requireThat(["buy", "sell"].includes(p.side), "Неизвестный тип сделки");
+  const qty = integer(p.qty, 1, 1000), unit = tradePrices(s, row)[p.side];
+  if (p.unit != null) requireThat(p.unit === unit, "Цена изменилась. Откройте сделку заново");
+  const total = tradeMoney(qty * unit), owner = "member:" + p.hero;
+  if (p.side === "buy") {
+    requireThat(row.stock >= qty && h.wallet >= total, "Недостаточно товара или золота");
+    h.wallet = tradeMoney(h.wallet - total);
+    row.stock -= qty;
+    row.budget = tradeMoney(row.budget + total);
+    deposit(s, p.item, owner, qty);
+  } else {
+    requireThat(total > 0 && row.demand >= qty && row.budget >= total, "Спрос или бюджет скупщика исчерпан");
+    useTradeStock(s, p.item, owner, qty);
+    row.demand -= qty;
+    row.stock = integer(row.stock + qty);
+    row.budget = tradeMoney(row.budget - total);
+    h.wallet = tradeMoney(h.wallet + total);
+  }
+});
+register("tradeDonation", "hero", (s, { hero, amount }) => {
+  const h = profile(s, hero);
+  amount = tradeMoney(amount);
+  requireThat(amount > 0 && h.wallet >= amount, "Недостаточно личного золота");
+  h.wallet = tradeMoney(h.wallet - amount);
+  s.company.gold = tradeMoney(s.company.gold + amount);
+});
+
+register("tradeProducts", "master", (s, p) => {
+  const e = tradeState(s), pack = { tradeGoods: [], tradeRecipes: [], ingredients: [] }, seen = new Set();
+  requireThat(Array.isArray(p.rows) && p.rows.length > 0 && p.rows.length <= 200, "Нужен список от 1 до 200 рецептов");
+  for (const input of p.rows) {
+    const prof = byId(e.professions, input.profession_id), rank = integer(tradeNumber(input.rank), 2, 4);
+    requireThat(Object.hasOwn(TRADE_NAMES, prof.id), "Нет товарной категории для профессии");
+    const id = tradeId(prof.id, rank), recipeId = "make-" + id, name = TRADE_NAMES[prof.id];
+    requireThat(!seen.has(id), "Повтор категории и качества");
+    seen.add(id);
+    const goods = { id, name, category: TRADE_CATEGORY, profession_id: prof.id,
+      quality: ["common", "uncommon", "rare"][rank - 2], value_gp: tradeMoney(tradeNumber(input.value_gp)),
+      stackable: true, source: { origin: "house" }, desc: e.items.find((x) => x.id === id)?.desc || "Торговая партия." };
+    const service = TRADE_SERVICES[prof.id];
+    pack.tradeGoods.push(goods);
+    pack.tradeRecipes.push({ id: recipeId, name: name + " · " + ["Обычные", "Высокого качества", "Превосходные"][rank - 2],
+      profession_id: prof.id, item_id: id, rank, hours: integer(tradeNumber(input.hours), 1, 10000),
+      quantity: 1, gold: tradeMoney(tradeNumber(input.gold || 0)), basic: true,
+      ...(service ? { service, facility_rank: rank - 1 } : {}), source: { origin: "house" } });
+    const parts = typeof input.ingredients === "string" ? JSON.parse(input.ingredients) : input.ingredients;
+    requireThat(Array.isArray(parts) && parts.length > 0 && parts.length <= 30, "Укажите материалы");
+    e.ingredients = e.ingredients.filter((line) => line.recipe_id !== recipeId);
+    for (const line of parts) pack.ingredients.push({
+      id: recipeId + ":" + line.item_id, recipe_id: recipeId, item_id: line.item_id,
+      quantity: integer(tradeNumber(line.quantity), 1, 100000),
+    });
+  }
+  const plan = planImport(s, pack, "update");
+  requireThat(!plan.count.errors, plan.issues.join("\n"));
+  Object.assign(s, plan.next);
+});
+
+register("tradeRecipeEdit", "master", (s, p) => {
+  const e = tradeState(s), recipe = rowFrom("tradeRecipes", p.recipe);
+  const old = e.recipes.find((r) => r.id === recipe.id);
+  requireThat(!old || old.trade_product, "ID занят обычным рецептом");
+  requireThat(Array.isArray(p.ingredients) && p.ingredients.length > 0 && p.ingredients.length <= 30,
+    "Нужно от 1 до 30 ингредиентов");
+  const prior = new Map(e.ingredients.filter((row) => row.recipe_id === recipe.id).map((row) => [row.item_id, row]));
+  const seen = new Set(), ingredients = p.ingredients.map((line) => {
+    requireThat(!seen.has(line.item_id), "Повтор ингредиента");
+    seen.add(line.item_id);
+    const existing = prior.get(line.item_id);
+    return { ...existing, item_id: line.item_id, quantity: line.quantity,
+      id: existing?.id || crypto.randomUUID(), recipe_id: recipe.id };
+  });
+  e.ingredients = e.ingredients.filter((row) => row.recipe_id !== recipe.id);
+  const plan = planImport(s, { tradeRecipes: [recipe], ingredients }, "update");
+  requireThat(!plan.count.errors, plan.issues.join("\n"));
+  Object.assign(s, plan.next);
+});
+function campTier(s, service) {
+  return s.company.talents?.[service] ? (s.engine.facilityTiers?.[service] || 1) : 0;
+}
+function facilityLevel(s, service) {
+  const stay = currentStay(s);
+  return Math.max(campTier(s, service), stay?.services?.includes(service) ? (stay.serviceTiers?.[service] || 1) : 0,
+    stay?.rentals?.[service]?.node_id === stay?.location ? stay?.rentals?.[service]?.tier || 0 : 0);
+}
+function facilityPrices(s, service) {
+  return (s.engine.facilities || []).find((row) => row.service === service) ||
+    { tier2_gp: 300, tier3_gp: 750 };
+}
+register("facilityTier", "master", (s, p) => {
+  const tier = integer(p.tier, 2, 3), cost = tradeMoney(p.cost ?? facilityPrices(s, p.service)["tier" + tier + "_gp"]);
+  requireThat(productionServices.includes(p.service) && campTier(s, p.service) === tier - 1,
+    "Сначала откройте предыдущую ступень");
+  requireThat(s.company.gold >= cost, "Недостаточно золота в казне");
+  s.company.gold = tradeMoney(s.company.gold - cost);
+  (s.engine.facilityTiers ??= {})[p.service] = tier;
+});
+function localServices(s, service) {
+  const stay = currentStay(s);
+  return (s.engine.localServices || []).filter((row) => row.node_id === stay?.location && row.service === service && !row.hidden);
+}
+function trainingOffer(s, profession, rank) {
+  const stay = currentStay(s), mentors = localServices(s, "Наставник");
+  const found = mentors.find((row) => row.profession_id === profession) || mentors.find((row) => !row.profession_id);
+  if (!stay || (!found && !stay.services?.includes("Наставник"))) return null;
+  return { fee: found?.fee ?? 2 * rank, hours: found?.hours ?? rank * stay.hours };
+}
+function rentalPrice(s, service, tier) {
+  return localServices(s, service).find((row) => row.tier === tier)?.fee ?? facilityPrices(s, service)["rent" + tier + "_gp"];
+}
+register("facilityRental", "master", (s, p) => {
+  const stay = currentStay(s), tier = integer(p.tier, 1, 3);
+  requireThat(stay && s.engine.phase === "stay" && productionServices.includes(p.service) &&
+    s.nodes.some((node) => node.id === stay.location && node.type === "city"), "Аренда доступна на стоянке в городе");
+  requireThat(facilityLevel(s, p.service) < tier, "Услуга уже доступна");
+  const cost = tradeMoney(p.cost ?? rentalPrice(s, p.service, tier));
+  requireThat(s.company.gold >= cost, "Недостаточно золота в казне");
+  s.company.gold = tradeMoney(s.company.gold - cost);
+  (stay.rentals ??= {})[p.service] = { node_id: stay.location, tier, cost };
+});
+
+function craftTempoHours(s, r) {
+  if (r.trade_product) return r.hours;
+  const item = byId(s.engine.items, r.item_id);
+  if (r.tempo_hours) return Math.min(r.hours, r.tempo_hours);
+  if (item.quality === "legendary") return r.hours;
+  const kind = r.tempo_class || (item.category === "Припасы" ? "consumable" :
+    item.category === "Магические предметы" || item.quality !== "common" ? "magic" :
+      ["Оружие", "Броня"].includes(item.category) ? "equipment" : "manual");
+  return Math.min(r.hours, tempoDefaults[kind === "magic" ? item.quality : kind] ?? r.hours);
+}
+register("craftTempo", "master", (s, p) => {
+  requireThat(Array.isArray(p.ids) && p.ids.length && new Set(p.ids).size === p.ids.length, "Выберите рецепты без повторов");
+  for (const id of p.ids) {
+    const r = byId(s.engine.recipes, id), target = craftTempoHours(s, r);
+    requireThat(!r.trade_product, "Торговые товары имеют собственные сроки");
+    if (r.hours === target) continue;
+    r.reference_hours ??= r.hours;
+    r.hours = target;
+    r.time_policy = "atlas-weekly";
+  }
+});
+
+function validateDelivery(s, contract) {
+  requireThat(typeof contract.title === "string" && contract.title.trim() &&
+    typeof contract.consignee === "string" && contract.consignee.trim(), "Нужны название и получатель поставки");
+  byId(s.nodes, contract.location);
+  if (contract.giver) byId(s.portal.people, contract.giver);
+  integer(contract.due_year, 1);
+  integer(contract.due_day, 1);
+  requireThat(["personal", "shared"].includes(contract.stock_source) && ["hero", "company"].includes(contract.reward_recipient),
+    "Не выбраны источник товаров или получатель награды");
+  requireThat(Array.isArray(contract.goods) && contract.goods.length > 0 && contract.goods.length <= 30, "Нужно от 1 до 30 позиций поставки");
+  const goods = new Set();
+  for (const row of contract.goods) {
+    requireThat(byId(s.engine.items, row.item_id).trade_product, "Поставка принимает торговые товары");
+    requireThat(!goods.has(row.item_id), "Повтор товара в поставке");
+    goods.add(row.item_id);
+    integer(row.quantity, 1);
+  }
+  requireThat(Array.isArray(contract.rewards) && contract.rewards.length > 0 && contract.rewards.length <= 30, "Укажите награду поставки");
+  for (const row of contract.rewards) {
+    if (row.type === "gold") tradeMoney(row.amount);
+    else if (row.type === "item") {
+      byId(s.engine.items, row.item_id);
+      integer(row.qty || row.quantity, 1);
+    } else if (row.type === "rep") {
+      byId(s.factions, row.faction);
+      integer(row.amount, -100000, 100000);
+    } else throw Error("Награда поставки: золото, предмет или репутация");
+  }
+}
+function deliveryQuote(s, actor, hero, q) {
+  const owner = q.stock_source === "shared" ? "" : "member:" + hero;
+  const place = s.nodes.find((node) => node.id === q.location);
+  const goods = q.goods.map((row) => ({ ...row,
+    have: tradeStock(s, row.item_id, owner).reduce((sum, stack) => sum + stack.qty, 0) }));
+  const reasons = [];
+  if (q.archived || q.rewardReceipt || !["active", "available"].includes(q.status)) reasons.push("Поставка недоступна");
+  if (!owned(actor, hero) || (actor.role !== "master" && (q.hidden || place?.visibility === "hidden")))
+    reasons.push("Нет доступа к поставке");
+  if (s.journey || s.company.location !== q.location) reasons.push("Компания ещё не в месте доставки");
+  if (s.company.year > q.due_year || (s.company.year === q.due_year && s.company.day > q.due_day)) reasons.push("Срок доставки истёк");
+  if (q.stock_source === "shared" && !sharedAccess(s, actor, hero)) reasons.push("Нет доступа к общему банку");
+  if (goods.some((row) => row.have < row.quantity)) reasons.push("Недостаточно доступных товаров");
+  return { goods, owner, reasons };
+}
+register("deliveryContract", "master", (s, p) => {
+  const current = p.id && byId(s.contracts, p.id);
+  requireThat(!current || (current.type === "delivery" && !current.rewardReceipt && current.status !== "done"),
+    "Завершённая поставка не редактируется");
+  const allowedFields = ["title", "desc", "consignee", "location", "giver", "due_year", "due_day",
+    "stock_source", "reward_recipient", "goods", "rewards", "hidden"];
+  const q = Object.fromEntries(allowedFields.map((key) => [key, p[key]]));
+  validateDelivery(s, q);
+  if (current) Object.assign(current, q);
+  else s.contracts.push({ ...q, id: crypto.randomUUID(), type: "delivery", status: "available" });
+});
+register("deliverGoods", "hero", (s, p, actor) => {
+  const q = byId(s.contracts, p.id);
+  requireThat(q.type === "delivery", "Нужен контракт поставки");
+  heroOf(s, p.hero);
+  validateDelivery(s, q);
+  const quote = deliveryQuote(s, actor, p.hero, q);
+  requireThat(!quote.reasons.length, quote.reasons.join(" · "));
+  for (const row of quote.goods) useTradeStock(s, row.item_id, quote.owner, row.quantity);
+  const rewardHero = q.reward_recipient === "hero" ? p.hero : "";
+  const rows = q.rewards.map((row) => row.type === "item"
+    ? { ...row, owner: rewardHero ? "member:" + rewardHero : "" } : row);
+  settleContract(s, q, rows, true, { hero: p.hero, rewardHero, owner: quote.owner, goods: q.goods });
+});
+
+const contentFormat = "atlas-content";
+function versionParts(version) {
+  requireThat(typeof version === "string" && /^(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})\.(0|[1-9]\d{0,5})$/.test(version), "Версия пакета указывается как X.Y.Z");
+  return version.split(".").map(Number);
+}
+function compareContentVersions(a, b) {
+  const right = versionParts(b);
+  return versionParts(a).map((x, i) => x - right[i]).find(Boolean) || 0;
+}
+function contentMetadata(pack) {
+  requireThat(pack.format === contentFormat && pack.schemaVersion === 1 && validId(pack.id), "Нужен пакет atlas-content со схемой 1 и постоянным ID");
+  versionParts(pack.version);
+  for (const key of ["name", "author", "description"])
+    requireThat(typeof pack[key] === "string" && pack[key].trim() && pack[key].length <= 3000, "Заполните " + key);
+  requireThat(Array.isArray(pack.sources) && pack.sources.length && Array.isArray(pack.dependencies), "Нужны источники и список зависимостей");
+  for (const source of pack.sources) catalogSource(source);
+  const dependencies = new Set();
+  for (const dep of pack.dependencies) {
+    requireThat(validId(dep?.id) && dep.id !== pack.id && !dependencies.has(dep.id), "Неверная или повторная зависимость");
+    dependencies.add(dep.id);
+    versionParts(dep.minVersion);
+  }
+  return Object.fromEntries(["format", "schemaVersion", "id", "name", "description", "version", "author", "sources", "dependencies"].map((key) => [key, pack[key]]));
+}
+function catalogIdentity(table, id) {
+  return tables[table][1] + " / " + id;
+}
+function preserveRuntimeFields(table, old, incoming, resetMarket = false) {
+  const path = tables[table][1];
+  const runtime = {
+    nodes: ["visibility"],
+    routes: ["status"],
+    factions: ["repPoints", "charter"],
+    "portal.people": ["attitude", "promises", "history", "relations", "dossier", "firstMeeting", "archived"],
+    "portal.achievements": ["earned", "earnedDate", "grants", "archived"],
+    contracts: ["type", "status", "rewardReceipt", "rewardRevealed", "archived"],
+  };
+  const blocked = [...(runtime[path] || [])];
+  if (path === "engine.items" && old.original) blocked.push("original");
+  if (path === "portal.mail") blocked.push("read");
+  if (table === "markets" && !resetMarket) blocked.push("stock", "demand", "budget");
+  if (path === "contracts" && old.rewardReceipt) blocked.push("rewards", "goods", "stock_source", "reward_recipient");
+  if (path === "portal.news") blocked.push("archived");
+  for (const key of blocked) delete incoming[key];
+}
+function contentDefinition(table, row) {
+  const path = tables[table][1];
+  const stateFields = {
+    contracts: ["status", "rewardReceipt", "rewardRevealed", "archived"],
+    "portal.people": ["history", "archived"],
+    "portal.achievements": ["earned", "earnedDate", "grants", "archived"],
+    "portal.news": ["archived"], "portal.mail": ["read"],
+  };
+  const copy = { ...row };
+  for (const key of stateFields[path] || []) delete copy[key];
+  if (copy.extra && typeof copy.extra === "object") {
+    copy.extra = { ...copy.extra };
+    for (const key of stateFields[path] || []) delete copy.extra[key];
+  }
+  return copy;
+}
+function checkPackageGraph(packages) {
+  const active = new Map(packages.filter((row) => !row.archived).map((row) => [row.id, row]));
+  const checked = new Set(), visiting = new Set();
+  function check(record) {
+    if (checked.has(record.id)) return;
+    requireThat(!visiting.has(record.id), "Цикл зависимостей пакетов");
+    visiting.add(record.id);
+    for (const dep of record.dependencies) {
+      const target = active.get(dep.id);
+      requireThat(target && compareContentVersions(target.version, dep.minVersion) >= 0, "Не хватает зависимости " + dep.id + " ≥ " + dep.minVersion);
+      check(target);
+    }
+    visiting.delete(record.id);
+    checked.add(record.id);
+  }
+  for (const record of active.values()) check(record);
+}
+function contentPlan(s, pack, options = {}) {
+  inspectJSON(pack);
+  const metadata = contentMetadata(pack);
+  const registry = s.engine.contentPackages || [], previous = registry.find((x) => x.id === pack.id);
+  requireThat(!previous || compareContentVersions(pack.version, previous.version) > 0, "Пакет этой или более новой версии уже установлен");
+  requireThat(pack.tables && typeof pack.tables === "object" && !Array.isArray(pack.tables) &&
+    Object.keys(pack.tables).length, "Нужны справочники пакета");
+  const issues = [], changes = [], included = new Map();
+  const owner = new Map(registry.flatMap((entry) => entry.records.map((record) =>
+    [catalogIdentity(record.table, record.id), entry.id])));
+  const data = structuredClone(pack.tables), lookup = structuredClone(s);
+  for (const [table, rows] of Object.entries(data)) {
+    requireThat(Object.hasOwn(tables, table) && Array.isArray(rows), "Неизвестный справочник " + table);
+    const exists = new Set(records(lookup, table).map((row) => row.id));
+    data[table] = rows.map((row) => row && typeof row === "object" ? contentDefinition(table, row) : row);
+    for (const row of data[table]) {
+      if (!validId(row?.id)) {
+        issues.push(table + " · нужен постоянный ID");
+        continue;
+      }
+      const key = catalogIdentity(table, row.id), currentOwner = owner.get(key);
+      const conflict = included.has(key) || (currentOwner && currentOwner !== pack.id) ||
+        (exists.has(row.id) && currentOwner !== pack.id);
+      if (conflict) issues.push(key + " · запись уже принадлежит " + (currentOwner || "другому справочнику"));
+      changes.push({ table, id: row.id, change: conflict ? "conflict" : exists.has(row.id) ? "update" : "new" });
+      included.set(key, { table, id: row.id });
+    }
+  }
+  requireThat(included.size, "Пакет пуст");
+  const combined = new Map((previous?.records || []).map((row) => [catalogIdentity(row.table, row.id), row]));
+  for (const [key, row] of included) combined.set(key, row);
+  const entry = { ...metadata, records: [...combined.values()] };
+  const packages = [...registry.filter((x) => x.id !== pack.id), entry];
+  checkPackageGraph(packages);
+  const declared = new Set(pack.dependencies.map((dep) => dep.id));
+  for (const [table, rows] of Object.entries(data)) {
+    for (const row of rows) {
+      if (!row || typeof row !== "object") continue;
+      const fields = columns(table).filter((field) => field.type.startsWith("@"));
+      const refs = fields.map((field) => [field.type.slice(1), row[field.name]]);
+      for (const id of row.locations || []) refs.push(["nodes", id]);
+      for (const id of row.craft_properties || []) refs.push(["craftProperties", id]);
+      for (const line of Array.isArray(row.goods) ? row.goods : []) refs.push(["items", line.item_id]);
+      for (const [target, id] of refs) {
+        const other = id && owner.get(catalogIdentity(target, id));
+        if (other && other !== pack.id && !declared.has(other))
+          issues.push(table + " " + row.id + " · нужна явная зависимость " + other);
+      }
+    }
+  }
+  const plan = planImport(s, data, "update", options);
+  plan.issues.push(...issues);
+  plan.count.errors += issues.length;
+  plan.changes = changes;
+  plan.next.engine.contentPackages = packages;
+  return plan;
+}
+function exportContentPack(s, id) {
+  const { records: members, ...pack } = byId(s.engine.contentPackages || [], id);
+  delete pack.archived;
+  pack.tables = {};
+  for (const ref of members) {
+    const row = records(s, ref.table).find((x) => x.id === ref.id);
+    if (row) (pack.tables[ref.table] ??= []).push(contentDefinition(ref.table, row));
+  }
+  return pack;
+}
+register("contentImport", "master", (s, p) => {
+  const plan = contentPlan(s, p.pack, { resetMarket: p.resetMarket === true });
+  requireThat(!plan.count.errors, plan.issues.join("\n"));
+  Object.assign(s, plan.next);
+});
+register("contentArchive", "master", (s, p) => {
+  const pack = byId(s.engine.contentPackages || [], p.id);
+  requireThat(!pack.archived, "Пакет уже архивирован");
+  pack.archived = true;
+  checkPackageGraph(s.engine.contentPackages);
+});
+
+function goldText(value) {
+  return Number(value).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " зм";
+}
+function openTradeRecipe(id) {
+  const r = S.engine.recipes.find((x) => x.id === id);
+  if (!r) return;
+  craftProfession = r.profession_id;
+  craftRecipe = id;
+  craftQuery = craftQuality = craftFilter = "";
+  openCraftTab("recipes");
+}
+function tradeView(root, hero) {
+  const rows = localMarket(S, actor), stay = currentStay(S), canAct = hero && owned(actor, hero);
+  const wallet = hero ? profile(S, hero).wallet : null;
+  const place = stay && locLabel(stay.location);
+  const offers = rows.map((row) => {
+    const item = S.engine.items.find((x) => x.id === row.item_id), factionRecord = faction(row.faction_id);
+    if (!item || (player && item.hidden)) return "";
+    let prices, reason;
+    try { prices = tradePrices(S, row); } catch (error) { reason = error.message; }
+    const have = hero ? tradeStock(S, item.id, "member:" + hero).reduce((sum, x) => sum + x.qty, 0) : 0;
+    const controls = prices && canAct
+      ? availableTradeButton("Купить", "buy", item.id, row.stock && wallet >= prices.buy) +
+        availableTradeButton("Продать", "sell", item.id, row.demand && prices.sell > 0 && row.budget >= prices.sell && have)
+      : "";
+    return '<article class="kit-panel trade-offer"><div class="kit-row">' + itemIcon(item) +
+      '<div class="kit-grow"><h3>' + esc(item.name) + '</h3><small>' +
+      esc(factionRecord && visibleFaction(factionRecord) ? factionRecord.name : "Местный торговец") + '</small></div></div>' +
+      '<div class="trade-stats"><span>В продаже <b>' + esc(row.stock) + '</b></span><span>Спрос <b>' + esc(row.demand) +
+      '</b></span><span>В сумках <b>' + esc(have) + '</b></span><span>Бюджет скупки <b>' + esc(goldText(row.budget)) + '</b></span></div>' +
+      (prices ? '<p class="muted">' + esc("Цена покупки " + goldText(prices.buy) + " · скупка " + goldText(prices.sell) +
+        (prices.bonus ? " · поправка за репутацию " + Math.round(prices.bonus * 100) + "%" : "")) + '</p>' :
+        '<p class="muted">' + esc(reason) + '</p>') +
+      '<div class="actions">' + controls + '</div></article>';
+  }).join("");
+  const recipes = S.engine.recipes.filter((r) => r.trade_product && !S.engine.items.find((x) => x.id === r.item_id)?.hidden);
+  root.innerHTML = `<div class="trade-layout"><section>
+    ${kitSubhead("Местный рынок", place || "")}
+    <div class="trade-offers">${offers || emptyScene(stay
+      ? "На этой стоянке нет доступных торговцев."
+      : "Рынок открывается на стоянке в месте с настроенным ассортиментом.", !player ? visualAction("Настроить рынок", "catalogRecords('markets')") : "")}</div>
+    </section><aside>
+      <section class="kit-panel trade-wallet"><div class="eyebrow">Личный кошелёк</div>
+        <h3>${wallet == null ? "Выберите героя" : esc(goldText(wallet))}</h3>
+        ${canAct && wallet > 0 ? visualAction("Внести золото в казну", "donateTradeGold()", "primary") : ""}
+        <p class="muted">Казна компании · ${esc(goldText(S.company.gold))}</p>
+        ${!player && stay && node(stay.location)?.type === "city" ? visualAction("Арендовать мастерскую", "rentalForm()") : ""}
+      </section>
+      <section class="trade-production">${kitSubhead("Торговое производство")}
+      <div class="kit-panel kit-feed">${recipes.map((r) => kitHomeRow(r.name,
+        timeLabel(r.hours) + (r.service ? " · " + r.service + ", ступень " + r.facility_rank : ""),
+        "craft", "openTradeRecipe(" + jsid(r.id) + ")")).join("") ||
+        emptyScene("Торговых рецептов пока нет.", !player ? visualAction("Добавить рецепты", "workshop('tradeRecipes')") : "")}</div></section>
+    </aside></div>`;
+}
+function availableTradeButton(label, side, id, available) {
+  return '<button type="button" ' + (available ? "" : "disabled ") +
+    'onclick="tradeDealForm(' + jsid(id) + ',' + jsid(side) + ')">' + label + '</button>';
+}
+function tradeDealForm(id, side) {
+  const hero = chosen(), row = localMarket(S, actor).find((x) => x.item_id === id);
+  if (!row || !hero || !owned(actor, hero)) return;
+  const item = byId(S.engine.items, id), unit = tradePrices(S, row)[side];
+  const buy = side === "buy", have = tradeStock(S, id, "member:" + hero).reduce((sum, x) => sum + x.qty, 0);
+  const balance = buy ? profile(S, hero).wallet : row.budget;
+  const limit = Math.min(1000, buy ? row.stock : Math.min(have, row.demand), Math.floor((balance + 1e-8) / unit));
+  if (!unit || limit < 1) return;
+  const label = buy ? "Купить" : "Продать";
+  commandForm(label + " · " + item.name,
+    '<p>За единицу · ' + esc(goldText(unit)) + '</p>' +
+    input("Количество", "tradeQty", "number", 1, 'required min="1" max="' + limit + '" step="1"') +
+    '<p id="tradeTotal" role="status"></p>',
+    "tradeDeal", () => ({ hero, item: id, side, unit, qty: num("tradeQty") }), label,
+  );
+  const showTotal = () => { $("tradeTotal").textContent = "Итого · " + goldText(num("tradeQty") * unit); };
+  showTotal();
+  $("tradeQty").oninput = showTotal;
+}
+function donateTradeGold() {
+  const hero = chosen(), wallet = hero && profile(S, hero).wallet;
+  if (!hero || !wallet || !owned(actor, hero)) return;
+  commandForm("Взнос в казну",
+    input("Золото", "donation", "number", wallet, 'required min="0.01" step="0.01" max="' + wallet + '"'),
+    "tradeDonation", () => ({ hero, amount: num("donation") }), "Внести золото",
+  );
+}
+function facilityUpgradeForm(service) {
+  if (player) return;
+  const tier = campTier(S, service) + 1;
+  commandForm(service + " · ступень " + tier,
+    '<p>Казна · ' + esc(goldText(S.company.gold)) + '</p>' +
+    input("Стоимость, зм", "upgradeCost", "number", facilityPrices(S, service)["tier" + tier + "_gp"], 'required min="0" step="0.01"'),
+    "facilityTier", () => ({ service, tier, cost: num("upgradeCost") }), "Купить оборудование",
+  );
+}
+function rentalForm() {
+  if (player) return;
+  commandForm("Аренда мастерской на стоянку",
+    pick("Сооружение", "rentalService", productionServices.map((service) => [service, service]), productionServices[0]) +
+    pick("Ступень", "rentalTier", [[1, "1"], [2, "2"], [3, "3"]], 1) +
+    input("Стоимость, зм", "rentalCost", "number", "", 'required min="0" step="0.01"') +
+    '<p class="muted">Расход из казны. Аренда действует до завершения или переноса этой стоянки.</p>',
+    "facilityRental", () => ({ service: val("rentalService"), tier: num("rentalTier"), cost: num("rentalCost") }), "Арендовать",
+  );
+  const price = () => { $("rentalCost").value = rentalPrice(S, val("rentalService"), num("rentalTier")) ?? ""; };
+  $("rentalService").onchange = $("rentalTier").onchange = price;
+  price();
+}
+function craftTempoForm() {
+  if (player) return;
+  const choices = S.engine.recipes.filter((r) => craftTempoHours(S, r) < r.hours);
+  commandForm("Недельный профиль ремесла",
+    '<p>Выберите рецепты для сокращения времени. Начатые проекты сохраняют прежний расчёт.</p>' +
+    (choices.length ? '<div id="tempoRecipes">' + choices.map((r, i) =>
+      check(r.name + " · " + timeLabel(r.hours) + " → " + timeLabel(craftTempoHours(S, r)), "tempo" + i, false)).join("") + '</div>' :
+      '<p>Нет рецептов, для которых профиль сокращает время.</p>'),
+    "craftTempo", () => ({ ids: choices.filter((_, i) => $("tempo" + i).checked).map((r) => r.id) }),
+    "Применить к выбранным",
+  );
+  if (!choices.length) $("engineForm").querySelector("[type=submit]").disabled = true;
+}
+function editDelivery(id) {
+  if (player) return;
+  const q = id ? S.contracts.find((row) => row.id === id) : {};
+  if (!q || q.rewardReceipt || q.status === "done") return;
+  const items = S.engine.items.filter((item) => item.trade_product && !item.hidden);
+  const visibleLocations = pairs(S.nodes);
+  const seller = q.giver || "";
+  let rewards = structuredClone(q.rewards || [{ type: "gold", amount: 10 }]);
+  let goods = (q.goods || [{ item_id: items[0]?.id, quantity: 1 }]).map((row) => ({ ...row }));
+  if (!items.length || !visibleLocations.length) {
+    openModal("Новая поставка", emptyScene("Добавьте торговый товар и место доставки в Мастерской.",
+      visualAction("Справочники", "workshop('tradeGoods')")));
+    return;
+  }
+  commandForm(q.title || "Новая поставка",
+    input("Название", "deliveryTitle", "text", q.title || "", "required") +
+    area("Описание", "deliveryDesc", q.desc || "") +
+    pick("Место доставки", "deliveryLocation", visibleLocations, q.location || "") +
+    input("Получатель товаров", "deliveryConsignee", "text", q.consignee || "", "required") +
+    pick("Связанный NPC", "deliveryNPC", [["", "Не выбран"], ...pairs(S.portal.people)], seller) +
+    '<div class="cols">' + input("Год срока", "deliveryYear", "number", q.due_year || S.company.year, 'required min="1"') +
+      input("День срока", "deliveryDay", "number", q.due_day || S.company.day, 'required min="1"') + '</div>' +
+    pick("Источник товаров", "deliveryStock", [["personal", "Личные сумки исполнителя"], ["shared", "Общий банк по разрешению"]], q.stock_source || "personal") +
+    pick("Получатель награды", "deliveryRecipient", [["company", "Компания"], ["hero", "Исполнитель"]], q.reward_recipient || "company") +
+    '<div id="deliveryGoods"></div><div class="actions" id="deliveryControls"></div>' +
+    '<h3>Награды</h3><div id="deliveryRewards"></div><div class="actions" id="deliveryRewardControls"></div>' +
+    check("Скрыть от игроков", "deliveryHidden", !!q.hidden),
+    "deliveryContract", () => ({
+      id, title: val("deliveryTitle").trim(), desc: val("deliveryDesc"), consignee: val("deliveryConsignee").trim(),
+      location: val("deliveryLocation"), giver: val("deliveryNPC"), due_year: num("deliveryYear"), due_day: num("deliveryDay"),
+      stock_source: val("deliveryStock"), reward_recipient: val("deliveryRecipient"), goods: readGoods(),
+      rewards: readDeliveryRewards(), hidden: $("deliveryHidden").checked,
+    }), "Сохранить поставку",
+  );
+  function readGoods() {
+    return goods.map((_, i) => ({ item_id: val("deliveryItem" + i), quantity: num("deliveryQty" + i) }));
+  }
+  function drawGoods() {
+    const panel = $("deliveryGoods");
+    panel.innerHTML = "";
+    goods.forEach((row, i) => {
+      const line = document.createElement("div");
+      line.className = "row trade-editor-row";
+      line.innerHTML = pick("Товар " + (i + 1), "deliveryItem" + i, pairs(items), row.item_id) +
+        input("Количество", "deliveryQty" + i, "number", row.quantity, 'required min="1" step="1"');
+      const remove = button("Убрать", () => { goods = readGoods().filter((_, index) => index !== i); drawGoods(); });
+      remove.type = "button";
+      remove.disabled = goods.length === 1;
+      line.append(remove);
+      panel.append(line);
+    });
+  }
+  const add = button("Добавить товар", () => {
+    if (goods.length >= 30) return;
+    goods = [...readGoods(), { item_id: items[0].id, quantity: 1 }];
+    drawGoods();
+  });
+  add.type = "button";
+  $("deliveryControls").append(add);
+  drawGoods();
+  function readDeliveryRewards() {
+    return rewards.map((row, i) => {
+      const type = val("deliveryRewardType" + i);
+      return type === "item" ? { type, item_id: $("deliveryRewardTarget" + i)?.value || "", quantity: num("deliveryRewardAmount" + i) } :
+        { type, amount: num("deliveryRewardAmount" + i), ...(type === "rep" ? { faction: $("deliveryRewardTarget" + i)?.value || "" } : {}) };
+    });
+  }
+  function drawRewards() {
+    const panel = $("deliveryRewards");
+    panel.innerHTML = "";
+    rewards.forEach((row, i) => {
+      const line = document.createElement("div"), type = row.type;
+      line.className = "row trade-editor-row";
+      line.innerHTML = pick("Тип награды", "deliveryRewardType" + i,
+        [["gold", "Золото"], ["item", "Предмет"], ["rep", "Репутация"]], type) +
+        (type === "item" ? pick("Предмет", "deliveryRewardTarget" + i, pairs(S.engine.items), row.item_id) :
+          type === "rep" ? pick("Фракция", "deliveryRewardTarget" + i, pairs(S.factions), row.faction) : "") +
+        input(type === "rep" ? "Очки" : type === "item" ? "Количество" : "Золото, зм", "deliveryRewardAmount" + i,
+          "number", type === "item" ? row.quantity || row.qty || 1 : row.amount ?? 0,
+          type === "gold" ? 'required min="0" step="0.01"' : type === "item" ? 'required min="1" step="1"' : 'required step="1"');
+      const remove = button("Убрать награду", () => {
+        rewards = readDeliveryRewards().filter((_, index) => index !== i);
+        drawRewards();
+      });
+      remove.type = "button";
+      remove.disabled = rewards.length === 1;
+      line.append(remove);
+      panel.append(line);
+      $("deliveryRewardType" + i).onchange = (event) => {
+        rewards = readDeliveryRewards();
+        rewards[i] = { type: event.target.value, amount: 0 };
+        drawRewards();
+      };
+    });
+  }
+  const addReward = button("Добавить награду", () => {
+    if (rewards.length >= 30) return;
+    rewards = [...readDeliveryRewards(), { type: "gold", amount: 0 }];
+    drawRewards();
+  });
+  addReward.type = "button";
+  $("deliveryRewardControls").append(addReward);
+  drawRewards();
+}
+function deliveryDetail(q) {
+  const quote = deliveryQuote(S, actor, chosen(), q);
+  return '<section class="trade-delivery"><h3>Условия поставки</h3><p>' +
+    esc(q.consignee + " · до дня " + q.due_day + ", " + q.due_year + "-й год") + '</p><p>' +
+    esc((q.stock_source === "shared" ? "Поставка из общего банка" : "Поставка из личных сумок") +
+      " · награда " + (q.reward_recipient === "hero" ? "исполнителю" : "компании")) +
+    '</p><ul>' + quote.goods.map((row) => '<li>' +
+      esc((S.engine.items.find((item) => item.id === row.item_id)?.name || row.item_id) + " × " + row.quantity +
+        (!q.rewardReceipt ? " (" + row.have + " доступно)" : "")) + '</li>').join("") + '</ul>' +
+    (q.rewardReceipt ? '<p>Поставка завершена.</p>' : quote.reasons.length ?
+      '<p class="muted">' + esc(quote.reasons.join(" · ")) + '</p>' : '') + '</section>';
+}
+function confirmDelivery(id) {
+  const q = S.contracts.find((row) => row.id === id), hero = chosen();
+  if (!q || q.type !== "delivery" || !hero) return;
+  commandForm(q.title, deliveryDetail(q), "deliverGoods", () => ({ id, hero }), "Доставить товары");
+}
+
+function equipmentDetails(stack, catalog) {
+  const baseId = stack?.base_item_id || catalog?.base_item_id;
+  const base = baseId && S.engine.items.find((item) => item.id === baseId);
+  const rules = stack?.rules || catalog?.rules || base?.rules;
+  const source = stack?.source || catalog?.source;
+  const ids = stack?.craft_properties || catalog?.craft_properties || [];
+  const traits = stack?.craftedTraits || ids.map((id) => S.engine.craftProperties?.find((row) => row.id === id)).filter(Boolean);
+  if (!rules && !traits.length) return "";
+  return '<section><h3>' + (base ? "Книжная основа · " + esc(base.name) : "Характеристики предмета") +
+    '</h3>' + (rules ? '<dl class="equipment-rules">' +
+      Object.entries(rules).map(([key, value]) => '<div><dt>' + esc(key) + '</dt><dd>' +
+        esc(typeof value === "object" ? JSON.stringify(value) : value) + '</dd></div>').join("") +
+      '</dl>' : "") + '<small>' + esc([sourceLabel(source), base && sourceLabel(base.source)].filter(Boolean).join(" · ")) + '</small>' +
+    (traits.length ? '<h3>Ремесленные свойства</h3>' + traits.map((trait) =>
+      '<h4>' + esc(trait.name) + '</h4><p>' + esc([propertyKinds[trait.kind], trait.trigger,
+        trait.action, trait.effect, trait.limits, trait.uses && trait.uses + " · " + trait.recovery, sourceLabel(trait.source)]
+        .filter(Boolean).join(" · ")) + '</p>').join("") : "") + '</section>';
+}
+
+function downloadContentSpecification() {
+  if (player) return;
+  downloadText("atlas-content-specification.json", JSON.stringify(schemaDoc()));
+}
+function listImportChanges(rows) {
+  const labels = { new: "Создание", update: "Обновление", skip: "Пропуск", conflict: "Конфликт" };
+  return rows.slice(0, 80).map((r) => labels[r.change] + " · " + r.table + " / " + r.id).join("\n") +
+    (rows.length > 80 ? "\n… ещё " + (rows.length - 80) + " записей" : "");
+}
+function catalogRecords(table) {
+  if (player || !Object.hasOwn(tables, table)) return;
+  openModal(tables[table][0], '<div class="engine-form"><div class="actions" id="catalogActions"></div>' +
+    input("Поиск по имени или ID", "catalogQuery", "search") + '<div id="catalogRows"></div></div>');
+  $("catalogActions").append(button("Новая запись", () => editCatalogRow(table)),
+    button("CSV и JSON", () => workshop(table)));
+  function draw() {
+    const query = val("catalogQuery").toLowerCase();
+    const candidates = records(S, table).filter((row) =>
+      (row.id + " " + catalogRowLabel(row)).toLowerCase().includes(query));
+    const panel = $("catalogRows");
+    panel.innerHTML = candidates.length ? "<small>Найдено · " + candidates.length + "</small>" :
+      emptyScene("Записи пока не найдены.");
+    for (const row of candidates.slice(0, 60)) {
+      const control = button(catalogRowLabel(row) + " · " + row.id, () => editCatalogRow(table, row));
+      control.className = "kit-listrow";
+      panel.append(control);
+    }
+  }
+  $("catalogQuery").oninput = draw;
+  draw();
+}
+function catalogRowLabel(row) {
+  return row.name || row.title || [row.service, row.item_id, row.node_id].filter(Boolean).join(" · ") || row.id;
+}
+function editCatalogRow(table, old = null) {
+  if (player) return;
+  const tradeRecipe = table === "tradeRecipes";
+  const columnsList = columns(table).filter((field) => field.name !== "extra" &&
+    !(tradeRecipe && field.name === "trade_product"));
+  const materials = tradeRecipe ? S.engine.items.filter((row) =>
+    ["Материалы", "Припасы"].includes(row.category) && !row.hidden && row.stackable !== false) : [];
+  let ingredients = tradeRecipe ? S.engine.ingredients.filter((row) => row.recipe_id === old?.id) : [];
+  const example = sampleRow(table);
+  form((old ? "Изменить запись" : "Новая запись") + " · " + tables[table][0],
+    columnsList.map((field, i) => {
+      const key = "catalogEdit" + i, name = field.name;
+      const schema = describeField(table, field, example);
+      const label = name + " · " + schema.purpose + (field.optional ? "" : " *");
+      const value = old?.[name];
+      if (schema.reference) {
+        const rows = records(S, schema.reference).map((row) => [row.id, catalogRowLabel(row) + " · " + row.id]);
+        return pick(label, key, [["", "Выберите запись"], ...rows], value || "");
+      }
+      if (field.type === "bool" || schema.allowed)
+        return pick(label, key, [["", "Не задано"], ...(schema.allowed || ["true", "false"]).map((x) => [x, x])],
+          value == null ? "" : String(value));
+      if (field.type === "json")
+        return area(label + " (JSON)", key, value == null ? "" : typeof value === "string" ? value : JSON.stringify(value));
+      if (["pos", "int", "signed", "num", "ratio"].includes(field.type))
+        return input(label, key, "number", value ?? "",
+          field.type === "num" || field.type === "ratio" ? 'step="any"' : 'step="1"');
+      return input(label, key, "text", value ?? "", name === "id" && old ? "readonly" : "");
+    }).join("") + (tradeRecipe ? '<h3>Ингредиенты</h3><div id="tradeIngredientRows"></div><div id="tradeIngredientTools" class="actions"></div>' : ""),
+    async () => {
+      const next = old ? { ...old } : {};
+      for (const [i, field] of columnsList.entries()) next[field.name] = val("catalogEdit" + i);
+      if (tradeRecipe) await execute("tradeRecipeEdit", { recipe: next, ingredients: readIngredients() });
+      else await execute("import", { pack: { [table]: [next] }, mode: old ? "update" : "new" });
+      toast("Запись сохранена");
+    }, "Сохранить запись");
+  if (!tradeRecipe) return;
+  function readIngredients() {
+    return ingredients.map((_, i) => ({ item_id: val("tradeIngredient" + i), quantity: num("tradeAmount" + i) }));
+  }
+  function renderIngredients() {
+    const panel = $("tradeIngredientRows");
+    panel.replaceChildren();
+    if (!ingredients.length) panel.append("Добавьте хотя бы один ингредиент.");
+    ingredients.forEach((row, i) => {
+      const line = document.createElement("div");
+      line.className = "row trade-editor-row";
+      line.innerHTML = pick("Материал", "tradeIngredient" + i, pairs(materials), row.item_id) +
+        input("Количество", "tradeAmount" + i, "number", row.quantity, 'required min="1" step="1"');
+      const remove = button("Убрать", () => {
+        ingredients = readIngredients().filter((_, index) => index !== i);
+        renderIngredients();
+      });
+      remove.type = "button";
+      line.append(remove);
+      panel.append(line);
+    });
+  }
+  const add = button("Добавить ингредиент", () => {
+    ingredients = [...readIngredients(), { item_id: materials[0]?.id, quantity: 1 }];
+    renderIngredients();
+  });
+  add.type = "button";
+  add.disabled = !materials.length;
+  $("tradeIngredientTools").append(add);
+  renderIngredients();
+}
+
+function contentWorkshop() {
+  if (player) return;
+  const registry = S.engine.contentPackages || [];
+  openModal("Пакеты контента", '<section class="engine-form"><div class="actions" id="packageTools"></div>' +
+    '<div id="installedContent"></div>' + input("Файл пакета JSON", "packageFile", "file", "", 'accept=".json,application/json"') +
+    area("JSON пакета", "packageRaw") + check("Заменить склад, спрос и бюджет рынка значениями из пакета", "resetPackageMarket", false) +
+    '<div class="actions" id="packagePreview"></div><pre id="packageReport" role="status"></pre>' +
+    '<div class="actions" id="packageConfirm"></div></section>');
+  $("packageTools").append(
+    button("Скачать спецификацию для генерации контента", downloadContentSpecification),
+    button("Шаблон пакета", () => downloadText("atlas-content-template.json", JSON.stringify(blankContentPackage(), null, 2))),
+    button("Собрать пакет из справочников", buildContentPack),
+    button("Учебный пакет торговли", () => {
+      $("packageRaw").value = JSON.stringify(contentExamples.tradeLoop, null, 2); clearPreview();
+    }),
+    button("Книжная экипировка", () => {
+      $("packageRaw").value = JSON.stringify(contentExamples.bookEquipment, null, 2); clearPreview();
+    }),
+    button("Скачать резерв перед последним импортом пакета", async () => {
+      const backup = await dbGet("pre-content-import");
+      if (!backup) return toast("Резерв появится после первого импорта пакета");
+      downloadText("atlas-before-package.json", JSON.stringify(backup, null, 2));
+    }),
+  );
+  const installed = $("installedContent");
+  installed.innerHTML = '<h3>Установленные пакеты</h3>' + (registry.length ? '' : '<p class="muted">Пакеты пока не установлены.</p>');
+  for (const pack of registry) {
+    const row = document.createElement("section");
+    row.className = "kit-panel";
+    row.innerHTML = '<strong>' + esc(pack.name) + '</strong><p class="muted">' +
+      esc(pack.id + " · " + pack.version + " · записей: " + pack.records.length +
+        (pack.archived ? " · архив" : "")) + '</p><div class="actions"></div>';
+    const buttons = row.lastElementChild;
+    buttons.append(button("Экспорт пакета", () => downloadText(pack.id + ".json", JSON.stringify(exportContentPack(S, pack.id), null, 2))));
+    if (!pack.archived) buttons.append(button("Архивировать пакет", async () => {
+      if (!confirm("Архивировать пакет? Записи и история кампании сохранятся.")) return;
+      await execute("contentArchive", { id: pack.id });
+      contentWorkshop();
+    }));
+    installed.append(row);
+  }
+  function clearPreview() {
+    $("packageReport").textContent = "";
+    $("packageConfirm").replaceChildren();
+  }
+  $("packageRaw").oninput = $("resetPackageMarket").onchange = clearPreview;
+  $("packageFile").onchange = async (event) => {
+    const file = event.target.files[0], field = $("packageRaw");
+    if (file) {
+      const text = await file.text();
+      if (!field.isConnected) return;
+      field.value = text;
+      clearPreview();
+    }
+  };
+  $("packagePreview").append(button("Проверить пакет", () => {
+    clearPreview();
+    try {
+      const pack = JSON.parse(val("packageRaw")), resetMarket = $("resetPackageMarket").checked;
+      const plan = contentPlan(S, pack, { resetMarket });
+      const c = plan.count;
+      const update = (S.engine.contentPackages || []).some((entry) => entry.id === pack.id);
+      $("packageReport").textContent = pack.name + " · " + pack.version + "\n" +
+        "Создание: " + c.created + " · обновление: " + c.updated + " · ошибки: " + c.errors + "\n" +
+        listImportChanges(plan.changes) + "\n" + plan.issues.join("\n");
+      if (c.errors) return;
+      const token = crypto.randomUUID();
+      $("packageConfirm").append(button(update ? "Подтвердить обновление пакета" : "Установить пакет", async () => {
+        await execute("contentImport", { pack, resetMarket }, token);
+        contentWorkshop();
+        toast("Пакет сохранён · " + pack.name);
+      }), button("Отменить", clearPreview));
+    } catch (error) {
+      $("packageReport").textContent = error.message;
+    }
+  }));
+}
+function buildContentPack() {
+  const options = Object.keys(tables).filter((table) => records(S, table).length);
+  form("Создать пакет из справочников",
+    input("ID пакета", "cpId", "text", "", "required") +
+    input("Версия X.Y.Z", "cpVersion", "text", "1.0.0", "required") +
+    input("Название", "cpName", "text", "", "required") +
+    input("Автор", "cpAuthor", "text", actor.name, "required") +
+    area("Описание", "cpDescription", "") +
+    area("Источники · JSON", "cpSources", JSON.stringify([{ origin: "house" }])) +
+    area("Зависимости · JSON", "cpDependencies", "[]") +
+    options.map((table, i) => check(tables[table][0], "cpTable" + i, false)).join(""),
+    () => {
+      const data = {}, included = new Set();
+      for (const [i, table] of options.entries()) {
+        if (!$("cpTable" + i).checked) continue;
+        data[table] = records(S, table).filter((row) => {
+          const key = catalogIdentity(table, row.id);
+          if (included.has(key)) return false;
+          included.add(key);
+          return true;
+        }).map((row) => contentDefinition(table, row));
+      }
+      requireThat(included.size, "Выберите справочники");
+      const pack = { ...blankContentPackage(), id: val("cpId"), version: val("cpVersion"), name: val("cpName"),
+        author: val("cpAuthor"), description: val("cpDescription"), sources: JSON.parse(val("cpSources")),
+        dependencies: JSON.parse(val("cpDependencies")), tables: data };
+      contentMetadata(pack);
+      downloadText(pack.id + ".json", JSON.stringify(pack, null, 2));
+    }, "Скачать пакет");
 }
 
 function visualMenu(label, controls) {
@@ -12434,6 +13871,7 @@ openItem = function (id) {
         ? '<p class="record-body">' + esc(x.desc || catalog.desc) + "</p>"
         : "") +
       (details ? "<ul>" + details + "</ul>" : "") +
+      equipmentDetails(x, catalog) +
       '<div class="actions">' +
       uxFavButton("item", id) +
       (x.qty > 0 &&
@@ -12450,6 +13888,9 @@ openItem = function (id) {
 };
 function questMainActions(q) {
   const id = jsid(q.id);
+  if (q.type === "delivery")
+    return deliveryQuote(S, actor, chosen(), q).reasons.length ? "" :
+      visualAction("Доставить товары", "confirmDelivery(" + id + ")", "primary");
   if (q.type === "local") {
     const hero = chosen();
     return hero && owned(actor, hero) && questAvailable(S, q, hero)
@@ -12480,16 +13921,16 @@ function questMenu(q) {
       "Изменить",
       q.type === "local"
         ? "errandEditor(S.contracts.find(q=>q.id===" + id + "))"
-        : "editContract(" + id + ")",
+        : q.type === "delivery" ? "editDelivery(" + id + ")" : "editContract(" + id + ")",
     ) +
       visualAction("Выбрать иконку", "pickQuestIcon(" + id + ")") +
-      (q.type !== "local" && q.status !== "done" && !q.rewardReceipt
+      (q.type !== "local" && q.type !== "delivery" && q.status !== "done" && !q.rewardReceipt
         ? visualAction("Настроить награды", "rewardDialog(" + id + ",false)")
         : "") +
       ((q.rewardHidden || q.rewardSecret) && !q.rewardRevealed
         ? visualAction("Открыть награду", "revealReward(" + id + ")")
         : "") +
-      (q.type !== "local"
+      (q.type !== "local" && q.type !== "delivery"
         ? visualAction("Дублировать", "uxDuplicate('contract'," + id + ")")
         : "") +
       visualAction("В архив", "removeContract(" + id + ")", "danger"),
@@ -12503,7 +13944,7 @@ function questOverview(q) {
     '" aria-pressed="' + active + '" onclick="selectBoardQuest(' + jsid(q.id) +
     ')"><span class="quest-seal" aria-hidden="true">' + questIcon(q) +
     '</span>' + questIllustration(q) + '<span class="kit-grow"><small>' +
-    esc([q.type === "local" ? "Поручение" : "Контракт", CS.find(([key]) => key === q.status)?.[1], questPlace(q)].filter(Boolean).join(" · ")) +
+    esc([q.type === "local" ? "Поручение" : q.type === "delivery" ? "Поставка" : "Контракт", CS.find(([key]) => key === q.status)?.[1], questPlace(q)].filter(Boolean).join(" · ")) +
     '</small><strong>' + esc(q.title) + '</strong><small>' + esc(questGiver(q)) +
     '</small></span><span aria-hidden="true">›</span></button>'
   );
@@ -12529,7 +13970,7 @@ renderContracts = function () {
         (questFaction === "none" ? !c.faction : c.faction === questFaction)),
   );
   const controls = !player
-    ? visualAction("Новое задание", "editContract()", "primary")
+    ? visualAction("Новое задание", "editContract()", "primary") + visualAction("Новая поставка", "editDelivery()")
     : "";
   const selected = rows.find((q) => q.id === selectedBoardQuest) || rows[0];
   selectedBoardQuest = selected?.id || "";
@@ -12567,9 +14008,9 @@ renderContracts = function () {
     "</div>" +
     (selected
       ? '<div class="kit-quest-layout"><div class="kit-quest-list">' +
-        [[false, "Контракты"], [true, "Местные поручения"]]
-          .map(([local, title]) => {
-            const portion = rows.filter((q) => (q.type === "local") === local);
+        [["contract", "Контракты"], ["local", "Местные поручения"], ["delivery", "Поставки"]]
+          .map(([kind, title]) => {
+            const portion = rows.filter((q) => kind === "contract" ? !["local", "delivery"].includes(q.type) : q.type === kind);
             return portion.length ? '<section><h3>' + title + '</h3>' +
               portion.map(questOverview).join("") + '</section>' : "";
           }).join("") + '</div><div id="boardQuestDetail" tabindex="-1" aria-label="Выбранное задание">' +
@@ -12618,7 +14059,7 @@ function questPaper(q, inline = false) {
     '<article class="quest-paper reader"><header><span class="quest-seal" aria-hidden="true">' +
       questIcon(q) +
       "</span>" + questIllustration(q) + "<div><small>" +
-      esc(q.type === "local" ? "Местное поручение" : "Контракт") +
+      esc(q.type === "local" ? "Местное поручение" : q.type === "delivery" ? "Поставка" : "Контракт") +
       "</small><p>" +
       esc(
         [questGiver(q), place, region?.name, questFactionName(q)]
@@ -12649,7 +14090,7 @@ function questPaper(q, inline = false) {
           ) +
           "</p></section>"
         : "") +
-      questReward(q) +
+      (q.type === "delivery" ? deliveryDetail(q) : questReward(q)) +
       (visible.length
         ? '<div class="structured-loot">' +
           visible
@@ -12807,6 +14248,9 @@ function campVisuals() {
   );
   const tree = body.querySelector(".camp-grid");
   tree.insertAdjacentHTML("beforebegin", kitSubhead("Дерево улучшений", S.company.gold.toLocaleString("ru-RU") + " зм"));
+  const stay = currentStay(S);
+  if (!player && stay && node(stay.location)?.type === "city")
+    body.querySelector(".section-cover-actions")?.insertAdjacentHTML("afterbegin", visualAction("Аренда мастерской", "rentalForm()"));
   const counters = body.querySelector(".home-stats");
   const notice = counters.nextElementSibling;
   const resources = document.createElement("details");
@@ -12877,6 +14321,14 @@ function campVisuals() {
         manual?.insertAdjacentHTML("afterend", visualMenu("Управление улучшением",
           visualAction("Выбрать иконку", "pickTalentIcon(" + jsid(name) + "," + i + ")"),
         ));
+      }
+      if (productionServices.includes(name)) {
+        const tier = campTier(S, name), level = facilityLevel(S, name);
+        summary.insertAdjacentHTML("beforeend", "<small>" + esc(tier ? "Сооружение · ступень " + tier : "Сооружение не приобретено") + "</small>");
+        if (level > tier) node.insertAdjacentHTML("beforeend", "<p>Местное оборудование · ступень " + level + "</p>");
+        if (!player && tier > 0 && tier < 3)
+          buttons?.insertAdjacentHTML("beforeend", visualAction("Купить оборудование · " + (tier + 1) + " ступень",
+            "facilityUpgradeForm(" + jsid(name) + ")", "primary"));
       }
       row.remove();
       details.append(summary, ...node.childNodes);

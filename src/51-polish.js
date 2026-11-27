@@ -589,6 +589,19 @@ function journalPanel() {
     stay: "Начало стоянки",
     closeStay: "Конец стоянки",
     gold: "Перевод золота",
+    tradeDeal: "Рыночная сделка",
+    tradeDonation: "Торговый взнос в казну",
+    tradeMarkets: "Обновлён рынок",
+    tradeProducts: "Обновлено торговое производство",
+    tradeRecipeEdit: "Обновлён торговый рецепт",
+    facilityTier: "Куплено оборудование",
+    facilityRental: "Арендована мастерская",
+    deliverGoods: "Выполнена поставка",
+    deliveryContract: "Настроена поставка",
+    craftTempo: "Изменён темп ремесла",
+    contentImport: "Импорт пакета контента",
+    contentArchive: "Архивирование пакета",
+
   };
   openModal(
     "Журнал операций",

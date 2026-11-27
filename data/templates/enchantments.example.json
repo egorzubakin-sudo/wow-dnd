@@ -1,0 +1,20 @@
+{
+  "enchantments": [
+    {
+      "id": "recipe.demo.enchant",
+      "name": "Пример формулы",
+      "profession_id": "enchanting",
+      "item_id": "item.enchanted",
+      "quantity": 1,
+      "hours": 8,
+      "rank": 2,
+      "service": "Зачаровательная",
+      "properties": {
+        "effect": "Авторский пример"
+      },
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

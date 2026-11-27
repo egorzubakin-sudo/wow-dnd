@@ -1,0 +1,16 @@
+{
+  "facilities": [
+    {
+      "id": "facility.demo.armory",
+      "service": "Оружейная",
+      "tier2_gp": 30,
+      "tier3_gp": 75,
+      "rent1_gp": 5,
+      "rent2_gp": 15,
+      "rent3_gp": 35,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}

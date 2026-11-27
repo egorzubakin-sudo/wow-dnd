@@ -60,6 +60,7 @@ function deposit(s, item_id, owner, qty, extra = {}) {
   integer(qty, 1);
   const item = byId(economy(s).items, item_id),
     bag = s.company.inventory;
+  requireThat(!item.original || !extra.properties, "Книжный предмет сохраняет исходные свойства");
   const existing = bag.find(
     (x) =>
       x.item_id === item_id &&
@@ -72,6 +73,11 @@ function deposit(s, item_id, owner, qty, extra = {}) {
     existing.qty = integer(existing.qty + qty);
     return;
   }
+  const base = item.base_item_id && byId(s.engine.items, item.base_item_id);
+  const snapshot = base ? {
+    rules: structuredClone(base.rules),
+    craftedTraits: (item.craft_properties || []).map((id) => structuredClone(byId(s.engine.craftProperties, id))),
+  } : {};
   if (item.stackable === false || extra.properties) {
     requireThat(
       qty <= 1000,
@@ -80,6 +86,7 @@ function deposit(s, item_id, owner, qty, extra = {}) {
     for (let i = 0; i < qty; i++)
       bag.push({
         ...item,
+        ...snapshot,
         ...extra,
         id: crypto.randomUUID(),
         owner,
@@ -326,14 +333,9 @@ function gather(s, p, die = dice) {
 }
 register("gather", "hero", (s, p) => gather(s, p));
 function facilities(s, r) {
-  const t = currentStay(s);
-  return (
-    !!t &&
-    (!r.service ||
-      s.company.talents[r.service] ||
-      t.services?.includes(r.service)) &&
-    (!r.locations?.length || r.locations.includes(t.location))
-  );
+  const stay = currentStay(s);
+  return !!stay && (!r.service || facilityLevel(s, r.service) >= (r.facility_rank || 1)) &&
+    (!r.locations?.length || r.locations.includes(stay.location));
 }
 function canCraft(s, hero, r) {
   const h = profile(s, hero);

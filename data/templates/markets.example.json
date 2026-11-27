@@ -1,0 +1,18 @@
+{
+  "markets": [
+    {
+      "id": "market.demo.tools",
+      "node_id": "location.demo.trade_crossroads",
+      "item_id": "goods.demo.smithing.apprentice",
+      "faction_id": "faction.demo.caravan",
+      "stock": 1,
+      "demand": 5,
+      "budget": 250,
+      "buy_factor": 1.5,
+      "sell_factor": 1,
+      "source": {
+        "origin": "demo"
+      }
+    }
+  ]
+}
