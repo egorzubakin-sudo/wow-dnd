@@ -1,4 +1,5 @@
 let factionPanel = "overview",
+  factionRegion = "",
   storageView = "grid",
   storageQuality = "";
 function factionTowns(f) {
@@ -10,7 +11,7 @@ function factionQuests(f) {
   );
 }
 function factionEmblem(f) {
-  return sectionArt(f.emblem, "emblem", f.icon || "⚑");
+  return sectionArt(f.emblem, "emblem", f.icon || "⚑", "", iconPath(f.iconId));
 }
 function factionMenu(f) {
   if (player) return "";
@@ -19,6 +20,7 @@ function factionMenu(f) {
     "Действия с фракцией",
     visualAction("Изменить", "editFaction(" + id + ")") +
       visualAction("Обложка и эмблема", "editFactionArt(" + id + ")") +
+      visualAction("Эмблема из библиотеки", "pickRecordIcon(faction(" + id + "),'factions',null,'emblem')") +
       visualAction("Изменить репутацию", "changeRep(" + id + ")") +
       visualAction("Удалить", "deleteFaction(" + id + ")", "danger"),
   );
@@ -47,7 +49,7 @@ function factionOverviewCard(f) {
     '<button class="visual-open" onclick="focusFaction(' +
     jsid(f.id) +
     ')">' +
-    sectionArt(f.cover, "cover", "⚑") +
+    sectionArt(f.cover, "cover", "⚑", "", kitArtUrl(f.repPoints < -3000 ? "ruins" : f.region === "kalimdor" ? "forest" : "city")) +
     '<span class="faction-card-title">' +
     factionEmblem(f) +
     "<span><strong>" +
@@ -83,7 +85,13 @@ renderFactions = function () {
       "Союзы, соперники и репутация компании.",
       controls,
     ) +
+    '<div class="kit-tabs" aria-label="Регионы фракций">' +
+    [["", "Все регионы"], ...groups].map(([key, label]) =>
+      '<button class="kit-tab" aria-pressed="' + (factionRegion === key) +
+      '" onclick="factionRegion=' + jsid(key) + ';renderFactions()">' + esc(label) + '</button>'
+    ).join("") + '</div>' +
     groups
+      .filter(([key]) => !factionRegion || factionRegion === key)
       .map(([key, label]) => {
         const rows = factions.filter((f) =>
           key === "hostile"
@@ -99,9 +107,9 @@ renderFactions = function () {
           : "";
       })
       .join("") +
-    (factions.length
+    (factions.some((f) => !factionRegion || (f.repPoints < -3000 ? factionRegion === "hostile" : f.region === factionRegion))
       ? ""
-      : emptyScene("Компания ещё не знает местных фракций.")) +
+      : emptyScene(factionRegion ? "В этом регионе пока нет известных фракций." : "Компания ещё не знает местных фракций.")) +
     '<details class="visual-guide"><summary>Уровни репутации</summary>' +
     reputationGuide() +
     "</details></div>";
@@ -243,6 +251,7 @@ function openFactionPanel(id, selected = factionPanel) {
 }
 function slotButton(x) {
   const quality = ITEM_QUAL.find((q) => q[0] === x.quality) || ITEM_QUAL[0];
+  const image = stackIconSrc(x);
   return (
     '<button class="item-slot inventory-slot" style="--quality:' +
     quality[2] +
@@ -258,8 +267,8 @@ function slotButton(x) {
         (x.desc ? " · " + excerpt(x.desc, 100) : ""),
     ) +
     '">' +
-    (safeImage(x.image)
-      ? '<img src="' + esc(x.image) + '" alt="">'
+    (image
+      ? '<img src="' + esc(image) + '" alt="">'
       : '<span aria-hidden="true">' + esc(x.icon || "◆") + "</span>") +
     '<b aria-hidden="true">' +
     esc(x.qty) +
@@ -270,6 +279,10 @@ function slotGrid(rows) {
   return (
     '<div class="inventory-slots">' + rows.map(slotButton).join("") + "</div>"
   );
+}
+function changeBankOwner(owner) {
+  bankOwner = owner;
+  render();
 }
 function storageGroups(rows) {
   const company = rows.filter((x) => !x.owner);
@@ -316,6 +329,7 @@ function storageGroups(rows) {
     .join("");
 }
 renderBank = function () {
+  const hero = chosen(), personalOwner = hero ? "member:" + hero : null;
   const visible = S.company.inventory.filter(canSeeStack);
   const rows = visible.filter(
     (x) =>
@@ -345,13 +359,21 @@ renderBank = function () {
     sectionHeader(
       "Хранилище",
       "Добыча, припасы и имущество компании.",
-      controls,
+      kitHeroSelect(hero) + controls,
     ) +
-    '<div class="treasury-strip"><span aria-hidden="true">◉</span><div><small>Казна компании</small><strong>' +
-    esc(S.company.gold.toLocaleString("ru-RU")) +
-    " зм</strong></div>" +
-    (chosen() ? visualAction("Личные сумки", "bagPage()") : "") +
-    "</div>" +
+    '<div class="kit-tabs" aria-label="Доступное имущество">' +
+    [[personalOwner, "Сумки героя", "bank"], ["", "Банк компании", "bank"], ["all", "Все владельцы", "company"]]
+      .filter(([owner]) => owner !== null)
+      .map(([owner, label, icon]) => '<button class="kit-tab" aria-pressed="' + (bankOwner === owner) +
+        '" onclick="changeBankOwner(' + jsid(owner) + ')">' + uiIcon(icon) + esc(label) + '</button>')
+      .join("") + '</div>' +
+    '<div class="kit-bank-layout"><div class="kit-panel kit-bank-main">' +
+    '<div class="treasury-strip">' + uiIcon("bank") + '<div><small>' +
+    esc(personalOwner && bankOwner === personalOwner ? ownerLabel(personalOwner) : "Казна компании") + '</small><strong>' +
+    esc((personalOwner && bankOwner === personalOwner ? profile(S, hero).wallet : S.company.gold).toLocaleString("ru-RU")) +
+    ' зм</strong></div>' +
+    (hero ? visualAction("Личные сумки", "bagPage()") : "") +
+    '</div>' +
     '<div class="visual-filters"><input id="bankSearch" type="search" aria-label="Поиск предметов" placeholder="Поиск предметов" value="' +
     esc(bankQuery) +
     '">' +
@@ -367,7 +389,7 @@ renderBank = function () {
       [
         ["all", "Все владельцы"],
         ...ownerOptions(bankOwner).filter(
-          ([id]) => !id || !player || visible.some((x) => x.owner === id),
+          ([id]) => !id || id === personalOwner || !player || visible.some((x) => x.owner === id),
         ),
       ],
       bankOwner,
@@ -388,7 +410,15 @@ renderBank = function () {
       : "") +
     "</div>" +
     storageGroups(rows) +
-    "</div>";
+    '</div><aside class="kit-panel kit-bank-aside"><div class="eyebrow">Имущество</div><h3>Снаряжение и ресурсы</h3>' +
+    '<p class="muted">Добытые материалы появляются в личных сумках. Оттуда их можно передать в общий банк или использовать в ремесле.</p>' +
+    kitLink("Книга рецептов", "openCraftTab('recipes')", "craft", "primary") + '</aside></div></div>';
+  if ($("gameHero")) $("gameHero").onchange = () => {
+    const personal = personalOwner && bankOwner === personalOwner;
+    activeHero = val("gameHero");
+    if (personal) bankOwner = "member:" + activeHero;
+    render();
+  };
   $("bankSearch").oninput = (e) => {
     const end = e.target.selectionStart;
     bankQuery = e.target.value;
@@ -439,6 +469,7 @@ openItem = function (id) {
     ? visualMenu(
         "Действия с предметом",
         visualAction("Редактировать", "editItem(" + args + ")") +
+          visualAction("Выбрать иконку", "pickInventoryIcon(" + args + ")") +
           visualAction("Увеличить количество", "itemQty(" + args + ",1)") +
           (x.qty > 0
             ? visualAction("Уменьшить количество", "itemQty(" + args + ",-1)") +
@@ -449,7 +480,7 @@ openItem = function (id) {
   openModal(
     x.name,
     '<article class="reader item-dossier"><div class="item-dossier-title">' +
-      sectionArt(x.image, "emblem", x.icon || "◆") +
+      sectionArt("", "emblem", x.icon || "◆", "", stackIconSrc(x, catalog)) +
       '<div><strong style="color:' +
       q[2] +
       '">' +
@@ -518,6 +549,7 @@ function questMenu(q) {
         ? "errandEditor(S.contracts.find(q=>q.id===" + id + "))"
         : "editContract(" + id + ")",
     ) +
+      visualAction("Выбрать иконку", "pickQuestIcon(" + id + ")") +
       (q.type !== "local" && q.status !== "done" && !q.rewardReceipt
         ? visualAction("Настроить награды", "rewardDialog(" + id + ",false)")
         : "") +
@@ -530,45 +562,30 @@ function questMenu(q) {
       visualAction("В архив", "removeContract(" + id + ")", "danger"),
   );
 }
+let selectedBoardQuest = "";
 function questOverview(q) {
-  const status = CS.find(([key]) => key === q.status)?.[1] || "Доступно";
-  const actual = q.rewardReceipt?.rewards || q.rewards || [];
-  const rewards = actual.filter(
-    (r) => !player || !(q.rewardHidden || r.secret) || q.rewardRevealed,
-  );
+  const active = selectedBoardQuest === q.id;
   return (
-    '<article class="visual-card quest-entry quest-' +
-    esc(q.status) +
-    '"><div class="visual-card-menu">' +
-    questMenu(q) +
-    "</div>" +
-    '<button class="visual-open" onclick="openMapQuest(' +
-    jsid(q.id) +
-    ')"><span class="quest-seal" aria-hidden="true">' +
-    questIcon(q) +
-    "</span><span><small>" +
-    esc(status) +
-    "</small><strong>" +
-    esc(q.title) +
-    "</strong><span>" +
-    esc(
-      [questGiver(q), questPlace(q), questFactionName(q)]
-        .filter(Boolean)
-        .join(" · "),
-    ) +
-    "</span>" +
-    (q.desc ? "<p>" + esc(excerpt(q.desc, 140)) + "</p>" : "") +
-    (rewards.length
-      ? "<small>" +
-        esc(rewards.map(rewardText).slice(0, 2).join(" · ")) +
-        "</small>"
-      : q.reward && (!player || !q.rewardHidden || q.rewardRevealed)
-        ? "<small>" + esc(excerpt(q.reward, 85)) + "</small>"
-        : "") +
-    '</span></button><div class="actions quest-entry-actions">' +
-    questMainActions(q) +
-    "</div></article>"
+    '<button type="button" class="kit-quest-line quest-' + esc(q.status) +
+    '" aria-pressed="' + active + '" onclick="selectBoardQuest(' + jsid(q.id) +
+    ')"><span class="quest-seal" aria-hidden="true">' + questIcon(q) +
+    '</span>' + questIllustration(q) + '<span class="kit-grow"><small>' +
+    esc([q.type === "local" ? "Поручение" : "Контракт", CS.find(([key]) => key === q.status)?.[1], questPlace(q)].filter(Boolean).join(" · ")) +
+    '</small><strong>' + esc(q.title) + '</strong><small>' + esc(questGiver(q)) +
+    '</small></span><span aria-hidden="true">›</span></button>'
   );
+}
+function questIllustration(q) {
+  return q.badgeImage || q.iconId
+    ? libraryIcon({ image: q.badgeImage, iconId: q.iconId }, iconDefaults.nav.contracts)
+    : "";
+}
+function selectBoardQuest(id) {
+  selectedBoardQuest = id;
+  renderContracts();
+  $("boardQuestDetail")?.focus({ preventScroll: true });
+  if (matchMedia("(max-width: 700px)").matches)
+    $("boardQuestDetail")?.scrollIntoView({ block: "start" });
 }
 renderContracts = function () {
   const all = S.contracts.filter((c) => !c.archived && (!player || !c.hidden));
@@ -581,6 +598,8 @@ renderContracts = function () {
   const controls = !player
     ? visualAction("Новое задание", "editContract()", "primary")
     : "";
+  const selected = rows.find((q) => q.id === selectedBoardQuest) || rows[0];
+  selectedBoardQuest = selected?.id || "";
   $("main").innerHTML =
     '<div class="screen visual-screen">' +
     sectionHeader(
@@ -613,21 +632,16 @@ renderContracts = function () {
       questFaction,
     ) +
     "</div>" +
-    [
-      [false, "Контракты"],
-      [true, "Местные поручения"],
-    ]
-      .map(([local, title]) => {
-        const portion = rows.filter((q) => (q.type === "local") === local);
-        return portion.length
-          ? '<section class="quest-chapter"><h3>' +
-              title +
-              "</h3>" +
-              portion.map(questOverview).join("") +
-              "</section>"
-          : "";
-      })
-      .join("") +
+    (selected
+      ? '<div class="kit-quest-layout"><div class="kit-quest-list">' +
+        [[false, "Контракты"], [true, "Местные поручения"]]
+          .map(([local, title]) => {
+            const portion = rows.filter((q) => (q.type === "local") === local);
+            return portion.length ? '<section><h3>' + title + '</h3>' +
+              portion.map(questOverview).join("") + '</section>' : "";
+          }).join("") + '</div><div id="boardQuestDetail" tabindex="-1" aria-label="Выбранное задание">' +
+        questPaper(selected, true) + '</div></div>'
+      : "") +
     (rows.length
       ? ""
       : emptyScene(
@@ -640,10 +654,16 @@ renderContracts = function () {
     questFaction = val("questFactionPicker");
     render();
   };
+  uxLinkify($("boardQuestDetail"));
 };
 openMapQuest = function (id) {
   const q = S.contracts.find((x) => x.id === id);
   if (!q || q.archived || (player && q.hidden)) return;
+  openModal(q.title, questPaper(q));
+  uxLinkify($("modalBody"));
+};
+function questPaper(q, inline = false) {
+  const id = q.id;
   const reward = q.rewardReceipt?.rewards || q.rewards || [];
   const visible = reward.filter(
     (r) => !player || !(q.rewardHidden || r.secret) || q.rewardRevealed,
@@ -661,11 +681,10 @@ openMapQuest = function (id) {
     .filter(Boolean)
     .join(" · ");
   const relation = uxRelated("contract", id);
-  openModal(
-    q.title,
+  return (
     '<article class="quest-paper reader"><header><span class="quest-seal" aria-hidden="true">' +
       questIcon(q) +
-      "</span><div><small>" +
+      "</span>" + questIllustration(q) + "<div><small>" +
       esc(q.type === "local" ? "Местное поручение" : "Контракт") +
       "</small><p>" +
       esc(
@@ -676,6 +695,7 @@ openMapQuest = function (id) {
       "</p></div>" +
       questMenu(q) +
       "</header>" +
+      (inline ? "<h2>" + esc(q.title) + "</h2>" : "") +
       (safeImage(q.image) ? sectionArt(q.image, "cover", "") : "") +
       (q.desc
         ? '<section><h3>Завязка</h3><p class="record-body">' +
@@ -723,7 +743,6 @@ openMapQuest = function (id) {
       (place
         ? visualAction("На карте", "focusQuestMap(" + jsid(id) + ")")
         : "") +
-      "</div></article>",
+      "</div></article>"
   );
-  uxLinkify($("modalBody"));
-};
+}

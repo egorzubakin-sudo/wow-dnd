@@ -4,6 +4,7 @@ uxToolbar = function () {
   const count = uxNotifications().filter(
     (row) => !uxReadSet()[1].has(row.notification),
   ).length;
+  $("kitNotifications")?.classList.toggle("kit-unread", count > 0);
   el.innerHTML =
     visualAction("Поиск", "uxSearch()", "toolbar-search") +
     '<button type="button" onclick="uxInbox()">Уведомления' +
@@ -82,93 +83,6 @@ function renderCampaignBar() {
       activeHero = val("statusHero");
       render();
     };
-  const operations = $("atlasOperations");
-  if (operations) operations.hidden = player;
-}
-function homeSituation() {
-  const hero = chosen(),
-    stay = currentStay(S),
-    routeRecord = S.journey && route(S.journey.routeId);
-  const notifications = uxNotifications().filter(
-    (row) => !uxReadSet()[1].has(row.notification),
-  );
-  const current = S.contracts.filter(
-    (q) => q.status === "active" && !q.archived && (!player || !q.hidden),
-  );
-  const mode = S.journey ? "travel" : S.engine.phase;
-  const actions =
-    mode === "stay"
-      ? visualAction("Открыть стоянку", "switchTab('stay')", "primary") +
-        (hero ? visualAction("Ремесло", "openCraftTab('recipes')") : "")
-      : mode === "travel"
-        ? visualAction("Перейти к маршруту", "switchTab('map')", "primary")
-        : visualAction(
-            "Открыть журнал заданий",
-            "switchTab('contracts')",
-            "primary",
-          );
-  let text = "";
-  if (stay)
-    text =
-      stay.name +
-      (hero ? " · " + timeLabel(remaining(S, hero)) + " у героя" : "");
-  else if (S.journey)
-    text =
-      routeRecord && visibleRoute(routeRecord)
-        ? routeLabel(routeRecord) +
-          " · " +
-          (S.journey.outcome == null
-            ? "ожидается событие"
-            : "событие перехода определено")
-        : "Компания в пути";
-  else
-    text = current.length
-      ? current
-          .slice(0, 2)
-          .map((q) => q.title)
-          .join(" · ")
-      : "Компания готовится к новым приключениям.";
-  const portrait = hero ? heroOf(S, hero) : null;
-  return (
-    '<section class="home-situation" aria-label="Сейчас в кампании"><div>' +
-    "<small>" +
-    esc(phases[mode]) +
-    "</small><strong>" +
-    esc(text) +
-    '</strong><div class="actions">' +
-    actions +
-    "</div></div>" +
-    "<div><small>" +
-    (portrait ? "Активный герой" : "В компании") +
-    "</small><strong>" +
-    esc(portrait ? memberName(portrait) : S.company.name) +
-    "</strong>" +
-    visualAction(
-      notifications.length
-        ? "Новые события · " + notifications.length
-        : "Уведомления",
-      "uxInbox()",
-      "ghost",
-    ) +
-    "</div></section>"
-  );
-}
-function prepareHomeVisuals() {
-  const cover = $("main").querySelector(".home-hero");
-  if (!cover) return;
-  const p = getHomePrefs();
-  if (p.hero) cover.insertAdjacentHTML("afterend", homeSituation());
-  $("main").querySelector(".home-hero .ux-cover")?.remove();
-  const settings = $("main").querySelector(".home-settings");
-  const slot = document.createElement("div");
-  slot.className = "home-appearance";
-  slot.innerHTML = visualMenu(
-    "Главная страница",
-    visualAction("Настроить блоки", "openHomeAppearance()") +
-      (!player ? visualAction("Изменить обложку", "uxCover()") : ""),
-  );
-  cover.append(slot);
-  if (settings) settings.hidden = true;
 }
 function openHomeAppearance() {
   openModal("Оформление главной страницы", homeSettingsPanel(getHomePrefs()));
@@ -184,6 +98,7 @@ header = function (title, desc, action = "") {
     "help",
     "diplomacy",
     "journal",
+    "worldbook",
   ].includes(tab)
     ? sectionHeader(title, desc, action)
     : baseSectionHeader(title, desc, action);
@@ -202,9 +117,24 @@ function editStaffPortrait(id) {
 function campVisuals() {
   const body = $("main");
   body.querySelector(".screen")?.classList.add("visual-screen", "camp-visual");
+  body.querySelector(".section-cover")?.insertAdjacentHTML("afterend",
+    '<section class="kit-wideart kit-camp-cover"><img class="kit-cover-image" src="' +
+    esc(safeImage(S.settings.visual?.covers?.camp) || kitArtUrl("party")) +
+    '" alt=""><div class="kit-herotext"><div class="eyebrow">Инфраструктура</div>' +
+    '<h2>Свой уголок в мире</h2><p>Улучшения и специалисты открывают возможности в дороге и на стоянке.</p></div></section>',
+  );
+  const tree = body.querySelector(".camp-grid");
+  tree.insertAdjacentHTML("beforebegin", kitSubhead("Дерево улучшений", S.company.gold.toLocaleString("ru-RU") + " зм"));
+  const counters = body.querySelector(".home-stats");
+  const notice = counters.nextElementSibling;
+  const resources = document.createElement("details");
+  resources.className = "kit-panel camp-resources";
+  resources.innerHTML = "<summary>Ресурсы и условия развития</summary>";
+  tree.after(resources);
+  resources.append(counters, notice);
   const staff = body.querySelector(".camp-grid ~ .cards");
   if (staff) {
-    staff.className = "people-gallery camp-staff";
+    staff.className = "kit-panel camp-staff";
     staff.innerHTML =
       S.company.staff
         .filter((x) => !player || !x.hidden)
@@ -219,7 +149,7 @@ function campVisuals() {
             '<article class="visual-card person-card"><button class="visual-open person-open" onclick="openAffPerson(\'staff\',' +
             id +
             ')">' +
-            sectionArt(x.image, "portrait", "⚒") +
+            sectionArt(x.image, "emblem", "⚒", "", iconPath(iconDefaults.components.hero)) +
             '<span class="person-info"><strong>' +
             esc(x.name) +
             "</strong><span>" +
@@ -250,22 +180,25 @@ function campVisuals() {
         })
         .join("") || emptyScene("У лагеря пока нет специалистов.");
   }
-  for (const branch of body.querySelectorAll(".branch")) {
-    const icon = branch.querySelector("h2")?.textContent.trim()[0] || "✦";
+  for (const [i, branch] of [...body.querySelectorAll(".branch")].entries()) {
     for (const node of branch.querySelectorAll(".talent")) {
-      node
-        .querySelector(".rank")
-        ?.insertAdjacentHTML("beforebegin", gameIcon(icon));
+      const row = node.querySelector(".row");
+      const name = row.querySelector("h3").textContent;
+      const details = document.createElement("details"), summary = document.createElement("summary");
+      details.className = node.className;
+      const chosenIcon = S.settings.visual?.talentIcons?.[name];
+      summary.innerHTML = libraryIcon(chosenIcon, campBranchIcons[i]);
+      summary.append(row.querySelector("h3"), row.querySelector("small"));
       const buttons = node.querySelector(".actions");
       const manual = buttons?.querySelector(".ghost");
-      if (manual) {
-        const anchor = document.createElement("div");
-        anchor.innerHTML = visualMenu(
-          "Управление улучшением",
-          manual.outerHTML,
-        );
-        manual.replaceWith(anchor.firstElementChild);
+      if (!player) {
+        manual?.insertAdjacentHTML("afterend", visualMenu("Управление улучшением",
+          visualAction("Выбрать иконку", "pickTalentIcon(" + jsid(name) + "," + i + ")"),
+        ));
       }
+      row.remove();
+      details.append(summary, ...node.childNodes);
+      node.replaceWith(details);
     }
   }
 }
@@ -283,14 +216,27 @@ function collectionVisuals() {
         (!player || !x.secret || shownGrants(x).length),
     );
     const earned = cardsVisible.filter((x) => shownGrants(x).length).length;
-    stats.insertAdjacentHTML(
-      "afterend",
+    const summary = document.createElement("section");
+    summary.className = "kit-panel kit-ach-summary";
+    stats.before(summary);
+    summary.append(stats);
+    summary.insertAdjacentHTML(
+      "beforeend",
       '<progress class="collection-meter" aria-label="Заполнение коллекции" value="' +
         earned +
         '" max="' +
         (cardsVisible.length || 1) +
         '"></progress>',
     );
+    const filter = root.querySelector(".ach-filter");
+    filter?.before(summary);
+    const seed = root.querySelector('button[onclick="seedAchievements()"]');
+    if (seed) {
+      root.querySelector(".section-cover-actions").insertAdjacentHTML(
+        "beforeend", visualMenu("Шаблоны достижений", seed.outerHTML),
+      );
+      seed.parentElement.remove();
+    }
   }
   if (!cards.length)
     root
@@ -308,7 +254,7 @@ portalCard = function (k, x) {
       '<button class="visual-open achievement-open" onclick="openPortalRecord(\'achievements\',' +
       jsid(x.id) +
       ')">' +
-      sectionArt(x.image, "emblem", "✦") +
+      sectionArt(x.image, "emblem", "✦", "", iconPath(x.iconId) || iconPath(iconDefaults.nav.achievements)) +
       "<span><small>" +
       esc(x.category || "") +
       "</small><strong>" +
@@ -316,7 +262,7 @@ portalCard = function (k, x) {
       "</strong><span>" +
       esc(excerpt(x.body, 155)) +
       "</span><small>" +
-      esc(n(x.points) + " очк.") +
+      esc(n(x.points) + " очк. · " + (grants.length ? "Получено" : "Не получено")) +
       "</small>" +
       (grants.length
         ? '<small class="achievement-recipients">' +
@@ -340,7 +286,7 @@ portalCard = function (k, x) {
   return fallbackVisualCard(k, x);
 };
 const visualAchievementList = renderAchievements;
-let achievementCategory = "";
+let achievementCategory = "", achievementStatus = "all";
 renderAchievements = function () {
   visualAchievementList();
   const root = $("main"),
@@ -358,7 +304,11 @@ renderAchievements = function () {
     achievementCategory = "";
   gallery.insertAdjacentHTML(
     "beforebegin",
-    '<div class="achievement-category">' +
+    '<div class="kit-tabs" aria-label="Статус достижений">' +
+    [["all", "Все"], ["earned", "Полученные"], ["locked", "Не полученные"]].map(([key, label]) =>
+      '<button class="kit-tab" aria-pressed="' + (achievementStatus === key) +
+      '" onclick="achievementStatus=' + jsid(key) + ';renderAchievements()">' + label + '</button>',
+    ).join("") + '</div><div class="achievement-category">' +
       pick(
         "Категория",
         "achievementCategory",
@@ -371,17 +321,17 @@ renderAchievements = function () {
     achievementCategory = val("achievementCategory");
     renderAchievements();
   };
-  if (achievementCategory) {
+  if (achievementCategory || achievementStatus !== "all") {
     const cards = [...gallery.querySelectorAll(".achievement")];
     for (const card of cards)
       if (
-        card.querySelector(".achievement-open small")?.textContent !==
-        achievementCategory
+        (achievementCategory && card.querySelector(".achievement-open small")?.textContent !== achievementCategory) ||
+        (achievementStatus !== "all" && !card.classList.contains(achievementStatus))
       )
         card.remove();
     if (!gallery.children.length)
       gallery.innerHTML = emptyScene(
-        "В этой категории пока нет подходящих достижений.",
+        "По этим фильтрам достижений нет.",
       );
   }
   collectionVisuals();
@@ -389,9 +339,25 @@ renderAchievements = function () {
 const baseVisualBook = renderWorldBook;
 renderWorldBook = function () {
   baseVisualBook();
-  $("main")
-    .querySelector(".screen")
-    ?.classList.add("visual-screen", "book-visual");
+  const main = $("main"), book = S.worldBook;
+  main.querySelector(".screen")?.classList.add("visual-screen", "book-visual");
+  const toc = main.querySelector(".world-toc"), page = main.querySelector(".world-paper");
+  toc.insertAdjacentHTML("afterbegin", '<div class="eyebrow">' + esc(book.year) + '</div><h3>' + esc(book.title) + '</h3>');
+  const controls = main.querySelector(".world-book-tools");
+  if (controls) {
+    const actions = main.querySelector(".section-cover-actions");
+    actions.insertAdjacentHTML("beforeend", visualMenu("Управление книгой", controls.innerHTML));
+    controls.remove();
+  }
+  if (!bookImage(book.chapters[bookPage].image) && !safeImage(S.settings.visual?.covers?.worldbook))
+    page.insertAdjacentHTML("beforebegin", sectionArt("", "cover", "", "kit-book-illustration", kitArtUrl("history")));
+  const column = document.createElement("div");
+  column.id = "kitBookChapter";
+  column.tabIndex = -1;
+  page.before(column);
+  const art = main.querySelector(".kit-book-illustration");
+  if (art) column.append(art);
+  column.append(page);
 };
 const baseVisualSidebar = renderSidebar;
 renderSidebar = function () {
@@ -438,10 +404,8 @@ function editPlaceArt(id) {
 }
 onRender.push(() => {
   renderCampaignBar();
-  revealActiveSection();
   const main = $("main");
   main.dataset.scene = tab;
-  if (tab === "home") prepareHomeVisuals();
   if (tab === "camp") campVisuals();
   const panel = $("engineActions");
   if (panel) {

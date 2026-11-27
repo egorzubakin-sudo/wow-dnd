@@ -4,7 +4,7 @@ let codexCategory = "",
 const legacyPortalRecord = openPortalRecord;
 const legacyPortalSection = renderPortal;
 function visiblePortalRows(kind) {
-  return portalData()[kind].filter((x) => seen(kind, x));
+  return portalData()[kind].filter((x) => !x.archived && seen(kind, x));
 }
 function portalQuery(record, extra = []) {
   const query = searchText.trim().toLocaleLowerCase("ru");
@@ -84,6 +84,7 @@ function renderPeopleGallery() {
       "togglePeopleView()",
     ) +
     "</div></div>" +
+    '<small class="kit-result-count">' + rows.length + ' персонажей</small>' +
     '<div class="people-gallery ' +
     (peopleView.mode === "list" ? "is-list" : "") +
     '">' +
@@ -117,7 +118,7 @@ function personCard(x) {
     '<button class="visual-open person-open" onclick="openPortalRecord(\'people\',' +
     jsid(x.id) +
     ')">' +
-    sectionArt(x.image, "portrait", "♟") +
+    sectionArt(x.image, "portrait", "♟", "", iconPath(x.iconId) || iconPath(iconDefaults.components.hero)) +
     '<span class="person-info"><strong>' +
     esc(x.title) +
     "</strong>" +
@@ -219,7 +220,7 @@ function dossier(x) {
   openModal(
     x.title,
     '<div class="dossier"><aside>' +
-      sectionArt(x.image, "portrait", "♟") +
+      sectionArt(x.image, "portrait", "♟", "", iconPath(x.iconId) || iconPath(iconDefaults.components.hero)) +
       "<small>" +
       esc(x.source || x.category || "") +
       "</small>" +
@@ -385,6 +386,8 @@ function renderCodex() {
                 image,
                 "cover",
                 ["▥", "✥", "⌖", "☾", "⚑", "♞", "◇"][i % 7],
+                "",
+                kitArtUrl(Object.hasOwn(codexCategoryArt, category) ? codexCategoryArt[category] : "dungeon"),
               ) +
               "<span><strong>" +
               esc(category) +
@@ -460,8 +463,13 @@ function readCodex(x) {
   uxDetailExtras("codex", x.id);
   uxLinkify($("modalBody"));
 }
+const codexCategoryArt = {
+  История: "history", Народы: "party", География: "forest", Религия: "ruins",
+  Обычаи: "market", Бестиарий: "monster", Артефакты: "dungeon", Магия: "dragon",
+  Правила: "forge",
+};
 function editorialCard(k, x, feature = false) {
-  const picture = feature || safeImage(x.image);
+  const picture = feature || k === "news" || k === "rumors" || safeImage(x.image);
   return (
     '<article class="visual-card editorial-card ' +
     (feature ? "featured-story" : "") +
@@ -471,7 +479,7 @@ function editorialCard(k, x, feature = false) {
     "," +
     jsid(x.id) +
     ')">' +
-    (picture ? sectionArt(x.image, "cover", k === "rumors" ? "☕" : "▤") : "") +
+    (picture ? sectionArt(x.image, "cover", "▤", "", kitArtUrl(k === "rumors" ? "market" : "news")) : "") +
     '<span class="editorial-copy"><small>' +
     esc(
       [
@@ -493,7 +501,7 @@ function editorialCard(k, x, feature = false) {
     esc(x.title) +
     "</strong><span>" +
     esc(excerpt(x.body, feature ? 260 : 137)) +
-    "</span></span></button>" +
+    "</span>" + (feature ? '<span class="kit-read-story">Читать подробнее →</span>' : '') + "</span></button>" +
     '<div class="visual-card-menu">' +
     portalMenu(k, x) +
     "</div></article>"
@@ -565,11 +573,12 @@ function renderGazette() {
     (feature
       ? '<div class="gazette-layout">' +
         editorialCard(feature.k, feature.x, true) +
+        kitSubhead("Лента событий") +
         '<div class="gazette-feed">' +
         rows
           .filter((row) => row !== feature)
           .map((row) => editorialCard(row.k, row.x))
-          .join("") +
+          .join("") + (rows.length === 1 ? emptyScene("Других сообщений в этой рубрике пока нет.") : "") +
         "</div></div>"
       : emptyScene(
           searchText ? "Ничего не найдено." : "Вестник ждёт первых сообщений.",
@@ -596,6 +605,9 @@ function renderChronicle() {
     '<div class="visual-filters">' +
     portalSearchField("Поиск по летописи") +
     "</div>" +
+    '<div class="kit-chronicle">' +
+    (rows.length && !safeImage(S.settings.visual?.covers?.chronicle)
+      ? sectionArt("", "cover", "", "kit-chronicle-cover", kitArtUrl("camp")) : "") +
     '<div class="chronicle-timeline">' +
     (rows.map((x) => editorialCard("chronicle", x)).join("") ||
       emptyScene(
@@ -603,7 +615,7 @@ function renderChronicle() {
           ? "Ничего не найдено."
           : "Летопись ждёт первой записи о приключениях компании.",
       )) +
-    "</div></div>";
+    "</div></div></div>";
   bindPortalSearch(renderChronicle);
 }
 renderPortal = function (kind) {
@@ -612,6 +624,7 @@ renderPortal = function (kind) {
     codex: renderCodex,
     news: renderGazette,
     chronicle: renderChronicle,
+    mail: renderMail,
   };
   if (Object.hasOwn(draws, kind)) return draws[kind]();
   return legacyPortalSection(kind);

@@ -330,14 +330,14 @@ function guideModifier(member) {
   const p = profile(S, member.id);
   return ability(p, { skill: "Выживание" }, () => 1).mod;
 }
-function rollForm() {
+function rollForm(stat = "", skill = "") {
   const hero = chosen(),
     p = profile(S, hero),
     rows = (o) => Object.keys(o).map((k) => [k, k]);
   commandForm(
     "Проверка героя",
-    pick("Навык", "skill", [["", "Без навыка"], ...rows(skills)], "") +
-      pick("Характеристика", "stat", [["", "По навыку"], ...opts(stats)], "") +
+    pick("Навык", "skill", [["", "Без навыка"], ...rows(skills)], skill) +
+      pick("Характеристика", "stat", [["", "По навыку"], ...opts(stats)], stat) +
       pick(
         "Инструмент",
         "tool",
@@ -569,7 +569,7 @@ function phasePanel() {
         "</p>"
       : "") +
     '<div id="engineActions" class="actions"></div>';
-  if (tab === "map") $("main").prepend(box);
+  if (tab === "map") $("main").querySelector(".map-main").append(box);
   else $("main").append(box);
   const a = $("engineActions");
   if (["home", "camp"].includes(tab))

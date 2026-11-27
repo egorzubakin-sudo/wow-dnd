@@ -21,8 +21,8 @@ function visualAction(label, action, style = "") {
     "</button>"
   );
 }
-function sectionArt(image, shape, icon, extra = "") {
-  const url = safeImage(image);
+function sectionArt(image, shape, icon, extra = "", fallbackUrl = "") {
+  const url = safeImage(image) || fallbackUrl;
   return (
     '<div class="section-art art-' +
     shape +
@@ -42,11 +42,13 @@ function emptyScene(message, action = "") {
   );
 }
 function sectionHeader(title, description, actions = "", key = tab) {
-  const image = S.settings.visual?.covers?.[key];
+  const image = key === "camp" ? "" : S.settings.visual?.covers?.[key];
   return (
-    '<header class="section-cover">' +
+    '<header class="section-cover kit-sectionhead kit-portal-head">' +
     (safeImage(image) ? sectionArt(image, "cover", "") : "") +
-    '<div class="section-cover-copy"><h2>' +
+    '<div class="section-cover-copy"><div class="eyebrow">Атлас · ' +
+    (NAV_BANDS[0][1].some(([id]) => id === key) ? "Мир" : "Кампания") +
+    '</div><h2>' +
     esc(title) +
     "</h2>" +
     (description ? "<p>" + esc(description) + "</p>" : "") +
@@ -108,9 +110,11 @@ function editVisualImages(title, fields, update) {
 function portalMenu(k, x) {
   if (player) return "";
   const args = jsid(k) + "," + jsid(x.id);
+  const iconCategory = { people: "skills", achievements: "achievements", mail: "navigation" }[k];
   return visualMenu(
     "Действия с записью",
     visualAction("Изменить", "editPortal(" + args + ")") +
+      (iconCategory ? visualAction("Выбрать иконку", "pickPortalIcon(" + args + "," + jsid(iconCategory) + ")") : "") +
       visualAction("Дублировать", "uxDuplicate(" + args + ")") +
       visualAction("В архив", "uxArchive(" + args + ")", "danger") +
       (k === "achievements"

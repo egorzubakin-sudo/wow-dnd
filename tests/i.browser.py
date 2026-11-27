@@ -10,10 +10,14 @@ page.evaluate("""()=>{
   S.portal.news.push({...meta,id:'visual-news',title:'Открыта переправа',category:'Торговля',body:'Первый караван прибыл к заставе.',image:art});
   S.portal.rumors.push({...meta,id:'visual-rumor',title:'Огни у реки',body:'Рыбаки видели свет.',truth:'partial'});
   S.portal.chronicle.push({...meta,id:'visual-history',title:'Запись о переправе',body:'Здесь начался путь.'});
+  S.portal.mail.push({...meta,id:'visual-mail',title:'Письмо картографа',source:'Лира',body:'Буду ждать на переправе.'},
+    {...meta,id:'visual-mail-secret',title:'Тайное письмо',hidden:true,body:'Письмо мастера.'});
   S.portal.codex.push({...meta,id:'visual-article',title:'Пути у реки',category:'География',body:'# Брод\\nПуть открыт.\\n# Перевоз\\nРаботает на рассвете.'});
   S.portal.achievements.push({...meta,id:'visual-ach-secret',title:'Секретная коллекция',secret:true,grants:[]});
   S.contracts.push({id:'visual-contract',title:'Доставить письмо',status:'available',desc:'Лира просит передать конверт.',objectives:'Добраться до заставы.',giver:'visual-friend',faction:'f0',location:at,reward:'Монета',rewardSecret:'Ключ от тайника',rewardRevealed:false,rewards:[]});
   S.company.staff.push({id:'visual-staff',name:'Тихий кузнец',role:'Кузнец',image:art,desc:'Работает в лагере.'});
+  S.worldBook.chapters[1].text='Здесь сохранён текст кампании.';
+  if(!S.diplomacy.length) S.diplomacy.push({id:'visual-diplomacy',a:S.factions[0].id,b:S.factions[1].id,state:'cooperation',desc:'Открыт путь для караванов.'});
   commit();
 }""")
 tab('people')
@@ -51,6 +55,7 @@ page.locator('.codex-category').filter(has_text='География').locator('b
 page.locator('.codex-articles').get_by_text('Пути у реки',exact=True).click()
 assert page.locator('.reader-toc').get_by_role('button',name='Перевоз').is_visible()
 page.evaluate('closeModal()')
+btn('Все категории')
 tab('news')
 assert page.locator('.featured-story').get_by_text('Открыта переправа',exact=True).is_visible()
 btn('Слухи')
@@ -60,11 +65,15 @@ assert page.locator('.inventory-slot').count()>0
 btn('Таблица')
 assert page.locator('table').is_visible()
 btn('Ячейки')
+btn('Банк компании')
+assert page.evaluate("bankOwner===''")
+btn('Сумки героя')
+assert page.evaluate("bankOwner==='member:'+chosen()")
+btn('Все владельцы')
 tab('contracts')
-assert page.locator('.quest-chapter h3').all_text_contents()==['Контракты','Местные поручения']
-page.locator('.quest-entry').filter(has_text='Доставить письмо').locator('.visual-open').click()
-assert page.locator('.quest-paper').get_by_text('Добраться до заставы.').is_visible()
-page.evaluate('closeModal()')
+assert page.locator('.kit-quest-list h3').all_text_contents()==['Контракты','Местные поручения']
+page.locator('.kit-quest-line').filter(has_text='Доставить письмо').click()
+assert page.locator('#boardQuestDetail').get_by_text('Добраться до заставы.').is_visible()
 # Upload a section cover and verify it survives a campaign export.
 page.locator('.section-cover summary[aria-label="Оформление раздела"]').click()
 btn('Изменить обложку')
@@ -72,14 +81,34 @@ page.locator('#cover').set_input_files({'name':'page.png','mimeType':'image/png'
 submit()
 assert page.locator('.section-cover .has-art img').is_visible()
 assert exported(page)['settings']['visual']['covers']['contracts'].startswith('data:image/png')
+tab('mail')
+page.get_by_role('button',name='Письмо картографа',exact=False).click()
+assert page.locator('#kitMailLetter').get_by_text('Буду ждать на переправе.').is_visible()
+assert page.evaluate("uxReadSet()[1].has('mail:visual-mail')")
+tab('worldbook')
+page.locator('.world-toc button').nth(1).click()
+assert page.locator('.world-chapter').get_by_text('Здесь сохранён текст кампании.').is_visible()
+tab('camp')
+page.locator('.camp-grid .talent summary').first.click()
+assert page.locator('.camp-grid .talent[open]').get_by_text('Условия:',exact=False).is_visible()
+tab('company')
+assert page.locator('.kit-stat-grid > div').count()==6
+page.locator('.kit-stat-grid button').first.click()
+assert page.locator('#stat').input_value()=='str'
+page.evaluate('closeModal()')
+tab('diplomacy')
+assert page.locator('.dip-card').first.is_visible()
 screens=os.environ.get('ATLAS_REVIEW_DIR')
 page.evaluate("$('toast').classList.add('hidden')")
-for width in (1280,360,390,430):
-    page.set_viewport_size({'width':width,'height':920})
-    for scene in ('home','people','factions','stay','craft','bank','codex','contracts','camp','news','chronicle','achievements','worldbook','map'):
+scenes=page.evaluate("NAV_BANDS.flatMap(([,items])=>items.map(([scene])=>scene))")
+for width in (1440,360,390,430):
+    page.set_viewport_size({'width':width,'height':960})
+    for scene in scenes:
         tab(scene)
+        assert page.locator('#kitTop').is_visible(), scene
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth'), (width,scene)
-        if screens and width in (1280,390) and scene in ('people','factions','home','news','bank'):
+        if screens and width in (1440,390):
+            page.evaluate('window.scrollTo(0,0)')
             page.screenshot(path=f'{screens}/{scene}-{width}.png',animations='disabled')
 signout()
 signin('miner')
@@ -87,9 +116,10 @@ tab('people')
 assert not page.locator('.person-card').filter(has_text='Тайный посланник').count()
 assert not page.locator('.visual-card-menu summary').count()
 tab('contracts')
-page.locator('.quest-entry').filter(has_text='Доставить письмо').locator('.visual-open').click()
-assert not page.locator('#modalBody').get_by_text('Ключ от тайника').count()
-page.evaluate('closeModal()')
+page.locator('.kit-quest-line').filter(has_text='Доставить письмо').click()
+assert not page.locator('#boardQuestDetail').get_by_text('Ключ от тайника').count()
+tab('mail')
+assert not page.get_by_text('Тайное письмо').count()
 tab('achievements')
 assert not page.get_by_text('Секретная коллекция').count()
 signout()

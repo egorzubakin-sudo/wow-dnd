@@ -37,6 +37,11 @@ function professionIcon(profession) {
 function itemIcon(item) {
   return libraryIcon(item, iconDefaults.items[item?.item_id || item?.id]);
 }
+function stackIconSrc(stack, catalog = S.engine.items.find((item) => item.id === stack.item_id)) {
+  return safeImage(stack.image) || safeImage(stack.icon) || safeImage(catalog?.image) ||
+    safeImage(catalog?.icon) || iconPath(stack.iconId) || iconPath(catalog?.iconId) ||
+    iconPath(iconDefaults.items[stack.item_id]);
+}
 function uiIcon(name) {
   return libraryIcon(
     null,
@@ -259,7 +264,9 @@ function pickProfessionIcon(id) {
 function pickRecipeItemIcon(id) {
   if (player) return;
   const item = S.engine.items.find((x) => x.id === id);
-  if (!item) return;
+  pickRecordIcon(item, itemIconCategory(item), iconDefaults.items[id]);
+}
+function itemIconCategory(item) {
   const categories = {
     Материалы: "resources",
     Оружие: "equipment",
@@ -268,18 +275,10 @@ function pickRecipeItemIcon(id) {
     Припасы: "consumables",
     "Ездовые питомцы": "mounts",
   };
-  openIconPicker({
-    category: categories[item.category] || "",
-    current: { ...item, defaultId: iconDefaults.items[id] },
-    onSave: (choice) => {
-      if (player) return;
-      Object.assign(item, choice);
-      commit();
-    },
-  });
+  return categories[item?.category] || "";
 }
 function pickNavigationIcon(key) {
-  if (player || !["stay", "craft"].includes(key)) return;
+  if (player || !Object.hasOwn(iconDefaults.nav, key)) return;
   openIconPicker({
     category: "navigation",
     current: {
@@ -293,6 +292,48 @@ function pickNavigationIcon(key) {
       (S.settings.navIcons ??= {})[key] = image;
       commit();
       editNavIcons();
+    },
+  });
+}
+function pickRecordIcon(record, category, defaultId, imageKey = "image") {
+  if (player || !record) return;
+  openIconPicker({
+    category,
+    current: { iconId: record.iconId, image: record[imageKey], defaultId },
+    onSave: ({ iconId, image }) => {
+      if (player) return;
+      record.iconId = iconId;
+      record[imageKey] = image;
+      commit();
+    },
+  });
+}
+function pickPortalIcon(kind, id, category) {
+  const record = portalData()[kind]?.find((row) => row.id === id);
+  pickRecordIcon(record, category,
+    kind === "people" ? iconDefaults.components.hero : iconDefaults.nav[kind],
+  );
+}
+function pickInventoryIcon(id) {
+  if (player) return;
+  const stack = S.company.inventory.find((row) => row.id === id);
+  if (stack) pickRecordIcon(stack, itemIconCategory(stack), iconDefaults.items[stack.item_id]);
+}
+function pickQuestIcon(id) {
+  if (player) return;
+  pickRecordIcon(S.contracts.find((row) => row.id === id), "quests", iconDefaults.nav.contracts, "badgeImage");
+}
+const campBranchIcons = ["weapons:Bow_01", "misc:Gear_01", "misc:Bag_01", "misc:Book_01"];
+function pickTalentIcon(name, branch) {
+  if (player || !TALENTS[branch]?.[1].includes(name)) return;
+  openIconPicker({
+    category: "upgrades",
+    current: { ...S.settings.visual?.talentIcons?.[name], defaultId: campBranchIcons[branch] },
+    onSave: (choice) => {
+      if (player) return;
+      const visual = S.settings.visual ??= {};
+      (visual.talentIcons ??= {})[name] = choice;
+      commit();
     },
   });
 }

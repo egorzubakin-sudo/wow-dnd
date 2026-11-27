@@ -146,8 +146,12 @@ function accountMenu() {
   const master = actor.role === "master";
   openModal(
     "Профиль · " + actor.name,
-    '<div class="actions" id="accountActions"></div>',
+    kitHeroSelect(chosen(), "accountHero") + '<div class="actions" id="accountActions"></div>',
   );
+  $("accountHero")?.addEventListener("change", (event) => {
+    activeHero = event.target.value;
+    render();
+  });
   const box = $("accountActions");
   box.append(
     button("Выйти", logout),

@@ -47,3 +47,19 @@ import_campaign(with_icons)
 page.wait_for_function("tab==='home' && S.settings.navIconIds?.stay==='places:Barrens_01'")
 assert exported(page)['engine']['items']==with_icons['engine']['items']
 wait_for_db(page,"async()=>(await dbGet())?.settings.navIconIds?.stay==='places:Barrens_01'")
+
+tab('contracts')
+page.locator('.kit-quest-line').filter(has_text='Доставить письмо').click()
+page.locator('#boardQuestDetail summary[aria-label="Действия с заданием"]').click()
+page.locator('#boardQuestDetail').get_by_role('button',name='Выбрать иконку').click()
+picker.locator('#iconCategory').select_option('quests')
+picker.locator('#iconSearch').fill('Book_01')
+picker.locator('[data-icon-id="misc:Book_01"]').click()
+picker.get_by_role('button',name='Применить').click()
+assert page.locator('#boardQuestDetail .kit-iconbox img').first.get_attribute('src')=='assets/icons/misc/Book_01.png'
+tab('home')
+with_badge=exported(page)
+assert next(row for row in with_badge['contracts'] if row['id']=='visual-contract')['iconId']=='misc:Book_01'
+import_campaign(with_badge)
+page.wait_for_function("tab==='home' && S.contracts.find(x=>x.id==='visual-contract').iconId==='misc:Book_01'")
+wait_for_db(page,"async()=>(await dbGet())?.contracts.find(x=>x.id==='visual-contract')?.iconId==='misc:Book_01'")

@@ -627,7 +627,7 @@ function journalPanel() {
 }
 onRender.push(() => {
   if (tab === "journal")
-    $("main").prepend(button("Журнал операций", journalPanel));
+    $("main").querySelector(".section-cover-actions")?.prepend(button("Журнал операций", journalPanel));
   if (!actor || tab !== "home") return;
   const feed = $("engineActions");
   if (!feed) return;

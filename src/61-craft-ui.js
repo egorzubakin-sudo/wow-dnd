@@ -788,8 +788,9 @@ function renderWorkshop() {
     return;
   }
   $("main").innerHTML =
-    '<div class="screen game-screen"><section class="card game-cover"><h2>Мастерская</h2><p>Справочники, шаблоны и импорт кампании.</p><div class="actions" id="workshopLinks"></div></section>' +
-    '<section class="card"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div>';
+    '<div class="screen visual-screen">' + sectionHeader("Мастерская", "Справочники, шаблоны и импорт кампании.") +
+    '<div class="kit-workshop-layout"><section class="kit-panel"><h3>Справочники</h3><p>Скачайте шаблоны, проверьте таблицы и подтвердите импорт.</p><div class="actions" id="workshopLinks"></div></section>' +
+    '<section class="kit-panel"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div></div>';
   $("workshopLinks").append(
     button("Мастерская данных", () => workshop()),
     button("Редактор профессий", professionEditor),

@@ -15,10 +15,9 @@ const kitNavLabels = {
   company: "Герои",
   bank: "Сумки и банк",
   contracts: "Задания",
-  achievements: "Ачивки",
 };
 function kitNavLabel(key, label) {
-  return tab === "stay" || tab === "craft" ? kitNavLabels[key] || label : label;
+  return kitNavLabels[key] || label;
 }
 function kitArtUrl(key) {
   return "assets/ui-kit/" + key + ".webp";
@@ -31,11 +30,11 @@ function kitAvatar(member) {
     safeImage(member?.image) || iconPath(iconDefaults.components.hero);
   return '<img class="kit-avatar" src="' + esc(image) + '" alt="">';
 }
-function kitHeroSelect(id) {
+function kitHeroSelect(id, fieldId = "gameHero") {
   const heroes = heroRows();
   if (heroes.length < 2) return "";
   return (
-    '<select id="gameHero" class="kit-field" aria-label="Активный герой">' +
+    '<select id="' + fieldId + '" class="kit-field" aria-label="Активный герой">' +
     heroes
       .map(
         (member) =>
@@ -85,13 +84,23 @@ function kitSubhead(title, side = "") {
   );
 }
 function kitUpdateNavigation() {
-  const inPilot = tab === "stay" || tab === "craft";
-  document.body.classList.toggle("atlas-kit-active", inPilot);
+  document.body.classList.add("atlas-kit-active");
   const top = $("kitTop");
-  if (!inPilot) {
-    top.hidden = true;
-    return;
-  }
+  const operations = $("atlasOperations");
+  operations.querySelector(".kit-operations-extra")?.remove();
+  operations.querySelector(".visual-menu-panel").insertAdjacentHTML(
+    "afterbegin",
+    '<div class="kit-operations-extra">' +
+      visualAction("Избранное", "uxFavorites()") +
+      (!player
+        ? visualAction("Архив", "uxArchiveView()") +
+          visualAction("История", "uxHistory()") +
+          (uxUndo.length ? visualAction("Отменить действие", "uxRestore(false)") : "") +
+          (uxRedo.length ? visualAction("Повторить действие", "uxRestore(true)") : "")
+        : "") +
+      "</div>",
+  );
+  operations.hidden = false;
   const hero = chosen(),
     member = hero ? heroOf(S, hero) : null;
   const here = locLabel(S.company.location),
@@ -116,7 +125,7 @@ function kitUpdateNavigation() {
     '<button class="kit-topicon" onclick="uxSearch()" aria-label="Поиск">' +
     uiIcon("search") +
     "</button>" +
-    '<button class="kit-topicon' +
+    '<button id="kitNotifications" class="kit-topicon' +
     (notes ? " kit-unread" : "") +
     '" onclick="uxInbox()" aria-label="Уведомления">' +
     uiIcon("bell") +
@@ -126,19 +135,9 @@ function kitUpdateNavigation() {
     "</button>" +
     '<b class="kit-username">' +
     esc(actor.name) +
-    "</b>" +
-    visualMenu(
-      "Атлас",
-      visualAction("Избранное", "uxFavorites()") +
-        (!player
-          ? visualAction("Иконки меню", "editNavIcons()") +
-            visualAction("Экспорт JSON", "exportData()") +
-            visualAction("Импорт", "$(\'importFile\').click()") +
-            visualAction("Архив", "uxArchiveView()") +
-            visualAction("История", "uxHistory()")
-          : ""),
-    ) +
-    "</div>";
+    "</b></div>";
+  top.lastElementChild.append(operations);
+  revealActiveSection();
 }
 onRender.push(kitUpdateNavigation);
 const existingNavIcon = navIcon;
@@ -146,9 +145,7 @@ navIcon = function (key, fallback) {
   const custom = safeImage(S.settings.navIcons?.[key]);
   const chosenId = S.settings.navIconIds?.[key];
   if (custom) return '<img src="' + esc(custom) + '" alt="">';
-  const path =
-    iconPath(chosenId) ||
-    (tab === "stay" || tab === "craft" ? iconPath(iconDefaults.nav[key]) : "");
+  const path = iconPath(chosenId) || iconPath(iconDefaults.nav[key]);
   return path
     ? '<img src="' + esc(path) + '" alt="">'
     : existingNavIcon(key, fallback);
