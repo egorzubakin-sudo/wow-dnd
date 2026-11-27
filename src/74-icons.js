@@ -278,13 +278,13 @@ function itemIconCategory(item) {
   return categories[item?.category] || "";
 }
 function pickNavigationIcon(key) {
-  if (player || !Object.hasOwn(iconDefaults.nav, key)) return;
+  if (player || !iconBands.some(([, rows]) => rows.some(([id]) => id === key))) return;
   openIconPicker({
     category: "navigation",
     current: {
       iconId: S.settings.navIconIds?.[key],
       image: S.settings.navIcons?.[key],
-      defaultId: iconDefaults.nav[key],
+      defaultId: iconDefaults.nav[additionalNavIcons[key] || key],
     },
     onSave: ({ iconId, image }) => {
       if (player) return;
@@ -337,3 +337,20 @@ function pickTalentIcon(name, branch) {
     },
   });
 }
+
+
+document.addEventListener("error", (event) => {
+  const img = event.target;
+  if (!(img instanceof HTMLImageElement) || !img.hasAttribute("src")) return;
+  const src = img.getAttribute("src");
+  const fallback = img.classList.contains("kit-cover-image") || img.classList.contains("kit-card-art")
+    ? kitArtUrl("camp") : iconPath(iconDefaults.components.hero);
+  if (img.dataset.atlasFallback || src === fallback) {
+    img.removeAttribute("src");
+    img.alt = "";
+    img.classList.add("atlas-image-missing");
+    return;
+  }
+  img.dataset.atlasFallback = "true";
+  img.src = fallback;
+}, true);

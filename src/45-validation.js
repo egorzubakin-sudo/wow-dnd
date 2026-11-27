@@ -47,6 +47,8 @@ function validateBackup(raw) {
         ].includes(c.status) || /^[a-z_-]+$/.test(c.status),
         "Недопустимый статус задания",
       );
+  for (const npc of raw.portal?.people || [])
+    if (npc.participation) validateParticipation(npc.participation);
   if (!raw.engine) return;
   const e = raw.engine;
   requireThat(
@@ -71,6 +73,7 @@ function validateBackup(raw) {
     "campUpgrades",
     "localServices",
     "contentPackages",
+    "companionRequests",
   ])
     unique(e[k], k);
   for (const h of Object.values(e.profiles || {})) {

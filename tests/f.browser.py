@@ -7,11 +7,19 @@ prototype.wait_for_function("document.querySelector('#main').children.length>0")
 img='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+rRFkAAAAASUVORK5CYII='
 prototype.evaluate("""(image)=>{loadDemo();S.company.members[0].name='Рудокоп';S.company.members[1].name='Кузнец';S.company.members[0].image=image;S.company.inventory.push({id:'old-item',name:'Старая кирка',quality:'common',category:'Снаряжение',qty:2,image,owner:'member:'+S.company.members[0].id});S.portal.codex.push({id:'secret',title:'СЕКРЕТ-ЛЕТА',hidden:true});commit()}""",img)
 def exported(pg):
-    operations=pg.locator('#atlasOperations')
-    if operations.count() and not pg.locator('#exportBtn').is_visible():
-        operations.locator('summary').click()
+    current=None
+    if pg.locator('#kitTop').count():
+        current=pg.evaluate('tab')
+        pg.evaluate("switchTab('workshop')")
+    else:
+        operations=pg.locator('#atlasOperations')
+        if operations.count() and not pg.locator('#exportBtn').is_visible():
+            operations.locator('summary').click()
     with pg.expect_download() as d: pg.locator('#exportBtn').click()
-    return json.loads(Path(d.value.path()).read_text())
+    result=json.loads(Path(d.value.path()).read_text())
+    if current and current!='workshop':
+        pg.evaluate('(section)=>switchTab(section)',current)
+    return result
 campaign=exported(prototype)
 # A synthetic RC1 save reproduces the reported empty catalog shape.
 default_rules=json.loads((root/'data/rules.json').read_text())
@@ -43,7 +51,7 @@ def signin(nick):
     page.locator('#authForm button').click()
     page.locator('body:not(.locked)').wait_for()
 def add_account(nick,i):
-    page.locator('#modeBtn:visible, #kitAccount:visible').click()
+    tab('workshop')
     btn('Создать пользователя')
     page.locator('#nn').fill(nick)
     page.locator('#pw').fill('atlas-test-pw')
@@ -52,6 +60,7 @@ def add_account(nick,i):
 def profile_for(i):
     hero=campaign['company']['members'][i]['id']
     card=page.locator(f'[data-hero="{hero}"]')
+    card.locator('summary').click()
     card.get_by_role('button',name='Настроить героя').click()
     page.locator('#heroProfessions summary').click()
     page.get_by_label('Горное дело',exact=True).check()
@@ -90,9 +99,9 @@ page.get_by_label('Мудрость',exact=True).fill('14')
 page.locator('#heroSkills summary').click()
 page.get_by_label('Выживание',exact=True).select_option('1')
 submit()
-card=page.locator('[data-hero]').filter(has=page.get_by_role('heading',name='Мира',exact=False))
-assert card.get_by_text('Выживание: +4').is_visible()
-assert card.get_by_text('Активный герой').is_visible()
+card=page.locator('[data-hero]').filter(has_text='Мира')
+card.get_by_role('button',name='Мира',exact=False).first.click()
+assert page.get_by_role('button',name='Проверка · Выживание').inner_text()=='+4'
 tab('craft')
 btn('Профессии')
 btn('Добывающие')
@@ -122,9 +131,9 @@ signout()
 signin('miner')
 page.locator('#modeBtn:visible, #kitAccount:visible').click()
 btn('Мои герои')
-assert page.locator('[data-hero]').first.get_by_role('heading',name='Рудокоп',exact=True).is_visible()
-assert page.get_by_role('button',name='Настроить героя',exact=True).count()==1
-btn('Настроить героя')
+assert page.get_by_role('heading',name='Рудокоп',exact=True).is_visible()
+assert page.locator('[data-hero]').count()==0
+btn('Редактировать профиль')
 page.get_by_label('Раса',exact=True).fill('Дворф')
 submit()
 assert page.evaluate("profile(S,chosen()).race")=='Дворф'
@@ -214,7 +223,8 @@ page.locator('#recipeList .recipe-option').first.click()
 assert page.locator('#recipeDetail').is_visible()
 assert page.locator('#recipeList').is_visible()
 assert page.locator('#recipeList').bounding_box()['y'] < page.locator('#recipeDetail').bounding_box()['y']
-assert page.locator('#nav .nav-scroll').count()==2
+assert page.locator('#nav .nav-scroll').count()==3
+assert page.locator('#nav .nav-scroll:visible').count()==1
 # Verify that the authoritative store is written before reloading.
 wait_for_db(page,"async()=>!!(await dbGet())?.journey")
 assert page.evaluate("async()=>!!(await dbGet())?.journey")

@@ -330,7 +330,7 @@ function storageGroups(rows) {
 }
 renderBank = function () {
   const hero = chosen(), personalOwner = hero ? "member:" + hero : null;
-  const visible = S.company.inventory.filter(canSeeStack);
+  const visible = S.company.inventory.filter((x) => canSeeStack(x) && (!player || !x.owner));
   const rows = visible.filter(
     (x) =>
       (!bankFilter || x.category === bankFilter) &&
@@ -351,28 +351,29 @@ renderBank = function () {
         "Управление хранилищем",
         visualAction("Добавить предмет", "editItem()") +
           visualAction("Зачислить или списать золото", "treasury()") +
-          visualAction("Установить остаток", "setGold()"),
+          visualAction("Установить остаток", "setGold()") + visualAction("Категория предметов", "customCategoryForm()"),
       )
     : "";
   $("main").innerHTML =
     '<div class="screen visual-screen">' +
     sectionHeader(
-      "Хранилище",
+      "Общий банк",
       "Добыча, припасы и имущество компании.",
       kitHeroSelect(hero) + controls,
     ) +
-    '<div class="kit-tabs" aria-label="Доступное имущество">' +
+    (!player ? '<div class="kit-tabs" aria-label="Доступное имущество">' +
     [[personalOwner, "Сумки героя", "bank"], ["", "Банк компании", "bank"], ["all", "Все владельцы", "company"]]
       .filter(([owner]) => owner !== null)
       .map(([owner, label, icon]) => '<button class="kit-tab" aria-pressed="' + (bankOwner === owner) +
         '" onclick="changeBankOwner(' + jsid(owner) + ')">' + uiIcon(icon) + esc(label) + '</button>')
-      .join("") + '</div>' +
+      .join("") + '</div>' : "") +
     '<div class="kit-bank-layout"><div class="kit-panel kit-bank-main">' +
     '<div class="treasury-strip">' + uiIcon("bank") + '<div><small>' +
     esc(personalOwner && bankOwner === personalOwner ? ownerLabel(personalOwner) : "Казна компании") + '</small><strong>' +
     esc((personalOwner && bankOwner === personalOwner ? profile(S, hero).wallet : S.company.gold).toLocaleString("ru-RU")) +
     ' зм</strong></div>' +
-    (hero ? visualAction("Личные сумки", "bagPage()") : "") +
+    (hero ? visualAction("Личные сумки", "switchTab('bags')") : "") +
+    (hero && owned(actor, hero) && sharedAccess(S, actor, hero) ? visualAction("Получить из банка", "bankWithdrawal()") : "") +
     '</div>' +
     '<div class="visual-filters"><input id="bankSearch" type="search" aria-label="Поиск предметов" placeholder="Поиск предметов" value="' +
     esc(bankQuery) +
@@ -383,7 +384,7 @@ renderBank = function () {
       [["", "Все категории"], ...categories.map((c) => [c, c])],
       bankFilter,
     ) +
-    pick(
+    (!player ? pick(
       "Владелец",
       "bankOwnerPicker",
       [
@@ -393,7 +394,7 @@ renderBank = function () {
         ),
       ],
       bankOwner,
-    ) +
+    ) : "") +
     pick(
       "Редкость",
       "bankQuality",
@@ -430,7 +431,7 @@ renderBank = function () {
     bankFilter = val("bankCategory");
     render();
   };
-  $("bankOwnerPicker").onchange = () => {
+  if ($("bankOwnerPicker")) $("bankOwnerPicker").onchange = () => {
     bankOwner = val("bankOwnerPicker");
     render();
   };
@@ -513,6 +514,10 @@ openItem = function (id) {
             "primary",
           )
         : "") +
+      (x.qty > 0 && x.owner?.startsWith("member:") && owned(actor, x.owner.slice(7))
+        ? visualMenu("Действия с экипировкой", visualAction("Работа со снаряжением", "gearActions(" + args + ")")) : "") +
+      (!x.owner && chosen() && owned(actor, chosen()) && sharedAccess(S, actor, chosen())
+        ? visualAction("Получить из банка", "bankWithdrawal(" + args + ")") : "") +
       "</div></article>",
   );
 };
@@ -600,7 +605,10 @@ renderContracts = function () {
         (questFaction === "none" ? !c.faction : c.faction === questFaction)),
   );
   const controls = !player
-    ? visualAction("Новое задание", "editContract()", "primary") + visualAction("Новая поставка", "editDelivery()")
+    ? visualMenu("Управление заданиями",
+        visualAction("Новое задание", "editContract()") +
+        visualAction("Новая поставка", "editDelivery()") +
+        visualAction("Новое местное поручение", "errandEditor()"))
     : "";
   const selected = rows.find((q) => q.id === selectedBoardQuest) || rows[0];
   selectedBoardQuest = selected?.id || "";
@@ -653,7 +661,7 @@ renderContracts = function () {
             ? "По этим условиям заданий нет."
             : "Журнал ждёт первого задания.",
         )) +
-    "</div>";
+    companionPanel("contracts") + "</div>";
   $("questFactionPicker").onchange = () => {
     questFaction = val("questFactionPicker");
     render();

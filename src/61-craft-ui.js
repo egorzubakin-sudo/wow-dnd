@@ -5,6 +5,7 @@ let craftTab = "recipes",
   craftQuality = "",
   craftFilter = "",
   craftSort = "name";
+let craftCompanionContext = null;
 const professionRanks = [
   "Ученик",
   "Подмастерье",
@@ -12,7 +13,8 @@ const professionRanks = [
   "Искусник",
   "Мастер",
 ];
-function openCraftTab(section, profession = "") {
+function openCraftTab(section, profession = "", companion = null) {
+  craftCompanionContext = companion;
   craftTab = section;
   if (profession) {
     craftProfession = profession;
@@ -84,6 +86,7 @@ function recipeQuality(item) {
 function craftTabButton(label, id, container) {
   const b = button(label, () => {
     craftTab = id;
+    craftCompanionContext = null;
     renderCraft();
   });
   b.className = "kit-small";
@@ -158,6 +161,7 @@ function renderCraft() {
   }
   if (craftTab === "projects") renderProjects(root, hero);
   if (craftTab === "trade") tradeView(root, hero);
+  else root.insertAdjacentHTML("afterend", companionPanel("craft"));
 }
 function drawProfessionPills() {
   const table = S.engine.professions.filter((p) =>
@@ -272,17 +276,7 @@ function renderProfessionCards(root, hero) {
         button("Рецепты", () => openCraftTab("recipes", profession.id)),
       );
     const training = eligible && S.engine.requireTrainer && bv(p) > rank ? trainingOffer(S, profession.id, bv(p)) : null;
-    if (training)
-      controls.append(
-        button("Обучиться", () =>
-          commandForm(
-            "Обучение",
-            "<p>" + esc(timeLabel(training.hours) + " · " + goldText(training.fee)) + "</p>",
-            "train",
-            () => ({ hero, profession: profession.id }),
-          ),
-        ),
-      );
+    if (training) controls.append(button("Обучиться", () => trainingDialog(hero, profession.id)));
     card.append(controls);
     grid.append(card);
   }
@@ -442,6 +436,9 @@ function renderRecipeDetail(root, hero, p, r, item) {
     ...names(r.equipment),
     ...(r.locations || []).map((id) => node(id)?.name || id),
   ];
+  const companion = craftCompanionContext?.recipe === r.id && craftCompanionContext.hero === hero
+    ? { npc: craftCompanionContext.npc, action: craftCompanionContext.action } : null;
+  const sponsorship = companion && companionActionState(S, actor, hero, companion);
   root.innerHTML =
     '<div class="kit-row">' +
     itemIcon(item) +
@@ -479,6 +476,8 @@ function renderRecipeDetail(root, hero, p, r, item) {
     (requirements.length
       ? '<p class="muted">' + esc(requirements.join(" · ")) + "</p>"
       : "") +
+    (sponsorship?.action ? '<p class="muted">' + esc(sponsorship.npc.title + " · " +
+      (companionTerms(sponsorship.action) || "Ремесленная услуга")) + "</p>" : "") +
     equipmentDetails(item, item) +
     '<div id="craftCosts"></div><div class="kit-recipe-actions"><div id="craftInputs"></div><div id="craftSubmit"></div></div>' +
     '<div id="craftNotice" class="kit-notice" role="status"></div>';
@@ -517,6 +516,7 @@ function renderRecipeDetail(root, hero, p, r, item) {
       : "");
   const payload = () => ({
     hero,
+    companion,
     recipe: r.id,
     qty: num("craftQty"),
     resource: $("craftResource")?.value,
@@ -547,8 +547,13 @@ function renderRecipeDetail(root, hero, p, r, item) {
     try {
       const quote = projectQuote(S, payload());
       const reasons = recipeAvailability(hero, p, r, quote);
+      if (sponsorship?.reason) reasons.push(sponsorship.reason);
+      if (sponsorship?.action) {
+        if (quote.wallet < quote.cost + sponsorship.action.gold) reasons.push("Не хватает золота на услугу и работу");
+        if (remaining(S, hero) <= sponsorship.action.hours) reasons.push("После услуги не остаётся времени на работу");
+      }
       create.disabled = !!reasons.length || !owned(actor, hero);
-      const needsProject = quote.work > remaining(S, hero) && !create.disabled;
+      const needsProject = quote.work > remaining(S, hero) - (sponsorship?.action?.hours || 0) && !create.disabled;
       const label = needsProject ? "Начать проект" : "Создать";
       create.setAttribute("aria-label", label);
       create.innerHTML = uiIcon("craft") + esc(label + " ×" + payload().qty);
@@ -652,8 +657,9 @@ function renderProjects(root, hero) {
       );
       const workers = j.contributors.map((c) => {
         const person = c.staff
-          ? S.company.staff.find((m) => m.id === c.staff)
+          ? companySpecialists(S).find((m) => m.id === c.staff)
           : S.company.members.find((m) => m.id === c.hero);
+        if (player && person?.hidden) return "Скрытый участник";
         return person ? memberName(person) : "Бывший участник";
       });
       const status = {
@@ -787,6 +793,13 @@ function heroStats() {
   if (owned(actor, id))
     $("statActions").append(button("Настроить героя", () => editMember(id)));
 }
+function trainingDialog(hero, profession, companion = null, terms = "") {
+  const offer = trainingOffer(S, profession, bv(profile(S, hero)), !!companion);
+  if (!offer) return toast("Нужна стоянка с наставником");
+  commandForm("Обучение",
+    terms + "<p>" + esc(timeLabel(offer.hours) + " · " + goldText(offer.fee)) + "</p>",
+    "train", () => ({ hero, profession, companion }));
+}
 function renderWorkshop() {
   if (player) {
     $("main").innerHTML =
@@ -797,6 +810,7 @@ function renderWorkshop() {
     '<div class="screen visual-screen">' + sectionHeader("Мастерская", "Справочники, шаблоны и импорт кампании.") +
     '<div class="kit-workshop-layout"><section class="kit-panel"><h3>Справочники</h3><p>Скачайте шаблоны, проверьте таблицы и подтвердите импорт.</p><div class="actions" id="workshopLinks"></div></section>' +
     '<section class="kit-panel"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div></div>';
+  $("main").firstElementChild.insertAdjacentHTML("beforeend", administrationSections());
   $("workshopLinks").append(
     button("Мастерская данных", () => workshop()),
     button("Пакеты контента", contentWorkshop),

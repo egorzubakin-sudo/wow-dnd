@@ -47,7 +47,7 @@ function sectionHeader(title, description, actions = "", key = tab) {
     '<header class="section-cover kit-sectionhead kit-portal-head">' +
     (safeImage(image) ? sectionArt(image, "cover", "") : "") +
     '<div class="section-cover-copy"><div class="eyebrow">Атлас · ' +
-    (NAV_BANDS[0][1].some(([id]) => id === key) ? "Мир" : "Кампания") +
+    (NAV_BANDS.find(([, rows]) => rows.some(([id]) => id === key))?.[0] || "Атлас") +
     '</div><h2>' +
     esc(title) +
     "</h2>" +

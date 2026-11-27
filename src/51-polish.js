@@ -120,17 +120,16 @@ function campControl() {
   $("facility").onchange = show;
   show();
 }
-function gearActions() {
-  const hero = chosen(),
-    bag = S.company.inventory.filter(
-      (x) => x.owner === "member:" + hero && canSeeStack(x),
-    );
+function gearActions(stackId) {
+  const stack = S.company.inventory.find((x) => x.id === stackId);
+  const hero = stack?.owner.startsWith("member:") ? stack.owner.slice(7) : "";
+  if (!hero || !owned(actor, hero) || !canSeeStack(stack)) return;
   openModal(
-    "Операции с вещами",
+    "Работа со снаряжением",
     '<div id="gearActions" class="actions"></div>',
   );
   const box = $("gearActions"),
-    select = pick("Стопка", "stack", pairs(bag), "");
+    select = pick("Стопка", "stack", pairs([stack]), stackId);
   (box.append(
     button("Объединить стопки", () =>
       commandForm("Объединить стопки", select, "merge", () => ({
@@ -183,73 +182,20 @@ function gearActions() {
       ),
     ));
 }
-function recentActivity(box, hero, t) {
-  const rows = t.history
-    .filter((x) => x.hero === hero && x.item_id)
-    .slice(-3)
-    .map((x) => byId(S.engine.items, x.item_id).name + " × " + x.qty);
-  const projects = S.engine.projects
-    .filter((j) => j.hero === hero && j.status === "active")
-    .map((j) => j.name + " · " + j.left + " ч.");
-  const completion = S.engine.completions.filter((x) => x.hero === hero).at(-1);
-  for (const [label, txt] of [
-    ["Последняя добыча", rows.join(", ")],
-    ["В работе", projects.join(", ")],
-    ["Итог поручения", completion?.result],
-  ]) {
-    if (txt) {
-      const p = document.createElement("p");
-      p.textContent = label + " · " + txt;
-      box.append(p);
-    }
+function recentActivity(box, hero, stay) {
+  const loot = stay.history.filter((row) => row.hero === hero && row.item_id).slice(-3)
+    .map((row) => {
+      const item = S.engine.items.find((entry) => entry.id === row.item_id);
+      return item && (!player || !item.hidden) ? item.name + " × " + row.qty : "";
+    }).filter(Boolean).join(", ");
+  const completion = S.engine.completions.filter((row) => row.hero === hero).at(-1);
+  for (const [label, value] of [["Последняя добыча", loot], ["Итог поручения", completion?.result]]) {
+    if (!value) continue;
+    const line = document.createElement("p");
+    line.textContent = label + " · " + value;
+    box.append(line);
   }
 }
-actions.push((a, { gm, hero, t, e, box }) => {
-  if (t && hero && owned(actor, hero)) {
-    if (tab === "home") recentActivity(box, hero, t);
-    if (tab === "home") a.append(button("Расписание", plansPage));
-  }
-  if (hero && ["company", "bank"].includes(tab))
-    a.append(
-      button("Профессии", () => openCraftTab("professions")),
-      button("Операции с вещами", gearActions),
-    );
-  if (gm && tab === "camp") {
-    a.append(
-      button("Эффекты лагеря", campControl),
-      button("Обучение профессиям", () =>
-        commandForm(
-          "Наставники",
-          check(
-            "Обучение обязательно для повышения ранга",
-            "trainer",
-            e.requireTrainer,
-          ),
-          "trainingMode",
-          () => ({ on: $("trainer").checked }),
-        ),
-      ),
-    );
-  }
-  if (actor.role === "captain" && actor.travel && !t && !S.journey) {
-    const routes = S.routes.filter(
-      (r) =>
-        visibleRoute(r) &&
-        r.status === "open" &&
-        [r.a, r.b].includes(S.company.location),
-    );
-    if (routes.length)
-      a.append(
-        button("Отправиться в путь", () => {
-          openModal("Маршруты", '<div id="travelOptions"></div>');
-          for (const r of routes)
-            $("travelOptions").append(
-              button(routeLabel(r), () => beginJourney(r.id)),
-            );
-        }),
-      );
-  }
-});
 const personView = openAffPerson;
 openAffPerson = function (kind, id) {
   personView(kind, id);
@@ -374,17 +320,17 @@ function manageUsers() {
 const baseAccountMenu = accountMenu;
 accountMenu = function () {
   baseAccountMenu();
+  if (previewReadOnly) return;
   if (heroRows().length || actor.role === "master")
     $("accountActions").append(
       button(actor.role === "master" ? "Герои компании" : "Мои герои", () => {
         closeModal();
-        switchTab("company");
-        $("companyHeroes")?.scrollIntoView({ block: "start" });
+        switchTab(actor.role === "master" ? "company" : "hero");
       }),
     );
   if (actor.role === "master")
     $("accountActions").append(
-      button("Управление пользователями", manageUsers),
+      button("Мастерская", () => { closeModal(); switchTab("workshop"); }),
     );
 };
 function economyForm() {
@@ -435,30 +381,15 @@ function economyForm() {
   $("tier").onchange = fill;
   fill();
 }
-actions.push((a, { gm, hero }) => {
-  if (tab !== "bank") return;
-  if (gm) a.append(button("Экономика", economyForm));
-  if (hero && sharedAccess(S, actor, hero))
-    a.append(
-      button("Получить из банка", () =>
-        commandForm(
-          "Получить из банка",
-          input("Золото (0 — предмет)", "wg", "number", 0) +
-            pick(
-              "Стопка",
-              "ws",
-              pairs(
-                S.company.inventory.filter((x) => !x.owner && canSeeStack(x)),
-              ),
-              "",
-            ) +
-            input("Количество предметов", "wq", "number", 1),
-          "withdraw",
-          () => ({ hero, gold: num("wg"), stack: val("ws"), qty: num("wq") }),
-        ),
-      ),
-    );
-});
+function bankWithdrawal(stackId = "") {
+  const hero = chosen();
+  if (!hero || !owned(actor, hero) || !sharedAccess(S, actor, hero)) return;
+  commandForm("Получить из банка",
+    input("Золото (0 — предмет)", "wg", "number", 0) +
+    pick("Стопка", "ws", pairs(S.company.inventory.filter((x) => !x.owner && canSeeStack(x))), stackId) +
+    input("Количество предметов", "wq", "number", 1), "withdraw",
+    () => ({ hero, gold: num("wg"), stack: val("ws"), qty: num("wq") }));
+}
 Object.assign(UX_LABEL, {
   regions: "Регион",
   recipes: "Рецепт",
@@ -565,10 +496,6 @@ function rollHistory() {
       "</div>",
   );
 }
-actions.push((a, { gm, hero, t, box }) => {
-  if (hero && tab === "company")
-    a.append(button("Журнал проверок", rollHistory));
-});
 function journalPanel() {
   const hero = chosen(),
     rows = S.engine.receipts.filter(
@@ -601,6 +528,9 @@ function journalPanel() {
     craftTempo: "Изменён темп ремесла",
     contentImport: "Импорт пакета контента",
     contentArchive: "Архивирование пакета",
+    npcParticipation: "Изменено участие NPC в компании",
+    companionRequest: "Обращение к спутнику",
+    resolveCompanionRequest: "Решение по обращению",
 
   };
   openModal(
@@ -638,47 +568,24 @@ function journalPanel() {
       "</div>",
   );
 }
-onRender.push(() => {
-  if (tab === "journal")
-    $("main").querySelector(".section-cover-actions")?.prepend(button("Журнал операций", journalPanel));
-  if (!actor || tab !== "home") return;
-  const feed = $("engineActions");
-  if (!feed) return;
-  const extras = [...feed.querySelectorAll("button")].filter((b) =>
-    [
-      "Разбить стоянку",
-      "Сменить фазу",
-      "Последствия сессии",
-      "Мастерская данных",
-    ].includes(b.textContent),
-  );
-  if (extras.length) {
-    const group = document.createElement("details");
-    group.innerHTML = "<summary>Управление кампанией</summary>";
-    extras.forEach((b) => group.append(b));
-    feed.after(group);
-  }
-});
-actions.push((a, { gm, e }) => {
-  if (gm && tab === "bank")
-    a.append(
-      button("Категория предметов", () =>
-        commandForm(
-          "Новая категория",
-          input("Название", "newCategory", "text", "", "required"),
-          "customCategory",
-          () => ({ name: val("newCategory") }),
-        ),
-      ),
-    );
-  if (gm && tab === "map" && e.regions.length)
-    a.append(
-      button("Изменить регион", () => {
-        openModal("Регионы", '<div id="regionList" class="actions"></div>');
-        for (const r of e.regions)
-          $("regionList").append(
-            button(r.name, () => regionForm(r.points || [], r)),
-          );
-      }),
-    );
-});
+function editRegionList() {
+  if (player) return;
+  openModal("Регионы", '<div id="regionList" class="actions"></div>');
+  for (const r of S.engine.regions)
+    $("regionList").append(button(r.name, () => regionForm(r.points || [], r)));
+}
+function customCategoryForm() {
+  commandForm("Новая категория", input("Название", "newCategory", "text", "", "required"),
+    "customCategory", () => ({ name: val("newCategory") }));
+}
+function trainingModeForm() {
+  commandForm("Наставники", check("Обучение обязательно для повышения ранга", "trainer", S.engine.requireTrainer),
+    "trainingMode", () => ({ on: $("trainer").checked }));
+}
+function choosePartyRoute() {
+  if (!canTravel() || currentStay(S) || S.journey) return;
+  const rows = S.routes.filter((r) => visibleRoute(r) && r.status !== "closed" && [r.a, r.b].includes(S.company.location));
+  openModal("Маршруты", '<div id="travelOptions" class="actions"></div>');
+  for (const r of rows) $("travelOptions").append(button(routeLabel(r), () => beginJourney(r.id)));
+  if (!rows.length) $("travelOptions").textContent = "Из текущего места пока нет доступных маршрутов.";
+}

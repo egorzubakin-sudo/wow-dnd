@@ -9,15 +9,30 @@ const kitActivityArt = {
   alchemy: "market",
   cooking: "market",
 };
-const kitNavLabels = {
-  people: "Персонажи",
-  worldbook: "Хроники",
-  company: "Герои",
-  bank: "Сумки и банк",
-  contracts: "Задания",
-};
-function kitNavLabel(key, label) {
-  return kitNavLabels[key] || label;
+const additionalNavIcons = { hero: "company", bags: "bank", personalAchievements: "achievements" };
+let activeNavBand = 0;
+function chooseNavBand(index) {
+  activeNavBand = index;
+  $("nav").dataset.band = index;
+  for (const button of $("nav").querySelectorAll(".kit-nav-switch button"))
+    button.setAttribute("aria-pressed", String(Number(button.dataset.group) === index));
+}
+function renderNavigation() {
+  const group = NAV_BANDS.findIndex(([, items]) => items.some(([id]) => id === tab));
+  if (group >= 0) activeNavBand = group;
+  $("nav").dataset.band = activeNavBand;
+  return '<div class="kit-nav-switch" aria-label="Группы разделов">' +
+    NAV_BANDS.map(([label], index) =>
+      '<button data-group="' + index + '" aria-pressed="' + (activeNavBand === index) +
+      '" onclick="chooseNavBand(' + index + ')">' + esc(label) + '</button>').join("") + '</div>' +
+    NAV_BANDS.map(([label, items], index) =>
+      '<div class="nav-band" data-group="' + index + '"><div class="nav-band-label">' + esc(label) +
+      '</div><div class="nav-scroll" data-band="' + index + '" onscroll="navOffsets[' + index + ']=this.scrollLeft">' +
+      items.map(([id, name, fallback]) =>
+        '<button class="nav-tab ' + (tab === id ? "active" : "") + '" aria-label="' + esc(name) +
+        '"' + (tab === id ? ' aria-current="page"' : '') + ' onclick="switchTab(' + jsid(id) +
+        ')"><span class="menu-icon">' + navIcon(id, fallback) + '</span><span>' + esc(name) +
+        '</span></button>').join("") + '</div></div>').join("");
 }
 function kitArtUrl(key) {
   return "assets/ui-kit/" + key + ".webp";
@@ -83,17 +98,29 @@ function kitSubhead(title, side = "") {
     "</div>"
   );
 }
+function moveCampaignFileControls() {
+  const panel = $("workshopFiles") || $("atlasOperations").querySelector(".visual-menu-panel");
+  for (const id of ["exportBtn", "importBtn"]) {
+    $(id).hidden = tab !== "workshop" || player;
+    panel.append($(id));
+  }
+}
 function kitUpdateNavigation() {
   document.body.classList.add("atlas-kit-active");
   const top = $("kitTop");
+  moveCampaignFileControls();
   const operations = $("atlasOperations");
   operations.querySelector(".kit-operations-extra")?.remove();
   operations.querySelector(".visual-menu-panel").insertAdjacentHTML(
     "afterbegin",
     '<div class="kit-operations-extra">' +
       visualAction("Избранное", "uxFavorites()") +
+      visualAction("Дипломатия", "switchTab('diplomacy')") +
+      visualAction("Правила", "switchTab('help')") +
+      visualAction("Журнал", "switchTab('journal')") +
       (!player
-        ? visualAction("Архив", "uxArchiveView()") +
+        ? visualAction("Мастерская", "switchTab('workshop')") +
+          visualAction("Архив", "uxArchiveView()") +
           visualAction("История", "uxHistory()") +
           (uxUndo.length ? visualAction("Отменить действие", "uxRestore(false)") : "") +
           (uxRedo.length ? visualAction("Повторить действие", "uxRestore(true)") : "")
@@ -122,6 +149,7 @@ function kitUpdateNavigation() {
     esc(phase) +
     (here ? " · <b>" + esc(here) + "</b>" : "") +
     "</span>" +
+    '<button class="kit-topicon" onclick="switchTab(\'mail\')" aria-label="Почта">' + uiIcon("mail") + "</button>" +
     '<button class="kit-topicon" onclick="uxSearch()" aria-label="Поиск">' +
     uiIcon("search") +
     "</button>" +
@@ -145,7 +173,7 @@ navIcon = function (key, fallback) {
   const custom = safeImage(S.settings.navIcons?.[key]);
   const chosenId = S.settings.navIconIds?.[key];
   if (custom) return '<img src="' + esc(custom) + '" alt="">';
-  const path = iconPath(chosenId) || iconPath(iconDefaults.nav[key]);
+  const path = iconPath(chosenId) || iconPath(iconDefaults.nav[additionalNavIcons[key] || key]);
   return path
     ? '<img src="' + esc(path) + '" alt="">'
     : existingNavIcon(key, fallback);

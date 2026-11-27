@@ -124,7 +124,7 @@ function activityLoot(rows) {
     .map((id) => S.engine.items.find((i) => i.id === id))
     .filter((item) => item && (!player || !item.hidden));
 }
-function activityDialog(hero, profession, stay) {
+function activityDialog(hero, profession, stay, companion = null, terms = "") {
   const state = activityState(hero, profession, stay);
   const { payload, details, reason } = state;
   const ids = S.engine.loot.filter(
@@ -158,7 +158,7 @@ function activityDialog(hero, profession, stay) {
   const key = crypto.randomUUID();
   form(
     profession.name,
-    body +
+    body + terms +
       (choice ? pick("Туша", "activityCarcass", choice, payload.carcass) : "") +
       '<div id="activityCheck"></div>',
     async () => {
@@ -168,6 +168,7 @@ function activityDialog(hero, profession, stay) {
           hero,
           profession: profession.id,
           carcass: $("activityCarcass")?.value,
+          companion,
         },
         key,
       );
@@ -235,7 +236,7 @@ function signed(value) {
 function staffWorkDialog() {
   commandForm(
     "Проект лагеря",
-    pick("Специалист", "worker", pairs(S.company.staff), "") +
+    pick("Специалист", "worker", pairs(companySpecialists(S).filter((row) => specialistAvailable(S, row))), "") +
       pick(
         "Проект",
         "project",
@@ -286,7 +287,7 @@ function kitStayHero(hero, stay) {
     '<div class="kit-quick">' +
     kitLink("Сумки", "bagPage()", "bank") +
     kitLink("Ремесло", "openCraftTab('recipes')", "craft") +
-    kitLink("Герой", "openAffPerson('hero'," + jsid(hero) + ")", "company") +
+    kitLink("Герой", "openHeroProfile(" + jsid(hero) + ")", "company") +
     "</div></div>"
   );
 }
@@ -561,7 +562,7 @@ function drawKitStayTasks(hero, stay, master) {
   }
   if (
     master &&
-    S.company.staff.length &&
+    companySpecialists(S).some((row) => specialistAvailable(S, row)) &&
     S.engine.projects.some((j) => j.status === "active")
   )
     task(
@@ -572,4 +573,5 @@ function drawKitStayTasks(hero, stay, master) {
     );
   if (!box.children.length)
     box.innerHTML = emptyScene("Дела компании доступны назначенным героям.");
+  box.insertAdjacentHTML("afterend", companionPanel("stay"));
 }

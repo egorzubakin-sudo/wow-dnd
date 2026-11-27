@@ -22,9 +22,6 @@ function renderHome() {
   const stories = ["news", "rumors"].flatMap((kind) =>
     publicItems(kind).filter((x) => !x.archived).map((x) => ({ kind, x })),
   ).sort((a, b) => n(b.x.year) - n(a.x.year) || n(b.x.day) - n(a.x.day));
-  const primary = stay
-    ? kitLink("Продолжить стоянку", "switchTab('stay')", "stay", "primary")
-    : S.journey ? kitLink("Продолжить путь", "switchTab('map')", "map", "primary") : "";
   const settings = visualMenu("Главная страница",
     visualAction("Настроить блоки", "openHomeAppearance()") +
     (!player ? visualAction("Изменить обложку", "uxCover()") : ""),
@@ -34,16 +31,16 @@ function renderHome() {
     ["worldbook", "Хроники Азерота", S.worldBook.chapters.length + " глав"],
     ["diplomacy", "Дипломатия", S.diplomacy.filter(visibleDiplomacy).length + " отношений"],
     ["contracts", "Доска заданий", ready.length + " доступно"],
-    ["bank", "Хранилище", c.inventory.filter(canSeeStack).length + " позиций"],
+    ["bank", "Общий банк", c.inventory.filter((x) => !x.owner && canSeeStack(x)).length + " позиций"],
     ["mail", "Почта", letters.length + " непрочитанных"],
     ["chronicle", "Летопись", chronicle.length + " записей"],
-    ["achievements", "Достижения", points + " у отряда"],
+    ["achievements", "Достижения", points + " у отряда", "openCompanyAchievements()"],
   ];
   const data = [
     ["coins", c.gold.toLocaleString("ru-RU") + " зм", "Общая казна", "bank"],
     ["company", c.members.filter((m) => m.active && (!player || !m.hidden)).length, "Герои", "company"],
     ["camp", advances + "/12", "Улучшения лагеря", "camp"],
-    ["achievements", points, "Достижения", "achievements"],
+    ["achievements", points, "Достижения", "achievements", "openCompanyAchievements()"],
   ];
   $("main").innerHTML = `<div class="atlas-kit kit-home">
     <section class="kit-wideart kit-welcome">
@@ -52,15 +49,15 @@ function renderHome() {
         <div class="eyebrow">${esc(dayLabel())}</div>
         <h2>Дорога ждёт,<br>путешественник.</h2>
         <p>${esc(c.name)}${place ? " · " + esc(place) : ""}</p>
-        ${p.hero ? '<div class="actions">' + primary +
-          kitLink("Открыть карту", "switchTab('map')", "map") +
+        ${p.hero ? '<div class="actions">' +
+          kitLink(hero ? "Мой герой" : "Открыть карту", hero ? "switchTab('hero')" : "switchTab('map')", hero ? "company" : "map", "primary") +
           (!player && !S.map ? visualAction("Загрузить карту", "$('mapFile').click()") : "") +
           '</div>' : ""}
       </div>
       <div class="kit-hero-actions">${settings}</div>
     </section>
-    ${p.stats ? '<div class="kit-home-metrics">' + data.map(([icon, value, label, target]) =>
-      '<button onclick="switchTab(' + jsid(target) + ')">' + uiIcon(icon) +
+    ${p.stats ? '<div class="kit-home-metrics">' + data.map(([icon, value, label, target, action]) =>
+      '<button onclick="' + (action || "switchTab(" + jsid(target) + ")") + '">' + uiIcon(icon) +
       '<span><strong>' + esc(value) + '</strong><small>' + esc(label) + '</small></span></button>',
     ).join("") + '</div>' : ""}
     ${p.feed ? `<div class="kit-home-grid">
@@ -72,32 +69,93 @@ function renderHome() {
           safeImage(x.image) || kitArtUrl(kind === "rumors" ? "market" : "news")),
         ).join("") || emptyScene("Вестник ждёт первых сообщений.")}</div>
       </section><aside>
-        <div class="kit-panel kit-today">
-          <div class="eyebrow">Сейчас · ${esc(phases[phase])}</div>
-          <h3>${esc(stay?.name || place || c.name)}</h3>
-          ${hero && stay ? '<p class="muted">' + esc(timeLabel(remaining(S, hero))) + ' у героя</p>' : ""}
-          ${primary ? '<div class="actions">' + primary + '</div>' : ""}
-        </div>
-        ${kitSubhead("Дела компании")}
+        ${homePhasePanel(hero, stay, active, phase, chronicle)}
+        ${kitSubhead("Письма и достижения")}
         <div class="kit-panel kit-feed">
-          ${kitHomeRow("Доска заданий", ready.length + " доступно", "contracts", "switchTab('contracts')")}
           ${kitHomeRow(letters[0]?.title || "Почта", letters.length + " новых", "mail", "switchTab('mail')")}
-          ${kitHomeRow("Книга рецептов", "Ремесло и проекты", "craft", "openCraftTab('recipes')")}
-          ${active.slice(0, 3).map((q) => kitHomeRow(q.title, "Действующее задание", "contracts", "openMapQuest(" + jsid(q.id) + ")")).join("")}
-          ${chronicle[0] ? kitHomeRow(chronicle[0].title, "Последняя запись летописи", "chronicle", "openPortalRecord('chronicle'," + jsid(chronicle[0].id) + ")") : ""}
+          ${homeAchievements(hero)}
         </div>
       </aside>
     </div>` : ""}
     ${p.shortcuts ? '<div class="kit-home-shortcuts">' + links.filter(([id]) => p.tiles[id] !== false)
-      .map(([id, label, detail]) => kitHomeRow(label, detail, id, "switchTab(" + jsid(id) + ")")).join("") + '</div>' : ""}
+      .map(([id, label, detail, action]) => kitHomeRow(label, detail, id, action || "switchTab(" + jsid(id) + ")")).join("") + '</div>' : ""}
     ${p.footer ? '<div class="actions kit-home-footer">' +
       kitLink("Книга знакомств", "switchTab('people')", "people") +
       kitLink("Фракции", "switchTab('factions')", "factions") +
       kitLink("Кодекс", "switchTab('codex')", "codex") +
-      kitLink("Технический журнал", "switchTab('journal')", "journal") + '</div>' : ""}
+      kitLink("Журнал приключений", "switchTab('journal')", "journal") + '</div>' : ""}
   </div>`;
 }
 
+function homeAchievements(hero) {
+  const personal = hero ? "hero:" + hero : "", grants = ["company", personal].filter(Boolean);
+  const recent = publicItems("achievements").filter((a) => !a.archived && grants.some((key) => hasGrant(a, key)))
+    .sort((a, b) => (b.grants?.filter((g) => grants.includes(g.recipient)).at(-1)?.date || "")
+      .localeCompare(a.grants?.filter((g) => grants.includes(g.recipient)).at(-1)?.date || "", "ru", { numeric: true }));
+  return recent.slice(0, 2).map((a) =>
+    kitHomeRow(a.title, hasGrant(a, personal) ? "Личное достижение" : "Достижение компании", "achievements",
+      "openPortalRecord('achievements'," + jsid(a.id) + ")")).join("") ||
+    kitHomeRow("Достижения компании", "Новых достижений пока нет", "achievements", "openCompanyAchievements()");
+}
+function homePhasePanel(hero, stay, active, phase, chronicle) {
+  let title, detail, controls;
+  const stayPhase = phase === "stay" && stay;
+  if (stayPhase) {
+    title = locLabel(stay.location) || stay.name || "Стоянка";
+    detail = hero ? timeLabel(remaining(S, hero)) + " доступно герою" : "Выберите героя";
+    const activities = hero && owned(actor, hero) ? S.engine.professions.filter((p) =>
+      p.kind === "gathering" && !activityState(hero, p, stay).reason) : [];
+    const errands = hero && owned(actor, hero) ? S.contracts.filter((q) => q.type === "local" && questAvailable(S, q, hero)) : [];
+    const projects = S.engine.projects.filter((p) => p.status === "active" && p.hero === hero);
+    controls = kitLink("Открыть стоянку", "switchTab('stay')", "stay", "primary") +
+      activities.slice(0, 3).map((p) => kitHomeRow(p.name, "Доступное занятие", "stay",
+        "openHomeActivity(" + jsid(p.id) + ")")).join("") +
+      companionRows("stay").filter((entry) => !entry.reason).slice(0, 2).map(({npc, action}) =>
+        kitHomeRow(action.name, npc.title, actionIcons[action.kind], "openCompanionAction(" + jsid(npc.id) + "," + jsid(action.id) + ")")).join("") +
+      errands.slice(0, 2).map((q) => kitHomeRow(q.title, "Местное поручение", "contracts",
+        "localBoard(" + jsid(q.id) + ")")).join("") +
+      projects.slice(0, 2).map((p) => kitHomeRow(p.name, timeLabel(p.left) + " осталось", "craft",
+        "openCraftTab('projects')")).join("") +
+      (hero && stay.history.some((r) => r.hero === hero) ? '<div class="home-last-activity" id="homeActivity"></div>' : "");
+  } else if (phase === "travel") {
+    const journey = S.journey, routeRecord = journey && route(journey.routeId), allowed = routeRecord && visibleRoute(routeRecord);
+    title = allowed ? routeLabel(routeRecord) : journey ? "Компания в пути" : "Подготовка к пути";
+    const guide = S.company.members.find((m) => m.id === journey?.guide && (!player || !m.hidden || owned(actor, m.id)));
+    detail = [allowed ? locLabel(journey.from) : locLabel(S.company.location),
+      journey ? "День пути " + Math.max(1, S.company.day - (journey.start ?? S.company.day) + 1) + " из " + Math.max(1, journey.days) : "",
+      guide ? "Проводник · " + memberName(guide) : ""].filter(Boolean).join(" · ");
+    controls = kitLink("Открыть маршрут", "switchTab('map')", "map", "primary") +
+      (allowed && canTravel() && journey.outcome === null ? visualAction("Определить событие", "rollJourney()") : "") +
+      (allowed && !player && journey.outcome !== null ? visualAction("Завершить переход", "finishJourney()") : "") +
+      (!journey && canTravel() ? visualAction("Выбрать маршрут", "choosePartyRoute()") : "");
+  } else {
+    title = locLabel(S.company.location) || "Приключение";
+    detail = active.length ? "Действующих заданий · " + active.length : "Компания готовится к следующему делу.";
+    const events = S.journal.filter((e) => !e.hidden && ["contract", "story", "session", "travel", "event"].includes(e.kind));
+    controls = kitLink("Задания", "switchTab('contracts')", "contracts", "primary") +
+      kitLink("Карта", "switchTab('map')", "map") + kitLink("Журнал", "switchTab('journal')", "journal") +
+      (hero ? kitLink("Мой герой", "switchTab('hero')", "company") : "") +
+      active.slice(0, 3).map((q) => kitHomeRow(q.title, "Действующее задание", "contracts",
+        "openMapQuest(" + jsid(q.id) + ")")).join("") +
+      chronicle.slice(0, 1).map((row) => kitHomeRow(row.title, "Летопись компании", "chronicle",
+        "openPortalRecord('chronicle'," + jsid(row.id) + ")")).join("") +
+      events.slice(0, 2).map((row) => kitHomeRow(row.title, portalDate(row), "journal",
+        "uxOpen('journal'," + jsid(row.id) + ")")).join("");
+  }
+  return '<section class="kit-panel kit-today home-phase"><div class="eyebrow">Сейчас · ' +
+    esc(phases[phase] || "") + '</div><h3>' + esc(title) + '</h3><p class="muted">' + esc(detail) +
+    '</p><div class="actions home-phase-actions">' + controls + '</div></section>';
+}
+function openHomeActivity(id) {
+  const stay = currentStay(S), hero = chosen();
+  const profession = S.engine.professions.find((row) => row.id === id);
+  if (!stay || !hero || !owned(actor, hero) || !profession) return;
+  switchTab("stay");
+  activityDialog(hero, profession, stay);
+}
+onRender.push(() => {
+  if ($("homeActivity")) recentActivity($("homeActivity"), chosen(), currentStay(S));
+});
 let kitMailSelection = "";
 function selectKitMail(id) {
   if (!visiblePortalRows("mail").some((row) => row.id === id)) return;
@@ -145,65 +203,6 @@ function renderMail() {
   uxLinkify($("kitMailLetter"));
 }
 
-const kitBaseCompany = renderCompany;
-renderCompany = function () {
-  kitBaseCompany();
-  const root = $("main").firstElementChild;
-  root.classList.add("kit-company");
-  const title = root.querySelector(".section-cover");
-  title.querySelector("h2").textContent = "Герои Вольной компании";
-  title.querySelector("p").textContent = "Персонажи, навыки, профессии и хартия отряда.";
-  const hero = chosen();
-  if (!hero) return;
-  const member = heroOf(S, hero), p = profile(S, hero);
-  const canAct = owned(actor, hero);
-  const professions = S.engine.professions.filter((record) => p.professions.includes(record.id));
-  const highSkills = ["Выживание", "Атлетика", "История", "Восприятие"];
-  const statRows = Object.entries(stats).map(([key, label]) => {
-    const mod = ability(p, { stat: key }, () => 1).mod;
-    return '<div><small>' + esc(label) + '</small><strong>' + esc(p.stats[key]) + '</strong>' +
-      (canAct ? visualAction(signed(mod), "rollForm(" + jsid(key) + ")") : '<small>' + signed(mod) + '</small>') + '</div>';
-  }).join("");
-  const skillRow = (skill) => {
-    const mod = ability(p, { skill }, () => 1).mod;
-    return '<div class="kit-profile-skill"><span class="kit-grow">' + esc(skill) + '</span><b>' +
-      signed(mod) + '</b>' + (canAct ? visualAction("Бросок", "rollForm(''," + jsid(skill) + ")", "ghost") : '') + '</div>';
-  };
-  title.querySelector(".section-cover-actions").insertAdjacentHTML("afterbegin", kitHeroSelect(hero));
-  title.insertAdjacentHTML("afterend", `<div class="kit-company-layout">
-    <section class="kit-panel kit-company-portrait">
-      ${sectionArt(member.image, "portrait", "", "", iconPath(iconDefaults.components.hero))}
-      <div class="eyebrow">${esc(member.role || "Участник компании")}</div>
-      <h3>${esc(memberName(member))}</h3>
-      <small>${esc(kitHeroDescription(p))}</small>
-      <div class="kit-quick">
-        ${kitLink("Сумки", "bagPage()", "bank")}
-        ${kitLink("Ремесло", "openCraftTab('professions')", "craft")}
-        ${kitLink("Достижения", "openPersonalAchievements(" + jsid("hero:" + hero) + ")", "achievements")}
-      </div>
-      ${canAct ? '<div class="actions">' + visualAction("Редактировать профиль", "editMember(" + jsid(hero) + ")", "primary") + '</div>' : ''}
-    </section>
-    <section>
-      <div class="kit-panel">
-        <div class="kit-subhead"><h3>Характеристики</h3><small>Бонус владения +${bv(p)}</small></div>
-        <div class="kit-stat-grid">${statRows}</div>
-        ${kitSubhead("Навыки для занятий")}
-        ${highSkills.map(skillRow).join("")}
-        <details><summary>Все навыки</summary>${Object.keys(skills).filter((skill) => !highSkills.includes(skill)).map(skillRow).join("")}</details>
-      </div>
-      ${kitSubhead("Профессии")}
-      <div class="kit-panel">${professions.map((record) => {
-        const eligible = eligibleProfession(S, p, record.id);
-        const rank = eligible ? professionRank(p, record.id) : 0;
-        const label = eligible ? professionRanks[rank - 2] || "Ранг " + rank : "Требуется владение";
-        return '<div class="kit-listrow">' + professionIcon(record) +
-          '<span class="kit-grow"><b>' + esc(record.name) + '</b><small>' + esc(label) + '</small></span></div>';
-      }).join("") || emptyScene("У героя пока нет выбранных профессий.")}</div>
-    </section>
-  </div>`);
-  bindKitHero();
-};
-
 const kitBaseMap = renderMap;
 renderMap = function () {
   kitBaseMap();
@@ -211,4 +210,13 @@ renderMap = function () {
   const cover = document.createElement("template");
   cover.innerHTML = sectionHeader("Карта Азерота", "Места, маршруты и текущий путь компании.");
   layout.prepend(cover.content);
+  const header = layout.querySelector(".section-cover-actions");
+  header.insertAdjacentHTML("beforeend",
+    '<div class="actions" id="engineActions">' +
+    (!player ? visualMenu("Управление картой",
+      visualAction("Создать регион", "regionForm()") +
+      visualAction("Нарисовать границу", "drawRegion()") +
+      (S.engine.regions.length ? visualAction("Изменить регион", "editRegionList()") : "")) : "") +
+    (canTravel() && !S.journey && !currentStay(S) && S.company.location
+      ? visualAction("Отправиться в путь", "choosePartyRoute()") : "") + '</div>');
 };

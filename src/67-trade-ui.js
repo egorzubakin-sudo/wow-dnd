@@ -1,13 +1,13 @@
 function goldText(value) {
   return Number(value).toLocaleString("ru-RU", { maximumFractionDigits: 2 }) + " зм";
 }
-function openTradeRecipe(id) {
+function openTradeRecipe(id, companion = null) {
   const r = S.engine.recipes.find((x) => x.id === id);
   if (!r) return;
   craftProfession = r.profession_id;
   craftRecipe = id;
   craftQuery = craftQuality = craftFilter = "";
-  openCraftTab("recipes");
+  openCraftTab("recipes", "", companion && { ...companion, recipe: id, hero: chosen() });
 }
 function tradeView(root, hero) {
   const rows = localMarket(S, actor), stay = currentStay(S), canAct = hero && owned(actor, hero);
@@ -51,30 +51,41 @@ function tradeView(root, hero) {
         timeLabel(r.hours) + (r.service ? " · " + r.service + ", ступень " + r.facility_rank : ""),
         "craft", "openTradeRecipe(" + jsid(r.id) + ")")).join("") ||
         emptyScene("Торговых рецептов пока нет.", !player ? visualAction("Добавить рецепты", "workshop('tradeRecipes')") : "")}</div></section>
-    </aside></div>`;
+    </aside></div>` + companionPanel("trade");
 }
 function availableTradeButton(label, side, id, available) {
   return '<button type="button" ' + (available ? "" : "disabled ") +
     'onclick="tradeDealForm(' + jsid(id) + ',' + jsid(side) + ')">' + label + '</button>';
 }
-function tradeDealForm(id, side) {
+function tradeDealForm(id, side, companion = null, terms = "") {
   const hero = chosen(), row = localMarket(S, actor).find((x) => x.item_id === id);
   if (!row || !hero || !owned(actor, hero)) return;
   const item = byId(S.engine.items, id), unit = tradePrices(S, row)[side];
   const buy = side === "buy", have = tradeStock(S, id, "member:" + hero).reduce((sum, x) => sum + x.qty, 0);
-  const balance = buy ? profile(S, hero).wallet : row.budget;
+  const fee = companion ? companionActionState(S, actor, hero, companion).action?.gold || 0 : 0;
+  const balance = buy ? profile(S, hero).wallet - fee : row.budget;
   const limit = Math.min(1000, buy ? row.stock : Math.min(have, row.demand), Math.floor((balance + 1e-8) / unit));
   if (!unit || limit < 1) return;
   const label = buy ? "Купить" : "Продать";
   commandForm(label + " · " + item.name,
-    '<p>За единицу · ' + esc(goldText(unit)) + '</p>' +
+    terms + '<p>За единицу · ' + esc(goldText(unit)) + '</p>' +
     input("Количество", "tradeQty", "number", 1, 'required min="1" max="' + limit + '" step="1"') +
     '<p id="tradeTotal" role="status"></p>',
-    "tradeDeal", () => ({ hero, item: id, side, unit, qty: num("tradeQty") }), label,
+    "tradeDeal", () => ({ hero, item: id, side, unit, qty: num("tradeQty"), companion }), label,
   );
   const showTotal = () => { $("tradeTotal").textContent = "Итого · " + goldText(num("tradeQty") * unit); };
   showTotal();
   $("tradeQty").oninput = showTotal;
+}
+function companionTradeOffer(id, ref, line) {
+  const row = localMarket(S, actor).find((entry) => entry.item_id === id);
+  if (!row) return toast("Товар пока недоступен на местном рынке");
+  let prices;
+  try { prices = tradePrices(S, row); } catch (error) { return toast(error.message); }
+  openModal("Торговая услуга", line + '<p>Покупка · ' + esc(goldText(prices.buy)) +
+    ' · скупка · ' + esc(goldText(prices.sell)) + '</p><div class="actions" id="npcTradeChoices"></div>');
+  $("npcTradeChoices").append(button("Купить", () => tradeDealForm(id, "buy", ref, line)),
+    button("Продать", () => tradeDealForm(id, "sell", ref, line)));
 }
 function donateTradeGold() {
   const hero = chosen(), wallet = hero && profile(S, hero).wallet;
@@ -235,10 +246,10 @@ function deliveryDetail(q) {
     (q.rewardReceipt ? '<p>Поставка завершена.</p>' : quote.reasons.length ?
       '<p class="muted">' + esc(quote.reasons.join(" · ")) + '</p>' : '') + '</section>';
 }
-function confirmDelivery(id) {
+function confirmDelivery(id, companion = null, terms = "") {
   const q = S.contracts.find((row) => row.id === id), hero = chosen();
   if (!q || q.type !== "delivery" || !hero) return;
-  commandForm(q.title, deliveryDetail(q), "deliverGoods", () => ({ id, hero }), "Доставить товары");
+  commandForm(q.title, terms + deliveryDetail(q), "deliverGoods", () => ({ id, hero, companion }), "Доставить товары");
 }
 
 function equipmentDetails(stack, catalog) {

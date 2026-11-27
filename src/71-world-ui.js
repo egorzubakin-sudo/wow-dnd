@@ -198,7 +198,7 @@ function dossier(x) {
       .map((row) => uxBtn(kind, row.id, row.title))
       .join("");
   const quests = S.contracts
-    .filter((q) => q.giver === x.id && uxFind("contract", q.id))
+    .filter((q) => (q.giver === x.id || x.participation?.actions?.some((a) => ["errand", "quest"].includes(a.kind) && a.target === q.id)) && uxFind("contract", q.id))
     .map((q) => uxBtn("contract", q.id, q.title))
     .join("");
   const block = (title, text) =>
@@ -225,7 +225,7 @@ function dossier(x) {
       esc(x.source || x.category || "") +
       "</small>" +
       affiliationBadge(x) +
-      (locLabel(x.location)
+      (!x.participation?.companion && locLabel(x.location)
         ? uxBtn("node", x.location, locLabel(x.location))
         : "") +
       (x.attitude ? "<p>" + esc(x.attitude) + "</p>" : "") +
@@ -242,6 +242,8 @@ function dossier(x) {
                 "Связи и знакомство",
                 "editDossier(" + jsid(x.id) + ")",
               ) +
+              visualAction("Участие в компании", "editNpcParticipation(" + jsid(x.id) + ")") +
+              visualAction("Взаимодействия", "editNpcActions(" + jsid(x.id) + ")") +
               visualAction(
                 "Дублировать",
                 "uxDuplicate(\'people\'," + jsid(x.id) + ")",
@@ -258,6 +260,7 @@ function dossier(x) {
       (x.body
         ? block("Биография", x.body)
         : emptyScene("Биография ещё не записана.")) +
+      companionDossier(x) +
       block("Характеристика", x.traits) +
       block("История знакомства", x.history) +
       block("Обязательства", x.promises) +

@@ -61,6 +61,7 @@ assert page.locator('.featured-story').get_by_text('Открыта перепр�
 btn('Слухи')
 assert page.locator('.featured-story').get_by_text('Огни у реки',exact=True).is_visible()
 tab('bank')
+btn('Все владельцы')
 assert page.locator('.inventory-slot').count()>0
 btn('Таблица')
 assert page.locator('table').is_visible()
@@ -92,6 +93,8 @@ tab('camp')
 page.locator('.camp-grid .talent summary').first.click()
 assert page.locator('.camp-grid .talent[open]').get_by_text('Условия:',exact=False).is_visible()
 tab('company')
+assert not page.locator('.kit-stat-grid').count()
+tab('hero')
 assert page.locator('.kit-stat-grid > div').count()==6
 page.locator('.kit-stat-grid button').first.click()
 assert page.locator('#stat').input_value()=='str'

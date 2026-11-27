@@ -94,6 +94,7 @@ header = function (title, desc, action = "") {
     "camp",
     "company",
     "achievements",
+    "personalAchievements",
     "mail",
     "help",
     "diplomacy",
@@ -139,7 +140,7 @@ function campVisuals() {
   if (staff) {
     staff.className = "kit-panel camp-staff";
     staff.innerHTML =
-      S.company.staff
+      companySpecialists(S)
         .filter((x) => !player || !x.hidden)
         .map((x) => {
           const id = jsid(x.id);
@@ -149,9 +150,8 @@ function campVisuals() {
               p.contributors?.some((c) => c.staff === x.id),
           );
           return (
-            '<article class="visual-card person-card"><button class="visual-open person-open" onclick="openAffPerson(\'staff\',' +
-            id +
-            ')">' +
+            '<article class="visual-card person-card"><button class="visual-open person-open" onclick="' +
+            (x.npcId ? "openPortalRecord('people'," + jsid(x.npcId) + ")" : "openAffPerson('staff'," + id + ")") + '">'  +
             sectionArt(x.image, "emblem", "⚒", "", iconPath(iconDefaults.components.hero)) +
             '<span class="person-info"><strong>' +
             esc(x.name) +
@@ -168,6 +168,7 @@ function campVisuals() {
               ? '<div class="visual-card-menu">' +
                 visualMenu(
                   "Действия специалиста",
+                  x.npcId ? visualAction("Участие в компании", "editNpcParticipation(" + jsid(x.npcId) + ")") :
                   visualAction("Изменить", "editStaff(" + id + ")") +
                     visualAction("Портрет", "editStaffPortrait(" + id + ")") +
                     visualAction(
@@ -346,6 +347,12 @@ renderAchievements = function () {
       );
   }
   collectionVisuals();
+  if (tab === "personalAchievements") {
+    root.querySelector(".section-cover h2").textContent = "Личные достижения";
+    root.querySelector(".section-cover p").textContent = memberName(heroOf(S, chosen()));
+    root.querySelector(".ach-filter")?.remove();
+    root.querySelector(".section-cover-actions")?.replaceChildren();
+  }
 };
 const baseVisualBook = renderWorldBook;
 renderWorldBook = function () {
@@ -418,34 +425,6 @@ onRender.push(() => {
   const main = $("main");
   main.dataset.scene = tab;
   if (tab === "camp") campVisuals();
-  const panel = $("engineActions");
-  if (panel) {
-    const box = panel.closest(".engine-panel");
-    const decisions = new Set([
-      "Создать регион",
-      "Нарисовать границу",
-      "Изменить регион",
-      "Эффекты лагеря",
-      "Обучение профессиям",
-      "Новое местное поручение",
-      "Изменить поручение",
-      "Последствия сессии",
-      "Категория предметов",
-      "Экономика",
-      "Закрыть стоянку",
-    ]);
-    const admin = [...panel.children].filter((el) =>
-      decisions.has(el.textContent),
-    );
-    if (admin.length && !player) {
-      const details = document.createElement("details");
-      details.className = "visual-menu";
-      details.dataset.contextMenu = "";
-      details.innerHTML =
-        '<summary aria-label="Управление разделом" title="Управление разделом">⋯</summary><div class="visual-menu-panel"></div>';
-      details.lastElementChild.append(...admin);
-      panel.append(details);
-    }
-    box?.classList.add("context-panel");
-  }
+  if (tab === "journal" && chosen())
+    main.querySelector(".section-cover-actions")?.prepend(button("Мои операции", journalPanel));
 });

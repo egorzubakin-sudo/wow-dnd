@@ -31,7 +31,7 @@ function preserveRuntimeFields(table, old, incoming, resetMarket = false) {
     nodes: ["visibility"],
     routes: ["status"],
     factions: ["repPoints", "charter"],
-    "portal.people": ["attitude", "promises", "history", "relations", "dossier", "firstMeeting", "archived"],
+    "portal.people": ["attitude", "promises", "history", "relations", "dossier", "firstMeeting", "participation", "archived"],
     "portal.achievements": ["earned", "earnedDate", "grants", "archived"],
     contracts: ["type", "status", "rewardReceipt", "rewardRevealed", "archived"],
   };

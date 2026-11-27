@@ -111,12 +111,12 @@ function errandEditor(quest = null) {
   if (existing.length) existing.forEach(add);
   else add();
 }
-function localBoard(questId = null) {
+function localBoard(questId = null, companion = null, terms = "") {
   const hero = chosen(),
     e = adventure(S);
   openModal(
     "Местные поручения",
-    '<section class="stack" id="localBoard"></section>',
+    terms + '<section class="stack" id="localBoard"></section>',
   );
   const box = $("localBoard");
   for (const q of S.contracts.filter(
@@ -148,7 +148,7 @@ function localBoard(questId = null) {
               esc(o.dc) +
               "</p>",
             "quest",
-            () => ({ hero, quest: q.id, option: o.id }),
+            () => ({ hero, quest: q.id, option: o.id, companion }),
             "Выполнить",
           ),
         ),
@@ -203,18 +203,3 @@ function sessionEditor() {
     if (e.target.files[0]) $("effects").value = await e.target.files[0].text();
   };
 }
-actions.push((a, { gm, t, hero }) => {
-  adventure(S);
-  if (gm && tab === "contracts")
-    a.append(
-      button("Новое местное поручение", () => errandEditor()),
-      button("Изменить поручение", () => {
-        openModal("Выбор поручения", '<div id="chooseErrand"></div>');
-        for (const q of S.contracts.filter((q) => q.type === "local"))
-          $("chooseErrand").append(button(q.title, () => errandEditor(q)));
-      }),
-    );
-  if (gm && tab === "home")
-    a.append(button("Последствия сессии", sessionEditor));
-  if (hero && t) a.append(button("Местные поручения", localBoard));
-});

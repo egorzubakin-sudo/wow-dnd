@@ -2,9 +2,8 @@ let actor = null,
   accounts = [],
   busy = false,
   activeHero = "",
-  previewActor = null;
-const onRender = [],
-  actions = [];
+  previewActor = null, previewReadOnly = false;
+const onRender = [];
 function accountStore(mode, fn) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction("accounts", mode),
@@ -69,7 +68,7 @@ function gate() {
       actor = a;
       player = a.role !== "master";
       activeHero = "";
-      tab = "home";
+      tab = player && heroRows().length ? "hero" : "home";
       render();
       document.body.classList.remove("locked");
       $("gate").replaceChildren();
@@ -137,6 +136,7 @@ function button(label, fn) {
 function logout() {
   actor = null;
   previewActor = null;
+  previewReadOnly = false;
   player = true;
   selected = null;
   uxPopupQueue = [];
@@ -144,6 +144,11 @@ function logout() {
   gate();
 }
 function accountMenu() {
+  if (previewReadOnly) {
+    openModal("Просмотр от лица героя", '<div class="actions" id="accountActions"></div>');
+    $("accountActions").append(button("Вернуться к мастеру", returnFromHeroView));
+    return;
+  }
   const master = actor.role === "master";
   openModal(
     "Профиль · " + actor.name,
@@ -189,42 +194,6 @@ function accountMenu() {
     ),
   );
   if (master) {
-    box.append(
-      button("Создать пользователя", () =>
-        form(
-          "Новый пользователь",
-          input("Никнейм", "nn", "text", "", "required") +
-            input("Имя", "dn") +
-            input("Пароль", "pw", "password", "", 'minlength="8" required') +
-            selectField(
-              "Роль",
-              "role",
-              [
-                ["player", "Игрок"],
-                ["captain", "Капитан"],
-                ["observer", "Наблюдатель"],
-                ["master", "Мастер"],
-              ],
-              "player",
-            ) +
-            S.company.members
-              .map((m, i) => check(memberName(m), "hero" + i, false))
-              .join("") +
-            check("Разрешить капитану путешествия", "travelGrant", false),
-          () =>
-            makeAccount(
-              val("nn"),
-              val("pw"),
-              val("dn") || val("nn"),
-              val("role"),
-              S.company.members
-                .filter((_, i) => $("hero" + i).checked)
-                .map((m) => m.id),
-              $("travelGrant").checked,
-            ),
-        ),
-      ),
-    );
     for (const a of accounts.filter((a) => a.role !== "master"))
       box.append(
         button("Посмотреть как " + a.name, () => {
@@ -247,6 +216,41 @@ function accountMenu() {
       }),
     );
 }
+function createUserDialog() {
+  if (player) return;
+  form(
+    "Новый пользователь",
+    input("Никнейм", "nn", "text", "", "required") +
+      input("Имя", "dn") +
+      input("Пароль", "pw", "password", "", 'minlength="8" required') +
+      selectField(
+        "Роль",
+        "role",
+        [
+          ["player", "Игрок"],
+          ["captain", "Капитан"],
+          ["observer", "Наблюдатель"],
+          ["master", "Мастер"],
+        ],
+        "player",
+      ) +
+      S.company.members
+        .map((m, i) => check(memberName(m), "hero" + i, false))
+        .join("") +
+      check("Разрешить капитану путешествия", "travelGrant", false),
+    () =>
+      makeAccount(
+        val("nn"),
+        val("pw"),
+        val("dn") || val("nn"),
+        val("role"),
+        S.company.members
+          .filter((_, i) => $("hero" + i).checked)
+          .map((m) => m.id),
+        $("travelGrant").checked,
+      ),
+  );
+}
 const baseRender = render;
 render = function () {
   baseRender();
@@ -256,6 +260,7 @@ render = function () {
   for (const draw of onRender) draw();
 };
 async function execute(name, payload, key = crypto.randomUUID()) {
+  requireThat(!previewReadOnly, "Просмотр от лица героя");
   requireThat(!busy, "Сохранение выполняется");
   busy = true;
   document.body.inert = true;

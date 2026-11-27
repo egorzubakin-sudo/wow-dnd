@@ -40,6 +40,7 @@ function applyCommand(source, actor, name, payload, key) {
     "Операция уже применена",
   );
   const next = structuredClone(source);
+  if (payload.companion) applyCompanionContext(next, actor, name, payload);
   cmd.run(next, payload, actor);
   let event = name,
     recipient = payload.hero;
@@ -66,11 +67,14 @@ function applyCommand(source, actor, name, payload, key) {
     key,
     name,
     actor: actor.nick,
-    hero: payload.hero,
+    hero: name === "resolveCompanionRequest" ?
+      next.engine.companionRequests.find((row) => row.id === payload.id)?.hero : payload.hero,
     day: next.company.day,
+    ...(payload.companion ? { companion: payload.companion } : {}),
   };
   if (
-    [
+    payload.companion || [
+      "resolveCompanionRequest",
       "gather",
       "quest",
       "project",

@@ -67,10 +67,10 @@ function campEffect(s, r) {
 }
 register("staffWork", "master", (s, p) => {
   const j = byId(s.engine.projects, p.project),
-    staff = byId(s.company.staff, p.staff),
+    staff = byId(companySpecialists(s), p.staff),
     t = currentStay(s);
   requireThat(
-    t && j.status === "active" && facilities(s, j.recipe),
+    t && specialistAvailable(s, staff) && j.status === "active" && facilities(s, j.recipe),
     "Нужна стоянка и место работы",
   );
   const effect = campEffect(s, j.recipe),
@@ -120,7 +120,7 @@ register("train", "hero", (s, p) => {
   );
   const rank = Math.min(6, bv(h));
   h.trained ??= {};
-  const offer = trainingOffer(s, prof.id, rank);
+  const offer = trainingOffer(s, prof.id, rank, !!p.companion);
   requireThat(rank > (h.trained[prof.id] || 2) && offer, "Нужен наставник и новый ранг");
   requireThat(h.wallet >= offer.fee, "Недостаточно золота");
   spend(s, p.hero, offer.hours, "Обучение: " + prof.name);

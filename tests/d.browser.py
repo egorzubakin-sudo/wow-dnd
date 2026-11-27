@@ -1,5 +1,5 @@
 page.evaluate("switchTab('contracts')")
-page.locator("#engineActions [data-context-menu] summary").click()
+page.locator('summary[aria-label="Управление заданиями"]').click()
 page.get_by_role('button',name='Новое местное поручение').click()
 page.locator('#qt').fill('Браузерное поручение')
 page.locator('#op0').fill('Помочь')

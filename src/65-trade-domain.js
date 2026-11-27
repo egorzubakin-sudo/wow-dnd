@@ -143,10 +143,10 @@ function localServices(s, service) {
   const stay = currentStay(s);
   return (s.engine.localServices || []).filter((row) => row.node_id === stay?.location && row.service === service && !row.hidden);
 }
-function trainingOffer(s, profession, rank) {
+function trainingOffer(s, profession, rank, withCompanion = false) {
   const stay = currentStay(s), mentors = localServices(s, "Наставник");
   const found = mentors.find((row) => row.profession_id === profession) || mentors.find((row) => !row.profession_id);
-  if (!stay || (!found && !stay.services?.includes("Наставник"))) return null;
+  if (!stay || (!withCompanion && !found && !stay.services?.includes("Наставник"))) return null;
   return { fee: found?.fee ?? 2 * rank, hours: found?.hours ?? rank * stay.hours };
 }
 function rentalPrice(s, service, tier) {

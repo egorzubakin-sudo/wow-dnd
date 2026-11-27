@@ -541,66 +541,6 @@ beginJourney = function (id) {
   if (currentStay(S)) return toast("Сначала закройте стоянку");
   return travelStart(id);
 };
-function phasePanel() {
-  const e = foundation(S),
-    t = currentStay(S),
-    gm = actor.role === "master",
-    hero = chosen();
-  if (!["home", "map", "camp", "contracts", "company", "bank"].includes(tab))
-    return;
-  const box = document.createElement("section");
-  box.className = "card engine-panel";
-  const region = e.regions.find((r) => r.id === t?.region);
-  box.innerHTML =
-    "<h3>" +
-    esc(phases[S.journey ? "travel" : e.phase]) +
-    "</h3>" +
-    (t
-      ? "<p>" +
-        esc(
-          [
-            t.name,
-            region?.name,
-            hero ? remaining(S, hero) + " ч. доступно" : "",
-          ]
-            .filter(Boolean)
-            .join(" · "),
-        ) +
-        "</p>"
-      : "") +
-    '<div id="engineActions" class="actions"></div>';
-  if (tab === "map") $("main").querySelector(".map-main").append(box);
-  else $("main").append(box);
-  const a = $("engineActions");
-  if (["home", "camp"].includes(tab))
-    a.append(button("К стоянке", () => switchTab("stay")));
-  if (gm && tab === "map")
-    a.append(
-      button("Создать регион", () => regionForm()),
-      button("Нарисовать границу", drawRegion),
-    );
-
-  if (hero && owned(actor, hero)) {
-    a.append(button("Бросок", rollForm));
-    const last = e.rolls.find((r) => r.hero === hero);
-    if (last) {
-      const p = document.createElement("p");
-      p.textContent =
-        last.label +
-        " · [" +
-        last.raw.join(", ") +
-        "] + " +
-        last.mod +
-        " = " +
-        last.total +
-        (!player || last.showDC !== false ? " · Сл " + last.dc : "");
-      box.append(p);
-    }
-  }
-  for (const fn of actions) fn(a, { gm, hero, t, e, box });
-}
-onRender.push(phasePanel);
-
 function companyHeroRows() {
   const members = S.company.members.filter(
     (m) => !player || !m.hidden || owned(actor, m.id),
@@ -610,30 +550,6 @@ function companyHeroRows() {
     ...members.filter((m) => owned(actor, m.id)),
     ...members.filter((m) => !owned(actor, m.id)),
   ];
-}
-function companyHeroActions(member) {
-  if (!owned(actor, member.id)) return "";
-  const id = jsid(member.id);
-  return (
-    '<div class="actions">' +
-    (chosen() === member.id
-      ? '<span class="tag">Активный герой</span>'
-      : '<button onclick="selectCompanyHero(' +
-        id +
-        ')">Сделать активным</button>') +
-    '<button class="primary" onclick="editMember(' +
-    id +
-    ')">Настроить героя</button>' +
-    "<button onclick=\"openAffPerson('hero'," +
-    id +
-    ')">Карточка</button>' +
-    (!player
-      ? '<button class="danger ghost" onclick="removeMember(' +
-        id +
-        ')">Удалить</button>'
-      : "") +
-    "</div>"
-  );
 }
 function selectCompanyHero(id) {
   if (!owned(actor, id)) return;
