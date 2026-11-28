@@ -348,18 +348,29 @@ function inside(x, y, points) {
   for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
     const [a, b] = points[i],
       [c, d] = points[j];
+    const onEdge = Math.abs((x-a)*(d-b)-(y-b)*(c-a)) < 1e-10 &&
+      x >= Math.min(a,c) && x <= Math.max(a,c) && y >= Math.min(b,d) && y <= Math.max(b,d);
+    if (onEdge) return true;
     if (b > y !== d > y && x < ((c - a) * (y - b)) / (d - b) + a) hit = !hit;
   }
   return hit;
 }
 function regionAt(s, n) {
   const rs = foundation(s).regions;
-  return (
-    rs.find((r) => r.id === n?.regionId) ||
-    rs
-      .filter((r) => n && inside(n.x, n.y, r.points || []))
-      .sort((a, b) => b.priority - a.priority)[0]
-  );
+  if (!n) return;
+  const manual = rs.find((row) => row.id === n.regionId);
+  if (manual || !s.engine.regionBoundaries) return manual || rs
+    .filter((row) => inside(n.x, n.y, row.points || [])).sort((a,b) => (b.priority || 0) - (a.priority || 0))[0];
+  const {maps, mapPlacements, regionBoundaries} = mapData(s);
+  const active = new Set(openSheets(maps).map((row) => row.id));
+  const positions = new Map(mapPlacements.filter((row) => row.node_id === n.id && active.has(row.map_id))
+    .map((row) => [row.map_id, row]));
+  return regionBoundaries.flatMap((boundary) => {
+    const p = positions.get(boundary.map_id), region = rs.find((row) => row.id === boundary.region_id);
+    return p && region && inside(p.x, p.y, boundary.points)
+      ? [{region, depth:mapAncestry(maps, boundary.map_id).length}] : [];
+  }).sort((a,b) => (b.region.priority || 0) - (a.region.priority || 0) || b.depth - a.depth ||
+    a.region.id.localeCompare(b.region.id))[0]?.region;
 }
 function currentStay(s) {
   return foundation(s).stays.find((x) => !x.closed);
@@ -474,8 +485,8 @@ register("mapMove", "master", (s, p) => {
   requireMapUnlocked(s);
   const place = byId(s.nodes, p.id);
   requireThat([p.x, p.y].every((v) => Number.isFinite(v) && v >= 0 && v <= 1), "Некорректные координаты");
-  place.x = p.x;
-  place.y = p.y;
+  if (s.engine.mapPlacements) placeOnMap(s, { node_id: place.id, map_id: overviewMap, x: p.x, y: p.y });
+  else Object.assign(place, { x: p.x, y: p.y });
 });
 register("mapIcon", "master", (s, p) => {
   requireMapUnlocked(s);
@@ -504,6 +515,214 @@ register("issueCharter", "master", (s, p) => {
     title: "Грамота: " + faction.name, text: p.text.trim(), hidden: !!faction.hidden,
   });
 });
+
+const overviewMap = "overview";
+const mapKinds = { world: "Мир", continent: "Континент", region: "Регион", local: "Поселение или территория" };
+const mapTables = ["maps", "mapPlacements", "routeGeometries", "regionBoundaries"];
+const mapCommands = new Set(["atlasSheet", "atlasImage", "atlasRemoveSheet", "atlasPlacement", "atlasGeometry", "atlasBoundary", "atlasPlaceRegion"]);
+
+function mapData(s) {
+  const e = s.engine ??= { schemaVersion: 1, receipts: [] };
+  e.maps ??= [{ id: overviewMap, name: "Карта Азерота", kind: "world" }];
+  e.mapPlacements ??= (s.nodes || []).map(({id, x, y}) => ({id, map_id: overviewMap, node_id: id, x, y}));
+  e.routeGeometries ??= (s.routes || []).map(({id}) => ({id, map_id: overviewMap, route_id: id, points: []}));
+  e.regionBoundaries ??= (e.regions || []).filter((r) => r.points?.length >= 3).map((r) =>
+    ({id: r.id, map_id: overviewMap, region_id: r.id, points: r.points, hidden: true}));
+  return e;
+}
+function sheetParent(sheet) {
+  return sheet.id === overviewMap ? "" : sheet.parent_id || overviewMap;
+}
+function mapAncestry(sheets, id) {
+  const chain = [], seen = new Set();
+  while (id && !seen.has(id)) {
+    const row = sheets.find((m) => m.id === id);
+    if (!row) break;
+    chain.unshift(row);
+    seen.add(id);
+    id = sheetParent(row);
+  }
+  return chain;
+}
+function openSheets(sheets) {
+  return sheets.filter((sheet) => mapAncestry(sheets, sheet.id).every((row) => !row.archived));
+}
+function publicSheets(sheets) {
+  return openSheets(sheets).filter((sheet) => mapAncestry(sheets, sheet.id).every((row) =>
+    row.id === overviewMap || row.shared === true));
+}
+function normalizedPoint(x, y) {
+  return [x, y].every((v) => Number.isFinite(v) && v >= 0 && v <= 1);
+}
+function validateMapPoints(points, min) {
+  requireThat(Array.isArray(points) && points.length >= min && points.length <= 256 &&
+    points.every((p) => Array.isArray(p) && p.length === 2 && normalizedPoint(...p)), "Некорректные координаты точек карты");
+  if (min === 3) {
+    const area = points.reduce((sum, [x, y], i) => {
+      const [u, v] = points[(i + 1) % points.length];
+      return sum + x * v - y * u;
+    }, 0);
+    requireThat(Math.abs(area) > 1e-10, "Граница должна охватывать область");
+  }
+}
+function mapEntry(rows, key, id, map) {
+  return rows.find((row) => row.map_id === map && row[key] === id);
+}
+function validateCartography(s) {
+  if (!mapTables.some((key) => s.engine?.[key] != null)) return;
+  const {maps, mapPlacements, routeGeometries, regionBoundaries} = s.engine;
+  const {nodes = [], routes = []} = s;
+  const regions = s.engine.regions || [];
+  const has = (rows, id) => rows.some((row) => row.id === id);
+  requireThat(maps?.some((m) => m.id === overviewMap), "Нет обзорной карты");
+  const ids = new Set();
+  for (const sheet of maps) {
+    requireThat(validId(sheet.id) && !ids.has(sheet.id), "Дублирующийся или некорректный ID карты");
+    ids.add(sheet.id);
+    requireThat(typeof sheet.name === "string" && sheet.name.trim() && Object.hasOwn(mapKinds, sheet.kind),
+      "Укажите название и тип карты");
+    requireThat(sheet.id !== overviewMap || !sheet.parent_id && !sheet.archived && !sheet.image, "Некорректная обзорная карта");
+    requireThat(mapAncestry(maps, sheet.id)[0]?.id === overviewMap, "Цикл или неизвестная родительская карта");
+    requireThat(!sheet.node_id || has(nodes, sheet.node_id), "Не найдена локация карты");
+    requireThat(!sheet.region_id || has(regions, sheet.region_id), "Не найден регион карты");
+    requireThat((sheet.x == null && sheet.y == null) || normalizedPoint(sheet.x, sheet.y), "Некорректный центр карты");
+    requireThat(sheet.zoom == null || Number.isFinite(sheet.zoom) && sheet.zoom >= 1 && sheet.zoom <= 20,
+      "Масштаб карты должен быть от 1 до 20");
+    if (sheet.image) requireThat(typeof sheet.image === "string" &&
+      (/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,[A-Za-z0-9+/=\s]+$/i.test(sheet.image) ||
+       /^atlas-storage:v1:[a-f0-9]{64}\.(png|jpeg|webp|gif|bmp|avif)$/.test(sheet.image)) &&
+      sheet.width > 0 && sheet.height > 0 && Number.isFinite(sheet.width) && Number.isFinite(sheet.height),
+      "Некорректная подложка карты");
+  }
+  function links(rows, key, targets, check) {
+    const pairs = new Set();
+    for (const row of rows || []) {
+      const pair = JSON.stringify([row.map_id, row[key]]);
+      requireThat(!pairs.has(pair) && has(maps, row.map_id) && has(targets, row[key]),
+        "Дублирующаяся или отсутствующая связь карты");
+      pairs.add(pair);
+      requireThat(row.hidden == null || typeof row.hidden === "boolean", "Некорректная видимость на карте");
+      check(row);
+    }
+  }
+  links(mapPlacements, "node_id", nodes, (row) => {
+    requireThat(normalizedPoint(row.x, row.y), "Некорректные координаты");
+    requireThat(row.scale == null || Number.isFinite(row.scale) && row.scale >= 50 && row.scale <= 200, "Масштаб отметки от 50% до 200%");
+    requireThat(!row.labels || ["always", "hover", "never"].includes(row.labels), "Неизвестный режим подписи");
+    requireThat(!row.child_id || maps.some((m) => m.id === row.child_id && sheetParent(m) === row.map_id),
+      "Выберите дочернюю карту этого уровня");
+  });
+  links(routeGeometries, "route_id", routes, (row) => {
+    validateMapPoints(row.points, 0);
+    requireThat(!row.style || ["line", "smooth"].includes(row.style), "Неизвестная форма маршрута");
+    const path = byId(routes, row.route_id);
+    requireThat([path.a, path.b].every((id) => mapEntry(mapPlacements || [], "node_id", id, row.map_id)),
+      "Сначала разместите оба конца маршрута");
+  });
+  links(regionBoundaries, "region_id", regions, (row) => validateMapPoints(row.points, 3));
+}
+function putMapEntry(rows, key, id, map, changes) {
+  const previous = mapEntry(rows, key, id, map);
+  if (changes === null) {
+    if (previous) rows.splice(rows.indexOf(previous), 1);
+  } else if (previous) Object.assign(previous, changes);
+  else rows.push({ ...changes, id: crypto.randomUUID(), [key]: id, map_id: map });
+}
+function placeOnMap(s, p) {
+  const e = mapData(s), place = byId(s.nodes, p.node_id);
+  byId(e.maps, p.map_id);
+  if (p.remove) {
+    putMapEntry(e.mapPlacements, "node_id", place.id, p.map_id, null);
+    const adjoining = new Set(s.routes.filter((r) => r.a === place.id || r.b === place.id).map((r) => r.id));
+    e.routeGeometries = e.routeGeometries.filter((r) => r.map_id !== p.map_id || !adjoining.has(r.route_id));
+    return;
+  }
+  requireThat(normalizedPoint(p.x, p.y), "Некорректные координаты");
+  const display = p.display ? Object.fromEntries(["scale", "labels", "hidden", "child_id"].map((key) => [key, p.display[key]])) : {};
+  putMapEntry(e.mapPlacements, "node_id", place.id, p.map_id, {x: p.x, y: p.y, ...display});
+  if (p.map_id === overviewMap) Object.assign(place, {x:p.x, y:p.y});
+}
+registerAtlas("atlasSheet", (s, p) => {
+  const {maps} = mapData(s), old = maps.find((row) => row.id === p.id);
+  const fields = { name: p.name.trim(), desc: p.desc, kind: p.kind, shared: !!p.shared, x:p.x, y:p.y, zoom:p.zoom };
+  if (p.id !== overviewMap) Object.assign(fields, {parent_id:p.parent_id, node_id:p.node_id, region_id:p.region_id, archived:!!p.archived});
+  if (old) Object.assign(old, fields);
+  else maps.push({ id:p.id, ...fields });
+});
+registerAtlas("atlasImage", (s, p) => {
+  const sheet = byId(mapData(s).maps, p.id);
+  if (p.id === overviewMap) s.map = p.image;
+  else Object.assign(sheet, {image:p.image.src, width:p.image.w, height:p.image.h, filename:p.image.name});
+});
+registerAtlas("atlasRemoveSheet", (s, p) => {
+  const e = mapData(s);
+  byId(e.maps, p.id);
+  requireThat(p.id !== overviewMap, "Обзорную карту нельзя удалить");
+  requireThat(!e.maps.some((row) => sheetParent(row) === p.id) && !e.mapPlacements.some((row) => row.child_id === p.id),
+    "Сначала перенесите дочерние карты и уберите ссылки с отметок");
+  e.maps = e.maps.filter((row) => row.id !== p.id);
+  for (const key of mapTables.slice(1)) e[key] = e[key].filter((row) => row.map_id !== p.id);
+});
+registerAtlas("atlasPlacement", placeOnMap);
+registerAtlas("atlasGeometry", (s, p) => {
+  putMapEntry(mapData(s).routeGeometries, "route_id", p.route_id, p.map_id, p.remove ? null :
+    {points:p.points, style:p.style, hidden:!!p.hidden});
+});
+registerAtlas("atlasBoundary", (s, p) => {
+  const e = mapData(s), region = byId(e.regions, p.region_id);
+  putMapEntry(e.regionBoundaries, "region_id", p.region_id, p.map_id, p.remove ? null :
+    {points:p.points, hidden:!!p.hidden});
+  if (p.map_id === overviewMap) region.points = p.remove ? [] : p.points;
+});
+registerAtlas("atlasPlaceRegion", (s, p) => {
+  if (p.region) byId(s.engine.regions, p.region);
+  byId(s.nodes, p.id).regionId = p.region;
+});
+function registerAtlas(name, run) {
+  register(name, "master", (s, payload) => {
+    requireMapUnlocked(s);
+    run(s, payload);
+    validateCartography(s);
+  });
+}
+
+function pruneMapReferences(s) {
+  const e = mapData(s), ids = new Set(s.nodes.map((n) => n.id)), routes = new Set(s.routes.map((r) => r.id));
+  e.mapPlacements = e.mapPlacements.filter((row) => ids.has(row.node_id));
+  e.routeGeometries = e.routeGeometries.filter((row) => routes.has(row.route_id));
+  for (const map of e.maps)
+    if (map.node_id && !ids.has(map.node_id)) delete map.node_id;
+}
+function reconcileMapImport(previous, next, pack) {
+  const e = next.engine;
+  const oldNodes = new Map(previous.nodes.map((n) => [n.id,n]));
+  const oldRoutes = new Set(previous.routes.map((r) => r.id));
+  const oldRegions = new Map((previous.engine.regions || []).map((r) => [r.id,r]));
+  if (pack.nodes && !pack.mapPlacements) for (const row of next.nodes) {
+    const old = oldNodes.get(row.id), placement = mapEntry(e.mapPlacements,"node_id",row.id,overviewMap);
+    if (!old || placement && (old.x !== row.x || old.y !== row.y)) {
+      if (placement) Object.assign(placement,{x:row.x,y:row.y});
+      else e.mapPlacements.push({id:row.id,node_id:row.id,map_id:overviewMap,x:row.x,y:row.y});
+    }
+  }
+  if (pack.routes && !pack.routeGeometries) for (const row of next.routes) {
+    if (!oldRoutes.has(row.id) && [row.a,row.b].every((id) => mapEntry(e.mapPlacements,"node_id",id,overviewMap)))
+      e.routeGeometries.push({id:row.id,route_id:row.id,map_id:overviewMap,points:[]});
+  }
+  if (pack.regions && !pack.regionBoundaries) for (const region of next.engine.regions) {
+    const old = oldRegions.get(region.id);
+    if (region.points?.length >= 3 && JSON.stringify(old?.points) !== JSON.stringify(region.points)) {
+      const boundary = mapEntry(e.regionBoundaries,"region_id",region.id,overviewMap);
+      if (boundary) boundary.points = region.points;
+      else e.regionBoundaries.push({id:region.id,region_id:region.id,map_id:overviewMap,points:region.points,hidden:true});
+    }
+  }
+  for (const row of e.mapPlacements) {
+    if (row.map_id !== overviewMap) continue;
+    const node = next.nodes.find((n) => n.id === row.node_id);
+    if (node) Object.assign(node,{x:row.x,y:row.y});
+  }
+}
 
 const rulebook = {
   "professions": [
@@ -2765,6 +2984,14 @@ function achievementGrantAllowed(achievement, recipient) {
 
 // Field tokens: suffix ? means optional, @table denotes a foreign key.
 const tables = {
+  maps: ["Карты", "engine.maps",
+    "id name kind parent_id:@maps? node_id:@nodes? region_id:@regions? desc? shared:bool? archived:bool? image? width:pos? height:pos? filename? x:ratio? y:ratio? zoom:num?"],
+  mapPlacements: ["Отметки на картах", "engine.mapPlacements",
+    "id map_id:@maps node_id:@nodes x:ratio y:ratio scale:pos? labels? hidden:bool? child_id:@maps?"],
+  routeGeometries: ["Линии маршрутов", "engine.routeGeometries",
+    "id map_id:@maps route_id:@routes points:json style? hidden:bool?"],
+  regionBoundaries: ["Границы регионов", "engine.regionBoundaries",
+    "id map_id:@maps region_id:@regions points:json hidden:bool?"],
   regions: [
     "Регионы",
     "engine.regions",
@@ -2928,6 +3155,7 @@ function records(s, k) {
       ...arr(s, k).map((x) => ({ ...x, kind: "news" })),
       ...(s.portal.rumors || []).map((x) => ({ ...x, kind: "rumors" })),
     ];
+  if (mapTables.includes(k)) mapData(s);
   return arr(s, k).filter((x) => subset(k, x));
 }
 function csvWrite(rows, names) {
@@ -3276,6 +3504,8 @@ function planImport(s, pack, mode, options = {}) {
       Object.keys(pack).length,
     "Пустой пакет",
   );
+  const hadMap = mapTables.some((key) => next.engine[key] != null) || mapTables.some((key) => Object.hasOwn(pack,key));
+  if (hadMap) mapData(next);
   const replaced = new Set();
   for (const [k, rows] of Object.entries(pack)) {
     requireThat(
@@ -3327,8 +3557,9 @@ function planImport(s, pack, mode, options = {}) {
       ),
     );
   }
+  if (hadMap) reconcileMapImport(s,next,pack);
   const keys = Object.keys(tables).filter(
-    (k) => !["hunting", "fishing"].includes(k),
+    (k) => !["hunting", "fishing"].includes(k) && (hadMap || !mapTables.includes(k)),
   );
   const ids = Object.fromEntries(
     keys.map((k) => [k, new Set(records(next, k).map((x) => x.id))]),
@@ -3404,6 +3635,7 @@ function planImport(s, pack, mode, options = {}) {
       if (records(s, row.table).some((x) => x.id === row.id))
         reference(row.id, ids[row.table], "Запись пакета " + pack.id);
   }
+  if (hadMap) check(() => validateCartography(next), "Карты");
   check(() => validateTradeCatalog(next), "Экономика");
   return { next, count, issues, changes };
 }
@@ -4623,6 +4855,8 @@ function validateBackup(raw) {
   for (const k of ["nodes", "routes", "factions", "contracts"])
     unique(raw[k], k);
   for (const k of ["members", "staff", "inventory"]) unique(raw.company[k], k);
+  for (const k of mapTables) unique(raw.engine?.[k], k);
+  validateCartography(raw);
   requireThat(
     Number.isFinite(Number(raw.company.gold ?? 0)) &&
       Number(raw.company.gold ?? 0) >= 0,
@@ -4892,10 +5126,27 @@ function gameView(state, access) {
   const mapPath = access.map_path;
   const map = mapPath && access.prefix + state.map?.src?.slice(atlasStorageReference.length) === mapPath
     ? projectFields(state.map, "src w h name") : null;
+  const chart = mapData(state);
+  const openMaps = access.share_map ? publicSheets(chart.maps) : [];
+  const mapIds = new Set(openMaps.map((row) => row.id));
+  const places = chart.mapPlacements.filter((row) => !row.hidden && locations.has(row.node_id) && mapIds.has(row.map_id));
+  const routeIds = new Map(routes.map((row) => [row.id,row]));
+  const layeredPlaces = new Set(places.map((row) => JSON.stringify([row.map_id,row.node_id])));
+  const lines = chart.routeGeometries.filter((row) => {
+    const route = routeIds.get(row.route_id);
+    return !row.hidden && route && [route.a,route.b].every((id) => layeredPlaces.has(JSON.stringify([row.map_id,id])));
+  });
+  const openRegions = publicRows(e.regions);
+  const regionIds = new Set(openRegions.map((row) => row.id));
+  const boundaries = chart.regionBoundaries.filter((row) => !row.hidden && mapIds.has(row.map_id) && regionIds.has(row.region_id));
+  const chartView = {engine:{...e,maps:openMaps,mapPlacements:places,regionBoundaries:boundaries,regions:openRegions}};
+  const regionByNode = new Map(nodes.map((row) => [row.id,regionAt(chartView,row)?.id]).filter(([,id]) => regionIds.has(id)));
+  const projectedRegions = new Set([...regionByNode.values(), ...boundaries.map((row) => row.region_id), t?.region]);
+  const overviewPoints = new Map(places.filter((row) => row.map_id === overviewMap).map((row) => [row.node_id,row]));
   return {
     version: 1, map, journey,
-    nodes: nodes.map((row) => ({ ...projectFields(row, "id name type regionId visibility desc faction"),
-      x: access.share_map ? row.x : 0, y: access.share_map ? row.y : 0 })),
+    nodes: nodes.map((row) => ({ ...projectFields(row, "id name type visibility desc faction"),
+      regionId: regionByNode.get(row.id), x: overviewPoints.get(row.id)?.x ?? 0, y: overviewPoints.get(row.id)?.y ?? 0 })),
     routes: access.share_map ? routes.map((row) => projectFields(row, "id name a b kind min max risk status visibility cost desc")) : [],
     factions: factions.map((row) => projectFields(row, "id name leader color icon iconId desc repPoints rep charter region")),
     diplomacy: publicRows(state.diplomacy).filter((row) => factionIds.has(row.a) && factionIds.has(row.b))
@@ -4937,8 +5188,23 @@ function gameView(state, access) {
     },
     engine: {
       schemaVersion: 1, receipts: [], phase: e.phase,
-      regions: publicRows(e.regions).filter((row) => row.id === t?.region || nodes.some((place) => place.regionId === row.id))
+      regions: openRegions.filter((row) => projectedRegions.has(row.id))
         .map((row) => ({...projectFields(row, "id name continent biome description tier levels danger"), dc: t?.showDC === false ? 10 : row.dc})),
+      ...(access.share_map ? {
+        maps:openMaps.map((row) => ({
+          ...projectFields(row,"id name kind parent_id desc shared x y zoom"),
+          ...(locations.has(row.node_id) ? {node_id:row.node_id} : {}),
+          ...(regionIds.has(row.region_id) ? {region_id:row.region_id} : {}),
+          ...(typeof row.image === "string" && row.image.startsWith(atlasStorageReference) ?
+            projectFields(row,"image width height filename") : {}),
+        })),
+        mapPlacements:places.map((row) => ({
+          ...projectFields(row,"id map_id node_id x y scale labels"),
+          ...(mapIds.has(row.child_id) ? {child_id:row.child_id} : {}),
+        })),
+        routeGeometries:lines.map((row) => projectFields(row,"id map_id route_id points style")),
+        regionBoundaries:boundaries.map((row) => projectFields(row,"id map_id region_id points")),
+      } : {}),
       stays: stay ? [stay] : [],
       profiles: Object.fromEntries(Object.entries(e.profiles || {}).filter(([id]) => mine.has(id)).map(([id,value]) => [id,ownProfile(value)])),
       rolls: (e.rolls || []).filter((row) => mine.has(row.hero)).slice(0,100)

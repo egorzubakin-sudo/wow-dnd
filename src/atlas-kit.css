@@ -2028,3 +2028,10 @@ body.atlas-kit-active { font-size: 16px; }
 .online-workspace #onlineStatus:empty { display: none; }
 .online-workspace #onlineMemberForm { margin-top: 16px; }
 .online-workspace #onlinePortrait { width: 100px; height: 100px; }
+
+.map-navigation, .map-draft-tools { display: grid; gap: 6px; margin-bottom: 8px; }
+.map-navigation .field, .map-draft-tools .field { margin: 0; }
+.map-region-label { cursor: pointer; fill: #fff1bd; stroke: #21261a; stroke-width: 3px; paint-order: stroke; font-size: 13px; }
+.node-hit .map-hover-label { opacity: 0; }
+.node-hit:hover .map-hover-label, .node-hit:focus-within .map-hover-label, .node-hit.selected .map-hover-label { opacity: 1; }
+[data-bend] { cursor: grab; }

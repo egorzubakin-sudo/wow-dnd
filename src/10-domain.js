@@ -195,18 +195,29 @@ function inside(x, y, points) {
   for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
     const [a, b] = points[i],
       [c, d] = points[j];
+    const onEdge = Math.abs((x-a)*(d-b)-(y-b)*(c-a)) < 1e-10 &&
+      x >= Math.min(a,c) && x <= Math.max(a,c) && y >= Math.min(b,d) && y <= Math.max(b,d);
+    if (onEdge) return true;
     if (b > y !== d > y && x < ((c - a) * (y - b)) / (d - b) + a) hit = !hit;
   }
   return hit;
 }
 function regionAt(s, n) {
   const rs = foundation(s).regions;
-  return (
-    rs.find((r) => r.id === n?.regionId) ||
-    rs
-      .filter((r) => n && inside(n.x, n.y, r.points || []))
-      .sort((a, b) => b.priority - a.priority)[0]
-  );
+  if (!n) return;
+  const manual = rs.find((row) => row.id === n.regionId);
+  if (manual || !s.engine.regionBoundaries) return manual || rs
+    .filter((row) => inside(n.x, n.y, row.points || [])).sort((a,b) => (b.priority || 0) - (a.priority || 0))[0];
+  const {maps, mapPlacements, regionBoundaries} = mapData(s);
+  const active = new Set(openSheets(maps).map((row) => row.id));
+  const positions = new Map(mapPlacements.filter((row) => row.node_id === n.id && active.has(row.map_id))
+    .map((row) => [row.map_id, row]));
+  return regionBoundaries.flatMap((boundary) => {
+    const p = positions.get(boundary.map_id), region = rs.find((row) => row.id === boundary.region_id);
+    return p && region && inside(p.x, p.y, boundary.points)
+      ? [{region, depth:mapAncestry(maps, boundary.map_id).length}] : [];
+  }).sort((a,b) => (b.region.priority || 0) - (a.region.priority || 0) || b.depth - a.depth ||
+    a.region.id.localeCompare(b.region.id))[0]?.region;
 }
 function currentStay(s) {
   return foundation(s).stays.find((x) => !x.closed);

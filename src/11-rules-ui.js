@@ -442,8 +442,9 @@ function stayForm(edit = null) {
     }),
   );
 }
-function regionForm(points = [], r = {}) {
-  commandForm(
+function regionForm(points = [], r = {}, drawAfter = false) {
+  const id = r.id || crypto.randomUUID();
+  form(
     "Регион карты",
     input("Название", "rn", "text", r.name || "", "required") +
       input("Континент", "cont", "text", r.continent || "Калимдор") +
@@ -465,79 +466,35 @@ function regionForm(points = [], r = {}) {
       input("Иллюстрация региона", "regImage", "file", "", 'accept="image/*"') +
       input("Приоритет области", "prio", "number", r.priority || 0) +
       pick(
-        "Назначить узлу",
+        "Ручное назначение места (необязательно)",
         "rnNode",
         [["", "Без привязки"], ...pairs(S.nodes)],
         "",
       ) +
       area("Описание", "desc", r.description || ""),
-    "region",
-    async () => ({
-      image: (await readImage($("regImage").files[0])) || r.image || "",
-      levels: val("levels"),
-      danger: val("danger", "text", r.danger || ""),
-      factions: listText("localFactions"),
-      id: r.id || crypto.randomUUID(),
-      name: val("rn"),
-      continent: val("cont"),
-      biome: val("bio"),
-      dc: integer(num("dc"), 0, 100),
-      priority: num("prio"),
-      description: val("desc"),
-      node: val("rnNode"),
-      points,
-    }),
+    async () => {
+      await execute("region", {
+        image: (await readImage($("regImage").files[0])) || r.image || "",
+        levels: val("levels"),
+        danger: val("danger"),
+        factions: listText("localFactions"),
+        id,
+        name: val("rn"),
+        continent: val("cont"),
+        biome: val("bio"),
+        dc: integer(num("dc"), 0, 100),
+        priority: num("prio"),
+        description: val("desc"),
+        node: val("rnNode"),
+        points,
+      });
+      if (drawAfter) {
+        closeModal();
+        startRegionShape(id);
+      }
+    },
   );
 }
-function drawRegion() {
-  if (!canEditMap()) return;
-  const svg = $("mapsvg"),
-    points = [];
-  const shape = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "polygon",
-  );
-  shape.setAttribute("fill", "#d7b46355");
-  svg.append(shape);
-  const done = button("Завершить границу (не менее 3 точек)", () => {
-    requireThat(points.length >= 3, "Отметьте три точки");
-    svg.removeEventListener("pointerdown", add, true);
-    done.remove();
-    regionForm(points);
-  });
-  const add = (e) => {
-    if (e.button !== 0 || !canEditMap()) return;
-    e.stopImmediatePropagation();
-    const p = worldPoint(e),
-      d = dims();
-    points.push([clamp(p.x / d.w, 0, 1), clamp(p.y / d.h, 0, 1)]);
-    shape.setAttribute(
-      "points",
-      points.map(([x, y]) => [x * d.w, y * d.h].join(",")).join(" "),
-    );
-  };
-  svg.addEventListener("pointerdown", add, true);
-  $("engineActions").append(done);
-}
-const previousDraw = drawMap;
-drawMap = function () {
-  previousDraw();
-  const svg = $("mapsvg");
-  if (!svg || player) return;
-  const d = dims();
-  for (const r of foundation(S).regions) {
-    if (!r.points?.length) continue;
-    const poly = document.createElementNS(svg.namespaceURI, "polygon");
-    poly.setAttribute(
-      "points",
-      r.points.map(([x, y]) => [x * d.w, y * d.h].join(",")).join(" "),
-    );
-    poly.setAttribute("fill", "#cea25330");
-    poly.setAttribute("stroke", "#d2ad67");
-    poly.setAttribute("pointer-events", "none");
-    svg.append(poly);
-  }
-};
 const travelStart = beginJourney;
 beginJourney = function (id) {
   if (currentStay(S)) return toast("Сначала закройте стоянку");

@@ -1,0 +1,28 @@
+{
+  "regionBoundaries": [
+    {
+      "id": "kalimdor-durotar",
+      "map_id": "kalimdor",
+      "region_id": "durotar",
+      "points": [
+        [
+          0.5,
+          0.3
+        ],
+        [
+          0.7,
+          0.3
+        ],
+        [
+          0.7,
+          0.5
+        ],
+        [
+          0.5,
+          0.5
+        ]
+      ],
+      "hidden": true
+    }
+  ]
+}

@@ -34,7 +34,7 @@ const fixture={
     loot:[{id:"pit",region_id:"region",profession_id:"mining",item_id:"ore",weight:1,min_quantity:2,max_quantity:2,min_margin:0,hours:2,dc:0}],
   },
 };
-const access=(user,document=fixture,revision=1)=>({ actor:actors[user],document,revision,prefix:null,share_map:true,portraits:{} });
+const access=(user,document=fixture,revision=1)=>({ actor:actors[user],document,revision,prefix:"campaign/import/",map_layout:true,share_map:true,portraits:{} });
 const projection=gameView(initializeGame(fixture),access(player));
 assert(!JSON.stringify(projection).includes("PRIVATE_"));
 assert.equal(projection.nodes.length,1);
@@ -52,6 +52,7 @@ const transport=async (url,opts) => {
     return actors[user]?Response.json({id:user}):new Response(null,{status:401});
   }
   assert.equal(opts.headers.Authorization,"Bearer fixture-service-role");
+  if (path.startsWith("/storage/v1/object/")) return new Response(new Uint8Array([7,8,9]));
   const p=JSON.parse(opts.body);
   if(path.endsWith("atlas_game_read"))
     return p.p_campaign===campaign?Response.json(access(p.p_user,document,revision)):Response.json({}, {status:403});
@@ -114,3 +115,30 @@ const playerWithGrant=gameView(otherHeroGrant,access(player));
 assert(!playerWithGrant.company.inventory.some((x)=>x.owner==="member:other"));
 assert(!playerWithGrant.journal.some((row)=>row.title.startsWith("Выдача:")));
 console.log("Shared game permissions, gathering, crafting, visibility, and concurrency passed");
+
+document.engine.maps=[
+  {id:"overview",name:"Азерот",kind:"world"},
+  {id:"kalimdor",name:"Калимдор",kind:"continent",shared:true,image:"atlas-storage:v1:"+"a".repeat(64)+".png",width:1,height:1},
+  {id:"private",name:"PRIVATE_MAP",kind:"region",shared:false},
+  {id:"child",name:"PRIVATE_CHILD",kind:"local",parent_id:"private",shared:true},
+];
+document.engine.mapPlacements=[
+  {id:"mine-root",map_id:"overview",node_id:"mine",x:.4,y:.4,hidden:true},
+  {id:"mine-map",map_id:"kalimdor",node_id:"mine",x:.5,y:.5,child_id:"private"},
+  {id:"trap-map",map_id:"kalimdor",node_id:"trap",x:.6,y:.7},
+];
+const publicChart=await call(player,{action:"state"});
+assert.equal(publicChart.data.mapLayout,true);
+assert(!JSON.stringify(publicChart.data).includes("PRIVATE_"));
+assert.deepEqual(publicChart.data.document.engine.maps.map(row=>row.id),["overview","kalimdor"]);
+assert.equal(publicChart.data.document.nodes[0].x,0);
+assert.deepEqual(publicChart.data.document.engine.mapPlacements.map(row=>row.id),["mine-map"]);
+assert.equal(publicChart.data.document.engine.mapPlacements[0].child_id,undefined);
+assert.equal((await call(player,{action:"mapImage",sheet:"private"})).status,404);
+const mediaResponse=await handler(new Request("https://fixture.example.test/functions/v1/atlas-play",{
+  method:"POST",headers:{Authorization:"Bearer "+player},
+  body:JSON.stringify({campaign,action:"mapImage",sheet:"kalimdor"}),
+}));
+assert.equal(mediaResponse.status,200);
+assert.equal(mediaResponse.headers.get("content-type"),"application/octet-stream");
+assert.deepEqual([...new Uint8Array(await mediaResponse.arrayBuffer())],[7,8,9]);

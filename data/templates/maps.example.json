@@ -1,0 +1,14 @@
+{
+  "maps": [
+    {
+      "id": "kalimdor",
+      "name": "Калимдор",
+      "kind": "continent",
+      "parent_id": "overview",
+      "shared": false,
+      "x": 0.5,
+      "y": 0.5,
+      "zoom": 1
+    }
+  ]
+}

@@ -8,6 +8,7 @@ const context = vm.createContext({ actions: [], structuredClone });
 for (const file of [
   "01-core.js",
   "10-domain.js",
+  "14-cartography-domain.js",
   "20-domain.js",
   "30-domain.js",
   "40-domain.js",

@@ -25,6 +25,8 @@ function validateBackup(raw) {
   for (const k of ["nodes", "routes", "factions", "contracts"])
     unique(raw[k], k);
   for (const k of ["members", "staff", "inventory"]) unique(raw.company[k], k);
+  for (const k of mapTables) unique(raw.engine?.[k], k);
+  validateCartography(raw);
   requireThat(
     Number.isFinite(Number(raw.company.gold ?? 0)) &&
       Number(raw.company.gold ?? 0) >= 0,

@@ -1,0 +1,39 @@
+{
+  "format": "atlas-content",
+  "schemaVersion": 1,
+  "id": "demo.cartography",
+  "name": "Три уровня карты",
+  "description": "Демонстрационные размещения и контуры. Подложки можно загрузить после импорта.",
+  "version": "1.0.0",
+  "author": "Атлас",
+  "sources": [{"origin": "demo"}],
+  "dependencies": [],
+  "tables": {
+    "maps": [
+      {"id":"demo.kalimdor","name":"Калимдор · пример","kind":"continent","parent_id":"overview"},
+      {"id":"demo.barrens","name":"Великие Степи · пример","kind":"region","parent_id":"demo.kalimdor","region_id":"demo.cartographic-steps"}
+    ],
+    "nodes": [
+      {"id":"demo.crossroads","name":"Перекрёсток · пример","x":0.53,"y":0.52,"type":"village","visibility":"known"},
+      {"id":"demo.road-fort","name":"Форт у дороги · пример","x":0.65,"y":0.53,"type":"fort","visibility":"known"}
+    ],
+    "routes": [
+      {"id":"demo.bent-road","name":"Дорога к форту","a":"demo.crossroads","b":"demo.road-fort","kind":"road","min":2,"max":3,"risk":1,"status":"open","visibility":"known"}
+    ],
+    "regions": [
+      {"id":"demo.cartographic-steps","name":"Демонстрационные Степи","continent":"Калимдор","dc":10}
+    ],
+    "mapPlacements": [
+      {"id":"demo.crossroads-overview","map_id":"overview","node_id":"demo.crossroads","x":0.53,"y":0.52,"child_id":"demo.kalimdor"},
+      {"id":"demo.crossroads-kalimdor","map_id":"demo.kalimdor","node_id":"demo.crossroads","x":0.62,"y":0.42,"child_id":"demo.barrens"},
+      {"id":"demo.crossroads-barrens","map_id":"demo.barrens","node_id":"demo.crossroads","x":0.32,"y":0.42},
+      {"id":"demo.road-fort-barrens","map_id":"demo.barrens","node_id":"demo.road-fort","x":0.76,"y":0.52}
+    ],
+    "routeGeometries": [
+      {"id":"demo.bent-road-barrens","map_id":"demo.barrens","route_id":"demo.bent-road","points":[[0.43,0.34],[0.63,0.33]],"style":"smooth"}
+    ],
+    "regionBoundaries": [
+      {"id":"demo.steps-boundary","map_id":"demo.barrens","region_id":"demo.cartographic-steps","points":[[0.17,0.2],[0.85,0.2],[0.85,0.69],[0.17,0.69]],"hidden":true}
+    ]
+  }
+}

@@ -308,7 +308,12 @@ async function onlineWorkspace(client) {
         if (!file || !window.confirm("Заменить облачное сохранение кампании?")) return;
         const shareWorld = $("onlineShareWorld").checked, shareImages = $("onlineShareImages").checked;
         const revision = campaign.revision;
-        const { document, images } = await splitOnlineBackup(JSON.parse(await file.text()));
+        const raw = JSON.parse(await file.text());
+        if (mapTables.some((key) => raw?.engine?.[key] != null)) {
+          const status = await client.functions.invoke("atlas-play",{body:{action:"state",campaign:campaign.id}});
+          requireThat(status.data?.mapLayout, "Для импорта связанных карт обновите игровой сервер Supabase");
+        }
+        const { document, images } = await splitOnlineBackup(raw);
         const id = await rpc("atlas_begin_import", { p_revision: revision });
         const prefix = campaign.id + "/" + id + "/";
         let count = 0;

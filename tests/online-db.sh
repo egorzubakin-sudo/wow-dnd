@@ -7,6 +7,6 @@ for attempt in {1..40}; do
   if docker exec "$container" pg_isready -h 127.0.0.1 -U postgres >/dev/null 2>&1; then break; fi
   sleep 0.5
 done
-for sql in tests/online-db-fixture.sql supabase/migrations/202611270001_atlas_online.sql tests/online-db-check.sql supabase/migrations/202611270002_atlas_play.sql tests/online-play-db-check.sql; do
+for sql in tests/online-db-fixture.sql supabase/migrations/202611270001_atlas_online.sql tests/online-db-check.sql supabase/migrations/202611270002_atlas_play.sql tests/online-play-db-check.sql supabase/migrations/202611280003_atlas_cartography.sql tests/online-cartography-db-check.sql; do
   docker exec -i "$container" psql -v ON_ERROR_STOP=1 -U postgres < "$sql"
 done

@@ -363,6 +363,656 @@
     "@table": "Стабильный ID строки указанной таблицы"
   },
   "tables": {
+    "maps": {
+      "title": "Карты",
+      "notes": "overview — существующая обзорная карта. parent_id ссылается на родителя. shared включает доступ игроков, если открыты и родительские карты. Подложку обзорной карты меняют на самой карте.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false,
+          "purpose": "Постоянный ключ записи",
+          "allowed": null,
+          "constraint": "1–128 символов: буквы, цифры, точка, двоеточие, дефис, подчёркивание",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "kalimdor"
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "optional": false,
+          "purpose": "Отображаемое имя",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "Калимдор"
+        },
+        {
+          "name": "kind",
+          "type": "text",
+          "optional": false,
+          "purpose": "Подтип записи",
+          "allowed": [
+            "world",
+            "continent",
+            "region",
+            "local"
+          ],
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "continent"
+        },
+        {
+          "name": "parent_id",
+          "type": "@maps",
+          "optional": true,
+          "purpose": "ID связанной записи из maps",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "maps",
+          "example": "overview"
+        },
+        {
+          "name": "node_id",
+          "type": "@nodes",
+          "optional": true,
+          "purpose": "ID связанной записи из nodes",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "nodes",
+          "example": "crossroads"
+        },
+        {
+          "name": "region_id",
+          "type": "@regions",
+          "optional": true,
+          "purpose": "ID связанной записи из regions",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "regions",
+          "example": "durotar"
+        },
+        {
+          "name": "desc",
+          "type": "text",
+          "optional": true,
+          "purpose": "Описание в карточке",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "Пример"
+        },
+        {
+          "name": "shared",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Поле shared из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": false
+        },
+        {
+          "name": "archived",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Поле archived из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": false
+        },
+        {
+          "name": "image",
+          "type": "text",
+          "optional": true,
+          "purpose": "Растровый data URL",
+          "allowed": null,
+          "constraint": "Растровый data URL",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": null
+        },
+        {
+          "name": "width",
+          "type": "pos",
+          "optional": true,
+          "purpose": "Поле width из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 1
+        },
+        {
+          "name": "height",
+          "type": "pos",
+          "optional": true,
+          "purpose": "Поле height из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 1
+        },
+        {
+          "name": "filename",
+          "type": "text",
+          "optional": true,
+          "purpose": "Поле filename из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "Пример"
+        },
+        {
+          "name": "x",
+          "type": "ratio",
+          "optional": true,
+          "purpose": "Нормализованная координата по горизонтали",
+          "allowed": null,
+          "constraint": "0–1",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 0.5
+        },
+        {
+          "name": "y",
+          "type": "ratio",
+          "optional": true,
+          "purpose": "Нормализованная координата по вертикали",
+          "allowed": null,
+          "constraint": "0–1",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 0.5
+        },
+        {
+          "name": "zoom",
+          "type": "num",
+          "optional": true,
+          "purpose": "Поле zoom из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 1
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true,
+          "purpose": "Источник или издатель; для правил используйте объект происхождения",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {
+            "origin": "house"
+          }
+        },
+        {
+          "name": "extra",
+          "type": "json",
+          "optional": true,
+          "purpose": "Дополнительные поля, сохраняемые при круговом импорте",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {}
+        }
+      ],
+      "example": {
+        "id": "kalimdor",
+        "name": "Калимдор",
+        "kind": "continent",
+        "parent_id": "overview",
+        "shared": false,
+        "x": 0.5,
+        "y": 0.5,
+        "zoom": 1
+      }
+    },
+    "mapPlacements": {
+      "title": "Отметки на картах",
+      "notes": "Одна отметка на пару карта и место. Координаты от 0 до 1. scale — размер иконки 50–200%. labels: always, hover, never. child_id — дочерняя карта.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false,
+          "purpose": "Постоянный ключ записи",
+          "allowed": null,
+          "constraint": "1–128 символов: буквы, цифры, точка, двоеточие, дефис, подчёркивание",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "kalimdor-crossroads"
+        },
+        {
+          "name": "map_id",
+          "type": "@maps",
+          "optional": false,
+          "purpose": "ID связанной записи из maps",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "maps",
+          "example": "kalimdor"
+        },
+        {
+          "name": "node_id",
+          "type": "@nodes",
+          "optional": false,
+          "purpose": "ID связанной записи из nodes",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "nodes",
+          "example": "crossroads"
+        },
+        {
+          "name": "x",
+          "type": "ratio",
+          "optional": false,
+          "purpose": "Нормализованная координата по горизонтали",
+          "allowed": null,
+          "constraint": "0–1",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 0.54
+        },
+        {
+          "name": "y",
+          "type": "ratio",
+          "optional": false,
+          "purpose": "Нормализованная координата по вертикали",
+          "allowed": null,
+          "constraint": "0–1",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 0.42
+        },
+        {
+          "name": "scale",
+          "type": "pos",
+          "optional": true,
+          "purpose": "Поле scale из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": 100
+        },
+        {
+          "name": "labels",
+          "type": "text",
+          "optional": true,
+          "purpose": "Поле labels из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "hover"
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Скрыто от игроков",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": false
+        },
+        {
+          "name": "child_id",
+          "type": "@maps",
+          "optional": true,
+          "purpose": "ID связанной записи из maps",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "maps",
+          "example": "kalimdor"
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true,
+          "purpose": "Источник или издатель; для правил используйте объект происхождения",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {
+            "origin": "house"
+          }
+        },
+        {
+          "name": "extra",
+          "type": "json",
+          "optional": true,
+          "purpose": "Дополнительные поля, сохраняемые при круговом импорте",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {}
+        }
+      ],
+      "example": {
+        "id": "kalimdor-crossroads",
+        "map_id": "kalimdor",
+        "node_id": "crossroads",
+        "x": 0.54,
+        "y": 0.42,
+        "scale": 100,
+        "labels": "hover"
+      }
+    },
+    "routeGeometries": {
+      "title": "Линии маршрутов",
+      "notes": "Одна линия на пару карта и маршрут. Оба конца маршрута должны иметь отметки на карте. points — массив пар [x,y], пустой массив задаёт линию без изгибов. style: line, smooth.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false,
+          "purpose": "Постоянный ключ записи",
+          "allowed": null,
+          "constraint": "1–128 символов: буквы, цифры, точка, двоеточие, дефис, подчёркивание",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "kalimdor-trade-road"
+        },
+        {
+          "name": "map_id",
+          "type": "@maps",
+          "optional": false,
+          "purpose": "ID связанной записи из maps",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "maps",
+          "example": "kalimdor"
+        },
+        {
+          "name": "route_id",
+          "type": "@routes",
+          "optional": false,
+          "purpose": "ID связанной записи из routes",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "routes",
+          "example": "trade-road"
+        },
+        {
+          "name": "points",
+          "type": "json",
+          "optional": false,
+          "purpose": "Координаты полигона или очки достижения",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": [
+            [
+              0.58,
+              0.39
+            ],
+            [
+              0.66,
+              0.45
+            ]
+          ]
+        },
+        {
+          "name": "style",
+          "type": "text",
+          "optional": true,
+          "purpose": "Поле style из справочника",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "smooth"
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Скрыто от игроков",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": false
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true,
+          "purpose": "Источник или издатель; для правил используйте объект происхождения",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {
+            "origin": "house"
+          }
+        },
+        {
+          "name": "extra",
+          "type": "json",
+          "optional": true,
+          "purpose": "Дополнительные поля, сохраняемые при круговом импорте",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {}
+        }
+      ],
+      "example": {
+        "id": "kalimdor-trade-road",
+        "map_id": "kalimdor",
+        "route_id": "trade-road",
+        "points": [
+          [
+            0.58,
+            0.39
+          ],
+          [
+            0.66,
+            0.45
+          ]
+        ],
+        "style": "smooth"
+      }
+    },
+    "regionBoundaries": {
+      "title": "Границы регионов",
+      "notes": "Контур из 3–256 вершин [x,y] по порядку. По нему автоматически определяются места региона. hidden скрывает границу от игроков.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "text",
+          "optional": false,
+          "purpose": "Постоянный ключ записи",
+          "allowed": null,
+          "constraint": "1–128 символов: буквы, цифры, точка, двоеточие, дефис, подчёркивание",
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": "kalimdor-durotar"
+        },
+        {
+          "name": "map_id",
+          "type": "@maps",
+          "optional": false,
+          "purpose": "ID связанной записи из maps",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "maps",
+          "example": "kalimdor"
+        },
+        {
+          "name": "region_id",
+          "type": "@regions",
+          "optional": false,
+          "purpose": "ID связанной записи из regions",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": "regions",
+          "example": "durotar"
+        },
+        {
+          "name": "points",
+          "type": "json",
+          "optional": false,
+          "purpose": "Координаты полигона или очки достижения",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": [
+            [
+              0.5,
+              0.3
+            ],
+            [
+              0.7,
+              0.3
+            ],
+            [
+              0.7,
+              0.5
+            ],
+            [
+              0.5,
+              0.5
+            ]
+          ]
+        },
+        {
+          "name": "hidden",
+          "type": "bool",
+          "optional": true,
+          "purpose": "Скрыто от игроков",
+          "allowed": null,
+          "constraint": null,
+          "default": false,
+          "unit": null,
+          "reference": null,
+          "example": true
+        },
+        {
+          "name": "source",
+          "type": "json",
+          "optional": true,
+          "purpose": "Источник или издатель; для правил используйте объект происхождения",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {
+            "origin": "house"
+          }
+        },
+        {
+          "name": "extra",
+          "type": "json",
+          "optional": true,
+          "purpose": "Дополнительные поля, сохраняемые при круговом импорте",
+          "allowed": null,
+          "constraint": null,
+          "default": null,
+          "unit": null,
+          "reference": null,
+          "example": {}
+        }
+      ],
+      "example": {
+        "id": "kalimdor-durotar",
+        "map_id": "kalimdor",
+        "region_id": "durotar",
+        "points": [
+          [
+            0.5,
+            0.3
+          ],
+          [
+            0.7,
+            0.3
+          ],
+          [
+            0.7,
+            0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ],
+        "hidden": true
+      }
+    },
     "regions": {
       "title": "Регионы",
       "notes": "points: массив пар [x,y] в диапазоне 0–1. При перекрытии выше priority. tier: 1–5.",

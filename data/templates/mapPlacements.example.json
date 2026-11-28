@@ -1,0 +1,13 @@
+{
+  "mapPlacements": [
+    {
+      "id": "kalimdor-crossroads",
+      "map_id": "kalimdor",
+      "node_id": "crossroads",
+      "x": 0.54,
+      "y": 0.42,
+      "scale": 100,
+      "labels": "hover"
+    }
+  ]
+}

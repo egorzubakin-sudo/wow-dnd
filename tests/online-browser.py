@@ -98,6 +98,9 @@ def intercept(route):
             return respond({'error':'Функция ещё не развёрнута'},404)
         args=request.post_data_json
         assert args['campaign']==campaign_id
+        if args['action']=='mapImage':
+            assert active_user==player_id and args['sheet']=='public-sheet'
+            return route.fulfill(status=200,headers=headers,content_type='application/octet-stream',body=asset_bytes)
         if args['action']=='command':
             if active_user==player_id:
                 assert args['name']=='rest' and args['payload']['hero']=='h1'
@@ -112,7 +115,7 @@ def intercept(route):
                     assert map_data['src'] == asset
                     map_data['src'] = map_ref
             server_revision+=1
-        return respond({'document':game_state,'revision':server_revision,'prefix':media_prefix,'shareMap':True,
+        return respond({'document':game_state,'revision':server_revision,'prefix':media_prefix,'shareMap':True,'mapLayout':True,
                         'actor':{'nick':active_user,'name':'Игрок' if active_user==player_id else 'Мастер',
                                  'heroes':['h1'] if active_user==player_id else [],
                                  'role':'player' if active_user==player_id else 'master'}})
@@ -309,6 +312,21 @@ try:
         page.evaluate("switchTab('bags')")
         page.locator('#bagRows').get_by_role('button', name='Фонарь дозорного × 3').wait_for()
         assert not page.get_by_role('button', name='Добавить из каталога').count()
+        game_state['engine']['maps']=[
+            {'id':'overview','name':'Азерот','kind':'world'},
+            {'id':'public-sheet','name':'Общая карта','kind':'continent','shared':True,
+             'image':map_ref,'width':1,'height':1},
+        ]
+        game_state['engine']['mapPlacements']=[{'id':'port','map_id':'public-sheet','node_id':'town','x':0.4,'y':0.5}]
+        game_state['engine']['routeGeometries']=[]
+        server_revision+=1
+        send_revision(player_id,server_revision)
+        page.evaluate("switchTab('map')")
+        page.locator('#atlasSheetPicker').select_option('public-sheet')
+        wait_for_map(page)
+        assert page.locator('[data-node="town"]').count()==1
+        assert not page.locator('#mapAdd').count()
+
         assert not errors, errors
         browser.close()
 finally:

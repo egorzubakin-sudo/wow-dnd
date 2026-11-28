@@ -5,8 +5,8 @@ register("mapMove", "master", (s, p) => {
   requireMapUnlocked(s);
   const place = byId(s.nodes, p.id);
   requireThat([p.x, p.y].every((v) => Number.isFinite(v) && v >= 0 && v <= 1), "Некорректные координаты");
-  place.x = p.x;
-  place.y = p.y;
+  if (s.engine.mapPlacements) placeOnMap(s, { node_id: place.id, map_id: overviewMap, x: p.x, y: p.y });
+  else Object.assign(place, { x: p.x, y: p.y });
 });
 register("mapIcon", "master", (s, p) => {
   requireMapUnlocked(s);

@@ -240,6 +240,7 @@ renderWorldBook = function () {
 };
 const baseVisualSidebar = renderSidebar;
 renderSidebar = function () {
+  if (selected?.type === "region") return renderMapRegion(selected.id);
   baseVisualSidebar();
   const place = selected?.type === "node" ? node(selected.id) : null;
   const path = selected?.type === "route" ? route(selected.id) : null;
@@ -250,11 +251,18 @@ renderSidebar = function () {
   if (path && visibleRoute(path)) {
     if (actions) actions.outerHTML = canEditMap() ? visualMenu("Действия с маршрутом",
       visualAction("Изменить маршрут", "editRoute(" + jsid(path.id) + ")") +
+      (drawnRoute(path.id) ? visualAction("Изменить форму дороги", "startRoadShape(" + jsid(path.id) + ")") +
+        visualAction("Убрать линию с карты", "removeMapRepresentation('route'," + jsid(path.id) + ")") : "") +
       visualAction("Удалить маршрут", "deleteRoute(" + jsid(path.id) + ")", "danger")) : "";
     const table = [...panel.querySelectorAll("section")].find((el) => el.querySelector("h3")?.textContent === "Таблица событий");
     if (table) table.innerHTML = '<details><summary>Таблица событий d6</summary>' + [...table.querySelectorAll("p")].map((row) => row.outerHTML).join("") + '</details>';
   } else if (place && visibleNode(place)) {
-    const region = S.engine.regions.find((r) => r.id === place.regionId);
+    const region = regionAt(S,place);
+    if (region && (!player || !region.hidden))
+      section.insertAdjacentHTML("beforeend", '<p class="muted">' +
+        esc(region.name + (!player ? (place.regionId ? " · назначен вручную" : " · по границе") : "")) + '</p>');
+    const sheetLinks = linkedMapActions("node",place.id) + (region && !region.hidden ? linkedMapActions("region",region.id) : "");
+    if (sheetLinks) section.insertAdjacentHTML("beforeend", '<div class="actions">'+sheetLinks+'</div>');
     section.classList.add("place-dossier");
     if (place.image || region?.image)
       section.insertAdjacentHTML("afterbegin", sectionArt(place.image || region.image, "cover", ""));

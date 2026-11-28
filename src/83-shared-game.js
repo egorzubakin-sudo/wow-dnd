@@ -87,7 +87,7 @@ manualRoll = function () {
 
 function createSharedGame(client, campaign, initial, openSettings) {
   let current = initial, pendingRevision = initial.revision, saveDraft = null, writing = null, reading = false;
-  let pendingRender = false, exited = false, recovery = null, previousPackage = null;
+  let pendingRender = false, exited = false, recovery = null, previousPackage = null, mapUndo = null;
   const urls = new Map();
   const bucket = client.storage.from(atlasCloud.bucket);
   const handle = async (body) => {
@@ -108,7 +108,8 @@ function createSharedGame(client, campaign, initial, openSettings) {
     if (prefix !== current.prefix) {
       for (const url of urls.values()) if (url) URL.revokeObjectURL(url);
       urls.clear();
-      resetView();
+      activeSheet = overviewMap;
+      view = null;
     }
     current = value;
     S = nextActor.role === "master" ? normalize(document) : normalizeEngine(document);
@@ -118,6 +119,9 @@ function createSharedGame(client, campaign, initial, openSettings) {
       player = actor.role !== "master";
     }
     if (reset) {
+      sheetHistory = [];
+      activeSheet = overviewMap;
+      mapDraft = null;
       tab = player && actor.heroes.length ? "hero" : "home";
       previewActor = null;
       previewReadOnly = false;
@@ -161,23 +165,40 @@ function createSharedGame(client, campaign, initial, openSettings) {
   async function command(name,payload,key=crypto.randomUUID()) {
     if (writing) await writing;
     let request = crypto.randomUUID();
-    if (name === "grantCatalogItem") {
+    const beforeImport = name === "contentImport" && actor.role === "master" ?
+      { document: structuredClone(S), prefix: current.prefix } : null;
+    const importTables = name === "import" ? payload.pack : name === "contentImport" ? payload.pack?.tables : null;
+    const drawing = mapCommands.has(name) || name === "mapMove";
+    const previousMap = drawing ? current.document : null;
+    const mapEdit = mapCommands.has(name) || name === "mapMove" && current.document.engine?.mapPlacements ||
+      importTables && [...mapTables,"nodes","routes","regions"].some((table) => Object.hasOwn(importTables,table));
+    if ((!current.mapLayout && mapCommands.has(name) && !(name === "atlasImage" && payload.id === overviewMap)) ||
+        (!current.mapLayout && importTables && mapTables.some((table) => Object.hasOwn(importTables,table))))
+      throw Error("Для редактора связанных карт обновите игровой сервер Supabase");
+    if (name === "atlasUndo") {
+      requireThat(canUndoMapEdit(), "После этой правки кампания уже изменилась");
+      name = "masterSave";
+      request = key;
+      payload = {document:mapUndo.document};
+    } else if (name === "grantCatalogItem" || mapEdit) {
       requireThat(actor.role === "master" && !previewReadOnly, "Недостаточно прав");
-      // Catalog grants use the existing master editor endpoint on older online deployments.
+      // Administrative edits use the existing revision-checked master endpoint.
       const document = structuredClone(current.document);
-      grantCatalogItem(document, payload);
+      commands.get(name).run(document, payload, actor);
       name = "masterSave";
       payload = { document };
       request = key;
     }
-    const beforeImport = name === "contentImport" && actor.role === "master" ?
-      { document: structuredClone(S), prefix: current.prefix } : null;
     const value = await handle({action:"command",request,revision:current.revision,name,payload,key});
     if (exited) return;
+    if (!value.conflict && previousMap && mapEdit) mapUndo = {document:previousMap,revision:value.revision};
     display(value);
     if (value.conflict) throw Error("Другой участник уже изменил кампанию. Данные обновлены, повторите действие.");
     if (beforeImport) previousPackage = beforeImport;
     toast("Сохранено в общей кампании");
+  }
+  function canUndoMapEdit() {
+    return actor.role === "master" && !previewReadOnly && !writing && !S.settings.mapLocked && mapUndo?.revision === current.revision;
   }
   function save(state) {
     if (exited || actor.role !== "master" || previewReadOnly) return;
@@ -221,8 +242,14 @@ function createSharedGame(client, campaign, initial, openSettings) {
     void (async () => {
       let url = false;
       try {
-        const {data,error} = await bucket.download(prefix+ref.slice(atlasStorageReference.length));
-        if (data && !error && !exited && current.prefix === prefix) url = URL.createObjectURL(data);
+        const sheet = current.actor.role !== "master" && current.document.engine?.maps?.find((row) => row.image === ref);
+        const result = sheet
+          ? {data:await handle({action:"mapImage",sheet:sheet.id})}
+          : await bucket.download(prefix+ref.slice(atlasStorageReference.length));
+        if (result.data && !result.error && !exited && current.prefix === prefix) {
+          const image = sheet ? new Blob([result.data],{type:"image/"+ref.split(".").at(-1)}) : result.data;
+          url = URL.createObjectURL(image);
+        }
       } catch {}
       if (exited || current.prefix !== prefix) return;
       urls.set(ref,url);
@@ -260,12 +287,13 @@ function createSharedGame(client, campaign, initial, openSettings) {
     await openSettings(mode);
   }
   return {
-    enter:()=>display(initial,true), command, save, image, imageFailed, settings, leave,
+    campaign, enter:()=>display(initial,true), command, save, image, imageFailed, settings, leave,
     hasRecovery:()=>!!recovery && actor.role === "master",
     pendingSave:()=>!!writing,
     downloadRecovery:()=>downloadBackup(recovery,"atlas-unsaved-online.json"),
     downloadPackageBackup:()=>downloadBackup(previousPackage,"atlas-before-package.json"),
     shareMap:()=>current.shareMap,
+    mapLayout:()=>current.mapLayout === true, canUndoMapEdit,
     changed:(revision)=>{
       pendingRevision = Math.max(pendingRevision,revision === Infinity ? current.revision+1 : revision);
       if ($("modalwrap").classList.contains("open") && revision===Infinity) closeModal();

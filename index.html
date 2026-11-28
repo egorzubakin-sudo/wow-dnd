@@ -3704,6 +3704,13 @@ body.atlas-kit-active { font-size: 16px; }
 .online-workspace #onlineStatus:empty { display: none; }
 .online-workspace #onlineMemberForm { margin-top: 16px; }
 .online-workspace #onlinePortrait { width: 100px; height: 100px; }
+
+.map-navigation, .map-draft-tools { display: grid; gap: 6px; margin-bottom: 8px; }
+.map-navigation .field, .map-draft-tools .field { margin: 0; }
+.map-region-label { cursor: pointer; fill: #fff1bd; stroke: #21261a; stroke-width: 3px; paint-order: stroke; font-size: 13px; }
+.node-hit .map-hover-label { opacity: 0; }
+.node-hit:hover .map-hover-label, .node-hit:focus-within .map-hover-label, .node-hit.selected .map-hover-label { opacity: 1; }
+[data-bend] { cursor: grab; }
 </style></head><body class="locked"><section id="gate" class="card" aria-live="polite"></section>
 <header class="header"><div id="kitTop" hidden></div><div class="sigil" aria-hidden="true">✥</div><div class="brand"><div class="eyebrow">Хроники расколотого мира</div><h1>Warcraft: Век Авантюристов</h1></div><div id="uxTools" class="ux-tools"></div><div class="head-actions"><button id="modeBtn" onclick="toggleMode()">Профиль</button><details class="visual-menu" id="atlasOperations" data-context-menu><summary aria-label="Настройки Атласа" title="Настройки Атласа">⋯</summary><div class="visual-menu-panel"><button id="navIconBtn" onclick="editNavIcons()">Иконки меню</button><button id="exportBtn" onclick="exportData()">Экспорт JSON</button><button id="importBtn" onclick="document.getElementById('importFile').click()">Импорт</button></div></details><input id="importFile" type="file" accept=".json,application/json" hidden></div></header><div id="uxAchievementPopup" class="ux-ach-popup" hidden role="status"></div>
 <nav class="nav" id="nav"></nav><div class="status" id="status"></div><main id="main"></main><footer class="footer">Warcraft: Век Авантюристов · D&D 2024 / домашние правила Вольной компании</footer>
@@ -3721,23 +3728,24 @@ const ROLES=['Капитан','Правая рука','Громила','Деле
 const TALENTS=[['Военное дело',['Арсенал','Оружейная','Укреплённый лагерь']],['Ремесло',['Мастерская','Лаборатория','Зачаровательная']],['Снабжение',['Полевая кухня','Лазарет','Обоз']],['Связи',['Писарь','Торговый агент','Сеть осведомителей']]];
 const WORLD_BOOK={"title":"Хроники Азерота","subtitle":"Книга первая. Приближение хаоса","year":"27-й год после открытия Тёмного портала","chapters":[{"title":"Видение Света","text":"","image":""},{"title":"Поход на запад","text":"","image":""},{"title":"Бастион на краю света","text":"","image":""},{"title":"Последняя зима Лордерона","text":"","image":""},{"title":"Возрождение Арати","text":"","image":""},{"title":"Битва за Андорал и Пепельный Крестовый Поход","text":"","image":""},{"title":"Калимдорская война","text":"","image":""},{"title":"Ярость Хиджала","text":"","image":""},{"title":"Хиджальский договор","text":"","image":""},{"title":"Пропавший король","text":"","image":""},{"title":"Революция в Штормграде","text":"","image":""},{"title":"Изгнанники Штормграда","text":"","image":""},{"title":"Золотой век вольных компаний","text":"","image":""},{"title":"Наступал 27-й год после открытия Тёмного портала","text":"","image":""}]};
 function fresh(){return {version:1,worldBook:JSON.parse(JSON.stringify(WORLD_BOOK)),map:null,nodes:[],routes:[],factions:FACTIONS.map((f,i)=>({id:'f'+i,name:f[0],leader:f[1],color:f[2],icon:f[3],desc:f[4],rep:'Нейтралитет',charter:'',notes:'',hidden:false})),company:{name:'Вольная компания',gold:0,day:1,year:27,location:'',notes:'',members:ROLES.map(r=>({id:uid(),name:'',role:r,mod:0,active:true})),talents:{},staff:[]},contracts:[],journal:[],journey:null,settings:{showLabels:true}}}
-let cachedMap=null,cachedMapUrl='';
+let cachedMapSrc='',cachedMapUrl='';
 function mapHref() {
-  if (cachedMap !== S.map) {
+  const src = currentMapImage()?.src || '';
+  if (cachedMapSrc !== src) {
     if (cachedMapUrl) URL.revokeObjectURL(cachedMapUrl);
-    cachedMap = S.map;
+    cachedMapSrc = src;
     cachedMapUrl = '';
-    if (S.map && !remoteMediaRef(S.map.src)) {
+    if (src && !remoteMediaRef(src)) {
       try {
-        const [head, body] = S.map.src.split(',');
+        const [head, body] = src.split(',');
         const decoded = atob(body), bytes = new Uint8Array(decoded.length);
         for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
         cachedMapUrl = URL.createObjectURL(new Blob([bytes], {type: head.split(':')[1].split(';')[0]}));
       } catch {}
     }
   }
-  if (remoteMediaRef(S.map?.src)) return remoteImageURL(S.map.src);
-  return cachedMapUrl || S.map?.src || '';
+  if (remoteMediaRef(src)) return remoteImageURL(src);
+  return cachedMapUrl || src;
 }
 let S=fresh(),tab='home',player=false,selected=null,tool='select',routeStart=null,view=null,db=null,saveTimer=null,saveSeq=0,toastTimer,modalCancel=null,searchText='';
 const node=id=>S.nodes.find(x=>x.id===id), route=id=>S.routes.find(x=>x.id===id), faction=id=>S.factions.find(x=>x.id===id), nameOf=id=>node(id)?.name||'Неизвестный узел', memberName=m=>m?(m.name||m.role||'Участник'):'Не выбран', fName=id=>player&&faction(id)?.hidden?'Неизвестная принадлежность':faction(id)?.name||'Нейтральная территория', routeLabel=r=>r.name||`${nameOf(r.a)} — ${nameOf(r.b)}`, kind=k=>ROUTES.find(x=>x[0]===k)||ROUTES[0], type=k=>TYPES.find(x=>x[0]===k)||TYPES[11], dayLabel=()=>`День ${S.company.day} · ${S.company.year}-й год`; 
@@ -3757,22 +3765,26 @@ function switchTab(t){if(t!=='craft')craftCompanionContext=null;if(t==='bank'&&p
 function render(){const menu=$('atlasOperations').querySelector('.visual-menu-panel');for(const id of ['exportBtn','importBtn'])menu.append($(id));portalData();$('nav').innerHTML=renderNavigation();$('nav').hidden=tab==='home'&&!getHomePrefs().nav;restoreNavScroll();$('modeBtn').textContent=player?'Режим мастера':'Режим игроков';$('navIconBtn').hidden=player;$('exportBtn').hidden=player;$('importBtn').hidden=player;$('status').innerHTML=`<span>${esc(dayLabel())}</span><span>Компания: <strong>${esc(S.company.name)}</strong></span><span>Казна: <strong>${esc(S.company.gold)} зм</strong></span><span>Стоянка: <strong>${esc(S.company.location&&(!player||node(S.company.location)?.visibility!=='hidden')?nameOf(S.company.location):'Не установлена')}</strong></span>${S.journey?'<span class="tag med">Путешествие в процессе</span>':''}<span class="save" id="saveState">${player?'Просмотр игроками':db?'Локальная кампания':'Локальное хранилище'}</span>`;if(PORTAL[tab])renderPortal(tab);else ({home:renderHome,worldbook:renderWorldBook,map:renderMap,factions:renderFactions,diplomacy:renderDiplomacy,company:renderCompany,hero:renderHero,bags:renderBags,personalAchievements:renderHeroAchievements,camp:renderCampV2,stay:renderStay,craft:renderCraft,workshop:renderWorkshop,bank:renderBank,contracts:renderContracts,journal:renderJournal,help:renderHelp})[tab]();}
 function openModal(title,body){$('modalTitle').textContent=title;$('modalBody').innerHTML=body;$('modalwrap').classList.add('open');$('modalBody').querySelector('input:not([type=hidden]),textarea,select')?.focus()}function closeModal(){$('modalwrap').classList.remove('open');$('modalBody').innerHTML=''}document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('modalwrap').classList.contains('open'))closeModal();else if(tab==='map')setTool('select')}});
 function field(label,id,value='',type='text',extra=''){return `<div class="field"><label for="${id}">${esc(label)}</label><input id="${id}" type="${type}" value="${esc(value)}" ${extra}></div>`}function area(label,id,value='',placeholder=''){return `<div class="field"><label for="${id}">${esc(label)}</label><textarea id="${id}" placeholder="${esc(placeholder)}">${esc(value)}</textarea></div>`}function selectField(label,id,opts,value){return `<div class="field"><label for="${id}">${esc(label)}</label><select id="${id}">${opts.map(([v,l])=>`<option value="${esc(v)}" ${String(v)===String(value)?'selected':''}>${esc(l)}</option>`).join('')}</select></div>`}function val(id){return $(id).value}function check(label,id,value){return `<label class="checkline"><input id="${id}" type="checkbox" ${value?'checked':''}> ${esc(label)}</label>`}function controls(label='Сохранить'){return `<div class="actions"><button type="button" class="ghost" onclick="closeModal()">Отмена</button><button class="primary" type="submit">${label}</button></div>`}function safeColor(c){return /^#[0-9a-f]{6}$/i.test(c||'')?c:'#a79668'}function jsid(id){return esc(JSON.stringify(String(id)))}function header(title,desc,action=''){return `<div class="pagehead"><div><div class="eyebrow">Вольная компания · Атлас</div><h2>${esc(title)}</h2><p>${esc(desc)}</p></div>${action}</div>`}
-function dims(){return S.map?{w:1000,h:1000*S.map.h/S.map.w}:{w:1000,h:650}}function resetView(){const d=dims();view={x:0,y:0,w:d.w,h:d.h}}
+function dims(){const image=currentMapImage();return image?{w:1000,h:1000*image.h/image.w}:{w:1000,h:650}}function resetView(){const d=dims();view={x:0,y:0,w:d.w,h:d.h}}
 function toggleLabels(){S.settings.showLabels=!S.settings.showLabels;commit()}
 function worldPoint(e){const svg=$('mapsvg'),p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
-function zoomBy(f,e){const d=dims(),p=e?worldPoint(e):{x:view.x+view.w/2,y:view.y+view.h/2},newW=clamp(view.w/f,d.w/14,d.w*2),ratio=newW/view.w;view={x:p.x-(p.x-view.x)*ratio,y:p.y-(p.y-view.y)*ratio,w:newW,h:view.h*ratio};drawMap()}
+function zoomBy(f,e){const d=dims(),p=e?worldPoint(e):{x:view.x+view.w/2,y:view.y+view.h/2},newW=clamp(view.w/f,d.w/14,d.w*2),ratio=newW/view.w;view={x:p.x-(p.x-view.x)*ratio,y:p.y-(p.y-view.y)*ratio,w:newW,h:view.h*ratio};rememberMapView();drawMap()}
 function selectItem(t,id){selected={type:t,id};if(tab!=='map'){switchTab('map')}else{drawMap();renderSidebar()}}
-$('mapFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!canEditMap())return;try{if(!/^image\/(png|jpeg|webp|gif|bmp|avif)$/.test(f.type))throw Error('Выберите PNG, JPG, WEBP, GIF, BMP или AVIF.');const src=await new Promise((ok,fail)=>{const rd=new FileReader();rd.onload=()=>ok(rd.result);rd.onerror=fail;rd.readAsDataURL(f)});const im=new Image();im.src=src;await im.decode();if(!canEditMap())return;if(S.nodes.length&&!confirm('Заменить подложку? Узлы сохранят относительные координаты; при другой географии их нужно будет передвинуть.'))return;S.map={src,w:im.naturalWidth,h:im.naturalHeight,name:f.name};resetView();commit();toast('Карта загружена. Координаты узлов сохранены.')}catch(err){alert('Не удалось загрузить карту: '+err.message)}};
-function editNode(id,pos){if(!canEditMap())return;const a=id?node(id):{...pos,name:'',type:'city',faction:'',visibility:'known',desc:'',notes:''};if(!a)return;openModal(id?'Редактировать узел':'Новый узел',`<form id="nodeForm">${field('Название','nn',a.name,'text','required maxlength="100"')}<div class="cols">${selectField('Тип','nt',TYPES.map(t=>[t[0],t[1]+' '+t[2]]),a.type)}${selectField('Фракция','nf',[['','Нейтральная территория'],...S.factions.map(f=>[f.id,f.name])],a.faction)}</div>${selectField('Видимость','nv',VIS,a.visibility)}${area('Описание для игроков','nd',a.desc)}${area('Заметки мастера','np',a.notes)}${controls()}</form>`);$('nodeForm').onsubmit=e=>{e.preventDefault();if(!canEditMap())return;const obj={...a,id:id||uid(),name:val('nn').trim(),type:val('nt'),faction:val('nf'),visibility:val('nv'),desc:val('nd'),notes:val('np')};if(!obj.name)return;if(id)Object.assign(a,obj);else S.nodes.push(obj);selected={type:'node',id:obj.id};tool='select';closeModal();commit()}}
-function editRoute(id,a,b){if(!canEditMap())return;const r=id?route(id):{a,b,name:'',kind:'road',min:2,max:2,risk:1,status:'open',visibility:'known',cost:0,desc:'',notes:'',events:[...DEF_EVENTS]};if(!r)return;openModal(id?'Редактировать маршрут':'Новый маршрут',`<p class="muted">${esc(nameOf(r.a))} — ${esc(nameOf(r.b))}</p><form id="routeForm">${field('Название нити','rn',r.name,'text','placeholder="Большой тракт"')}<div class="cols">${selectField('Тип','rk',ROUTES.map(k=>[k[0],k[1]]),r.kind)}${selectField('Опасность','rr',RISKS.map((v,i)=>[i,v]),r.risk)}</div><div class="cols">${field('Минимум дней','rmin',r.min,'number','min="0" max="3650" required')}${field('Максимум дней','rmax',r.max,'number','min="0" max="3650" required')}</div><div class="cols">${selectField('Состояние','rs',[['open','Открыт'],['conditional','С условиями'],['closed','Закрыт']],r.status)}${selectField('Видимость','rv',VIS,r.visibility)}</div>${field('Цена перехода для всей компании, зм','rc',r.cost,'number','min="0" step="0.01"')}${area('Описание / условия (видно игрокам)','rd',r.desc)}${area('Заметки мастера','rp',r.notes)}<h3>Таблица событий d6</h3>${r.events.map((v,i)=>field(`${i+1} · ${['Удача','Спокойно','Спокойно','Встреча','Осложнение','Серьёзное событие'][i]}`,'re'+i,v)).join('')}${controls()}</form>`);$('routeForm').onsubmit=e=>{e.preventDefault();if(!canEditMap())return;let min=int(val('rmin'),0,3650),max=int(val('rmax'),0,3650);if(max<min){toast('Максимум не может быть меньше минимума');return}const obj={...r,id:id||uid(),name:val('rn').trim(),kind:val('rk'),risk:int(val('rr'),0,2),min,max,status:val('rs'),visibility:val('rv'),cost:Math.max(0,n(val('rc'))),desc:val('rd'),notes:val('rp'),events:DEF_EVENTS.map((v,i)=>val('re'+i).trim()||v)};if(id)Object.assign(r,obj);else S.routes.push(obj);selected={type:'route',id:obj.id};tool='select';routeStart=null;closeModal();commit()}}
-function deleteNode(id){if(!canEditMap())return;if(S.engine.stays?.some(t=>t.location===id)||S.engine.recipes?.some(r=>r.locations?.includes(id)))return toast('Узел используется в истории стоянок или рецептах.');if(S.journey&&[S.journey.from,S.journey.to].includes(id)){toast('Сначала завершите или отмените путешествие');return}if(!confirm('Удалить узел и все соединённые маршруты?'))return;S.nodes=S.nodes.filter(a=>a.id!==id);S.routes=S.routes.filter(r=>r.a!==id&&r.b!==id);S.contracts.forEach(c=>{if(c.location===id)c.location=''});if(S.company.location===id)S.company.location='';selected=null;commit()}
-function deleteRoute(id){if(!canEditMap())return;if(S.journey?.routeId===id){toast('Сначала завершите или отмените путешествие');return}if(!confirm('Удалить этот маршрут?'))return;S.routes=S.routes.filter(r=>r.id!==id);selected=null;commit()}
+$('mapFile').onchange=e=>{
+  const file=e.target.files[0];
+  e.target.value='';
+  loadMapSheetImage(file,activeSheet).catch(err=>toast(err.message));
+};
+function editNode(id,pos){if(!canEditMap())return;const a=id?node(id):{...pos,name:'',type:'city',faction:'',visibility:'known',desc:'',notes:''};if(!a)return;openModal(id?'Редактировать узел':'Новый узел',`<form id="nodeForm">${field('Название','nn',a.name,'text','required maxlength="100"')}<div class="cols">${selectField('Тип','nt',TYPES.map(t=>[t[0],t[1]+' '+t[2]]),a.type)}${selectField('Фракция','nf',[['','Нейтральная территория'],...S.factions.map(f=>[f.id,f.name])],a.faction)}</div>${selectField('Видимость','nv',VIS,a.visibility)}${area('Описание для игроков','nd',a.desc)}${area('Заметки мастера','np',a.notes)}${controls()}</form>`);$('nodeForm').onsubmit=e=>{e.preventDefault();if(!canEditMap())return;const obj={...a,id:id||uid(),name:val('nn').trim(),type:val('nt'),faction:val('nf'),visibility:val('nv'),desc:val('nd'),notes:val('np')};if(!obj.name)return;if(id)Object.assign(a,obj);else{mapData(S);S.nodes.push(obj);placeOnMap(S,{node_id:obj.id,map_id:activeSheet,x:obj.x,y:obj.y})}selected={type:'node',id:obj.id};tool='select';closeModal();commit()}}
+function editRoute(id,a,b){if(!canEditMap())return;const r=id?route(id):{a,b,name:'',kind:'road',min:2,max:2,risk:1,status:'open',visibility:'known',cost:0,desc:'',notes:'',events:[...DEF_EVENTS]};if(!r)return;openModal(id?'Редактировать маршрут':'Новый маршрут',`<p class="muted">${esc(nameOf(r.a))} — ${esc(nameOf(r.b))}</p><form id="routeForm">${field('Название нити','rn',r.name,'text','placeholder="Большой тракт"')}<div class="cols">${selectField('Тип','rk',ROUTES.map(k=>[k[0],k[1]]),r.kind)}${selectField('Опасность','rr',RISKS.map((v,i)=>[i,v]),r.risk)}</div><div class="cols">${field('Минимум дней','rmin',r.min,'number','min="0" max="3650" required')}${field('Максимум дней','rmax',r.max,'number','min="0" max="3650" required')}</div><div class="cols">${selectField('Состояние','rs',[['open','Открыт'],['conditional','С условиями'],['closed','Закрыт']],r.status)}${selectField('Видимость','rv',VIS,r.visibility)}</div>${field('Цена перехода для всей компании, зм','rc',r.cost,'number','min="0" step="0.01"')}${area('Описание / условия (видно игрокам)','rd',r.desc)}${area('Заметки мастера','rp',r.notes)}<h3>Таблица событий d6</h3>${r.events.map((v,i)=>field(`${i+1} · ${['Удача','Спокойно','Спокойно','Встреча','Осложнение','Серьёзное событие'][i]}`,'re'+i,v)).join('')}${controls()}</form>`);$('routeForm').onsubmit=e=>{e.preventDefault();if(!canEditMap())return;let min=int(val('rmin'),0,3650),max=int(val('rmax'),0,3650);if(max<min){toast('Максимум не может быть меньше минимума');return}const obj={...r,id:id||uid(),name:val('rn').trim(),kind:val('rk'),risk:int(val('rr'),0,2),min,max,status:val('rs'),visibility:val('rv'),cost:Math.max(0,n(val('rc'))),desc:val('rd'),notes:val('rp'),events:DEF_EVENTS.map((v,i)=>val('re'+i).trim()||v)};if(id)Object.assign(r,obj);else{const data=mapData(S);S.routes.push(obj);putMapEntry(data.routeGeometries,'route_id',obj.id,activeSheet,{points:[]})}selected={type:'route',id:obj.id};tool='select';routeStart=null;closeModal();commit()}}
+function deleteNode(id){if(!canEditMap())return;if(S.engine.stays?.some(t=>t.location===id)||S.engine.recipes?.some(r=>r.locations?.includes(id)))return toast('Узел используется в истории стоянок или рецептах.');if(S.journey&&[S.journey.from,S.journey.to].includes(id)){toast('Сначала завершите или отмените путешествие');return}if(!confirm('Удалить узел и все соединённые маршруты?'))return;S.nodes=S.nodes.filter(a=>a.id!==id);S.routes=S.routes.filter(r=>r.a!==id&&r.b!==id);pruneMapReferences(S);S.contracts.forEach(c=>{if(c.location===id)c.location=''});if(S.company.location===id)S.company.location='';selected=null;commit()}
+function deleteRoute(id){if(!canEditMap())return;if(S.journey?.routeId===id){toast('Сначала завершите или отмените путешествие');return}if(!confirm('Удалить этот маршрут?'))return;S.routes=S.routes.filter(r=>r.id!==id);pruneMapReferences(S);selected=null;commit()}
 function setLocation(id){if(player||S.journey)return;if(S.company.location&&S.company.location!==id&&!confirm('Перенести компанию без путешествия?'))return;S.company.location=id;commit()}
 function entryNode(a){return `<button class="entry" onclick="selectItem('node',${jsid(a.id)})"><span class="sym" style="color:${safeColor(player&&faction(a.faction)?.hidden?'#a79668':faction(a.faction)?.color)}">${esc(type(a.type)[1])}</span><span class="content"><strong>${esc(a.name)}</strong><small>${esc(type(a.type)[2])} · ${esc(fName(a.faction))}</small></span>${S.company.location===a.id?'<span class="tag med">Здесь</span>':a.visibility==='rumor'?'<span class="tag">Слух</span>':!player&&a.visibility==='hidden'?'<span class="tag">Тайна</span>':''}</button>`}
 function riskTag(r){return `<span class="tag ${['low','med','high'][r.risk]}">${RISKS[r.risk]}</span>`}function duration(r){return r.min===r.max?`${r.min} дн.`:`${r.min}–${r.max} дн.`}
 function entryRoute(r,from){return `<button class="entry" onclick="selectItem('route',${jsid(r.id)})"><span class="sym" style="color:${kind(r.kind)[2]}">⌁</span><span class="content"><strong>${esc(from?nameOf(r.a===from?r.b:r.a):routeLabel(r))}</strong><small>${esc(kind(r.kind)[1])} · ${duration(r)}${r.name&&from?' · '+esc(r.name):''}</small></span>${r.status==='closed'?'<span class="tag high">Закрыт</span>':riskTag(r)}</button>`}
 function renderSidebar(){const el=$('sidebar');if(!el)return;let h='<div class="side-inner">';if(S.journey)h+=journeyPanel();const a=selected?.type==='node'?node(selected.id):null,r=selected?.type==='route'?route(selected.id):null;if(a&&visibleNode(a)){const rum=player&&a.visibility==='rumor';h+=`<section class="section"><div class="eyebrow">Узел · ${esc(type(a.type)[2])}</div><h2>${esc(a.name)}</h2><p class="muted">${rum?'Место известно по слухам':esc(fName(a.faction))}</p>${a.desc?`<p style="white-space:pre-wrap;margin:8px 0">${esc(a.desc)}</p>`:''}${!player&&a.notes?`<div class="notice">Мастер: ${esc(a.notes)}</div>`:''}${!player?`<div class="actions" style="margin-top:10px"><button onclick="editNode(${jsid(a.id)})">Изменить</button><button class="danger ghost" onclick="deleteNode(${jsid(a.id)})">Удалить</button></div><button style="width:100%;margin-top:8px" ${S.journey?'disabled':''} onclick="setLocation(${jsid(a.id)})">${S.company.location===a.id?'Компания находится здесь':'Установить стоянку компании'}</button>`:''}</section><section class="stack">${nodeQuestList(a)}<h3>Связанные маршруты</h3>${S.routes.filter(r=>visibleRoute(r)&&(r.a===a.id||r.b===a.id)).map(r=>entryRoute(r,a.id)).join('')||'<p class="muted">Нет известных маршрутов.</p>'}${!player?`<button onclick="tool='route';routeStart=${jsid(a.id)};drawMap();renderSidebar()">＋ Соединить с другим узлом</button>`:''}</section>`}else if(r&&visibleRoute(r)){const here=S.company.location===r.a||S.company.location===r.b;h+=`<section class="section"><div class="eyebrow">Нить · ${esc(kind(r.kind)[1])}</div><h2>${esc(routeLabel(r))}</h2><p class="muted">${esc(nameOf(r.a))} ↔ ${esc(nameOf(r.b))}</p><div class="row" style="margin:10px 0"><span class="tag">${duration(r)}</span>${riskTag(r)}<span class="tag">${r.status==='closed'?'Закрыт':r.status==='conditional'?'С условиями':'Открыт'}</span>${r.cost?`<span class="tag">${esc(r.cost)} зм</span>`:''}</div>${r.desc?`<p style="white-space:pre-wrap">${esc(r.desc)}</p>`:''}${!player&&r.notes?`<div class="notice" style="margin-top:8px">Мастер: ${esc(r.notes)}</div>`:''}${!player?`<div class="actions" style="margin:10px 0"><button onclick="editRoute(${jsid(r.id)})">Изменить</button><button class="danger ghost" onclick="deleteRoute(${jsid(r.id)})">Удалить</button></div>`:''}<button class="primary" style="width:100%" onclick="beginJourney(${jsid(r.id)})" ${!here||r.status==='closed'||S.journey||player?'disabled':''}>Начать путешествие</button>${!here?'<small>Компания должна находиться в одном из этих узлов.</small>':r.status==='closed'?'<small>Путь закрыт. Найдите обход или измените состояние.</small>':''}</section>${!player?`<section><h3>Таблица событий</h3>${r.events.map((e,i)=>`<p style="margin:7px 0"><span class="tag">${i+1}</span> ${esc(e)}</p>`).join('')}</section>`:''}`}else{h+=`<section class="section"><div class="eyebrow">Картографическая служба</div><h2>Путешествия</h2><p class="muted">Выберите точку или маршрут на карте.</p>${!player&&!S.nodes.length?'<div class="notice" style="margin-top:12px">Загрузите свою карту Азерота. Затем выберите «Добавить место» и отметьте место кликом. Кнопка «Пример» добавляет тестовые точки на условную сетку.</div>':''}</section><section class="stack"><h3>Известные места</h3><input id="nodeSearch" placeholder="Поиск по названию" value="${esc(searchText)}"><div id="nodeList" class="stack">${S.nodes.filter(visibleNode).filter(a=>a.name.toLowerCase().includes(searchText.toLowerCase())).map(entryNode).join('')||'<div class="empty">Узлов пока нет</div>'}</div></section>`}el.innerHTML=h+'</div>';if($('nodeSearch'))$('nodeSearch').oninput=e=>{searchText=e.target.value;$('nodeList').innerHTML=S.nodes.filter(visibleNode).filter(a=>a.name.toLowerCase().includes(searchText.toLowerCase())).map(entryNode).join('')||'<div class="empty">Ничего не найдено</div>'}}
-function loadDemo(){if(!canEditMap()||S.nodes.length)return;const points=[['Терамор','port','f4',.70,.78],['Кабестан','port','f7',.76,.39],['Перекрёсток','village','',.44,.43],['Астранаар','village','f6',.23,.16],['Скрытые руины','ruin','',.29,.72]];S.nodes=points.map(p=>({id:uid(),name:p[0],type:p[1],faction:p[2],x:p[3],y:p[4],visibility:p[0]==='Скрытые руины'?'hidden':'known',desc:'Демонстрационная точка; положение и сведения условны.',notes:''}));const [a,b,c,d,e]=S.nodes.map(a=>a.id);const r=(a,b,name,kind,min,max,risk,events=DEF_EVENTS,visibility='known')=>({id:uid(),a,b,name,kind,min,max,risk,events:[...events],visibility,status:'open',cost:0,desc:'Демонстрационный маршрут.',notes:''});S.routes=[r(a,b,'Большой тракт','road',6,6,1,['Торговец предлагает редкий товар','Спокойная дорога','Спокойная дорога','Встречный караван','Патруль требует хартию','Мост разрушен диверсантами']),r(a,b,'Через Пылевые топи','wild',9,9,2,['Редкие алхимические растения','Спокойная дорога','Спокойная дорога','Хижина травницы','Заболоченная переправа','Логово чёрного дракона']),r(a,b,'Торговое судно','sea',3,5,0,['Выгодная сделка','Спокойное плавание','Спокойное плавание','Встречное судно','Шторм','Пиратские паруса']),r(b,c,'Караванный путь','road',2,2,1),r(c,d,'Северная дорога','road',4,4,1),r(c,e,'Забытая тропа','secret',3,3,2,DEF_EVENTS,'hidden')];S.company.location=a;selected={type:'node',id:a};commit();toast('Добавлены демонстрационные точки и маршруты')}
+function loadDemo(){if(!canEditMap()||S.nodes.length)return;const points=[['Терамор','port','f4',.70,.78],['Кабестан','port','f7',.76,.39],['Перекрёсток','village','',.44,.43],['Астранаар','village','f6',.23,.16],['Скрытые руины','ruin','',.29,.72]];S.nodes=points.map(p=>({id:uid(),name:p[0],type:p[1],faction:p[2],x:p[3],y:p[4],visibility:p[0]==='Скрытые руины'?'hidden':'known',desc:'Демонстрационная точка; положение и сведения условны.',notes:''}));const [a,b,c,d,e]=S.nodes.map(a=>a.id);const r=(a,b,name,kind,min,max,risk,events=DEF_EVENTS,visibility='known')=>({id:uid(),a,b,name,kind,min,max,risk,events:[...events],visibility,status:'open',cost:0,desc:'Демонстрационный маршрут.',notes:''});S.routes=[r(a,b,'Большой тракт','road',6,6,1,['Торговец предлагает редкий товар','Спокойная дорога','Спокойная дорога','Встречный караван','Патруль требует хартию','Мост разрушен диверсантами']),r(a,b,'Через Пылевые топи','wild',9,9,2,['Редкие алхимические растения','Спокойная дорога','Спокойная дорога','Хижина травницы','Заболоченная переправа','Логово чёрного дракона']),r(a,b,'Торговое судно','sea',3,5,0,['Выгодная сделка','Спокойное плавание','Спокойное плавание','Встречное судно','Шторм','Пиратские паруса']),r(b,c,'Караванный путь','road',2,2,1),r(c,d,'Северная дорога','road',4,4,1),r(c,e,'Забытая тропа','secret',3,3,2,DEF_EVENTS,'hidden')];S.company.location=a;selected={type:'node',id:a};delete S.engine.mapPlacements;delete S.engine.routeGeometries;mapData(S);commit();toast('Добавлены демонстрационные точки и маршруты')}
 function log(kind,title,text='',hidden=false,day=S.company.day){S.journal.unshift({id:uid(),kind,title,text,hidden,day,year:S.company.year})}
 function beginJourney(id){if(!canTravel()||S.journey||currentStay(S))return;const r=route(id),from=S.company.location;if(!r||r.status==='closed'||![r.a,r.b].includes(from))return;const to=from===r.a?r.b:r.a;const roster=S.company.members.filter(m=>m.active);openModal('Подготовка к путешествию',`<p class="muted">${esc(nameOf(from))} → ${esc(nameOf(to))} · ${duration(r)} · ${RISKS[r.risk]} опасность</p>${r.status==='conditional'?'<div class="notice">Путь доступен с условиями. Мастер должен подтвердить их выполнение.</div>':''}${r.desc?`<p style="margin-top:8px">${esc(r.desc)}</p>`:''}<form id="startForm">${selectField('Проводник','jg',[['random','Определить жребием (d'+(roster.length||1)+')'],...(roster.length?[['physical','Ввести физический жребий']]:[]),['','Без проводника'],...roster.map(m=>[m.id,memberName(m)])],'random')}<div id="manualGuide" class="hidden">${field('Номер на кубике (от 1 до '+roster.length+')','jgd',1,'number','min="1" max="'+Math.max(1,roster.length)+'"') }<small>${roster.map((m,i)=>`${i+1} — ${esc(memberName(m))}`).join(' · ')}</small></div>${field('Стоимость перехода для компании, зм','jc',r.cost,'number','min="0" step="0.01"')}${controls('Отправиться в путь')}</form>`);$('jg').onchange=()=>{$('manualGuide').classList.toggle('hidden',val('jg')!=='physical')};$('startForm').onsubmit=e=>{e.preventDefault();if(!canTravel()||S.journey||currentStay(S))return;const g=val('jg'),cost=player?r.cost:Math.max(0,n(val('jc')));if(cost>S.company.gold){toast('Недостаточно золота в казне');return}let guideDie=g==='random'&&roster.length?roll(roster.length):g==='physical'&&roster.length?int(val('jgd'),1,roster.length):null;let guide=['random','physical'].includes(g)?(guideDie?roster[guideDie-1]?.id:''):g;const days=r.min===r.max?r.min:r.min+roll(r.max-r.min+1)-1;S.company.gold=Math.round((S.company.gold-cost)*100)/100;S.engine.phase='travel';S.journey={routeId:id,from,to,routeName:routeLabel(r),start:S.company.day,days,risk:r.risk,events:[...r.events],guide,guideDie,guideSides:roster.length,cost,rolls:[],outcome:null,guideCheck:null};log('travel','Выход в путь',`${nameOf(from)} → ${nameOf(to)} · ${routeLabel(r)}. Проводник: ${memberName(S.company.members.find(m=>m.id===guide))}. ${days} дн. по плану.`);closeModal();commit()}}
 function journeyPanel(){const j=S.journey;if(!j)return '';const g=S.company.members.find(m=>m.id===j.guide);let h=`<section class="section stack"><div class="eyebrow">Путешествие в процессе</div><h3>${esc(nameOf(j.from))} → ${esc(nameOf(j.to))}</h3><p>${esc(j.routeName)} · ${j.days} дн. · ${RISKS[j.risk]} опасность</p><p class="muted">Проводник: <strong style="color:var(--ink)">${esc(memberName(g))}</strong>${j.guideDie?` (жребий d${j.guideSides}: ${j.guideDie})`:''}</p>`;if(j.guideCheck!==null&&j.guideCheck!==undefined)h+=`<p>Выживание: <strong>${j.guideCheck.total}</strong> (${j.guideCheck.roll}${j.guideCheck.mod>=0?'+':''}${j.guideCheck.mod})</p>`;else if(g&&canTravel())h+=`<button onclick="guideCheck()">Бросок Выживания d20 ${signed(guideModifier(g))}</button>`;if(j.outcome===null){if(canTravel())h+=`<button class="primary" onclick="rollJourney()">Бросить ${j.risk===1?'1d6':'2d6'} ${j.risk===0?'· меньший':j.risk===2?'· больший':''}</button><button class="ghost" onclick="manualRoll()">Ввести результат физических кубиков</button>`}else{h+=`<div class="dice">${j.rolls.map(v=>`<div class="die ${v===j.outcome?'chosen':''}">${v}</div>`).join('')}</div><div class="notice"><small>Событие · ${j.outcome}</small><h3>${esc(j.events[j.outcome-1])}</h3><p>${j.outcome>=5?'Разыграйте сцену перед завершением перехода.':j.outcome===4?'Решите, как компания взаимодействует со встречей.':'Путь продолжается.'}</p></div>${!player?'<button class="primary" onclick="finishJourney()">Завершить переход</button>':''}`}if(!player)h+='<button class="ghost danger" onclick="cancelJourney()">Отменить / прервать путь</button>';return h+'</section>'}
@@ -3924,7 +3936,7 @@ function questsAt(a){return S.contracts.filter(c=>!c.archived&&c.location===a.id
 function questMapMarks(a,sc){if(S.settings.showQuests===false)return '';const qs=questsAt(a),marks=[['available','!'],['active','?']].map(([status,symbol])=>({symbol,count:qs.filter(c=>c.status===status).length})).filter(x=>x.count);return marks.map((m,i)=>`<g transform="translate(${(19+23*i)*sc} ${-20*sc})"><title>${m.count} ${m.symbol==='!'?'доступных':'действующих'} заданий</title><circle r="${12*sc}" fill="#302410" stroke="#b58a36" stroke-width="${sc}"/><text class="quest-pin" text-anchor="middle" y="${6*sc}" fill="#ffda38" font-size="${23*sc}" stroke-width="${2.5*sc}">${m.symbol}</text>${m.count>1?`<text x="${10*sc}" y="${-7*sc}" font-size="${10*sc}" fill="#fff0ad" stroke="#221b11" stroke-width="${2*sc}" paint-order="stroke">${m.count}</text>`:''}</g>`).join('')}
 function toggleQuestMarkers(){S.settings.showQuests=S.settings.showQuests===false;commit()}
 function nodeQuestList(a){const qs=questsAt(a);return `<div class="quest-node-list"><h3>Задания в этой точке</h3>${qs.map(c=>`<button onclick="openMapQuest(${jsid(c.id)})"><b style="color:${c.status==='done'?'#9bb887':c.status==='failed'?'#c86d65':'#f9d03d'};font-size:19px;margin-right:8px">${questIcon(c)}</b>${esc(c.title)}${!player&&c.hidden?' · скрыто':''}</button>`).join('')||'<p class="muted">Нет заданий.</p>'}${!player?`<button onclick="editContract(null,${jsid(a.id)})">＋ Задание в этом узле</button>`:''}</div>`}
-function focusQuestMap(id){const c=S.contracts.find(x=>x.id===id),a=node(c?.location);if(!c||!a||!visibleNode(a)||player&&c.hidden)return;closeModal();const d=dims();if(!view)resetView();view.x=a.x*d.w-view.w/2;view.y=a.y*d.h-view.h/2;selected={type:'node',id:a.id};switchTab('map')}
+function focusQuestMap(id){const c=S.contracts.find(x=>x.id===id),a=node(c?.location);if(!c||!a||!visibleNode(a)||player&&c.hidden)return;focusMapPlace(a.id)}
 function openMapQuest(id){const c=S.contracts.find(x=>x.id===id);if(!c||c.archived||player&&c.hidden)return;openModal(c.title,`<div class="quest-card ${esc(c.status)}"><div class="quest-heading"><span class="quest-mark">${questIcon(c)}</span><div><h3>${esc(c.title)}</h3><span>${esc([questGiver(c),questFactionName(c),questPlace(c)].filter(Boolean).join(' · '))}</span></div></div><div class="quest-content"><p>${esc(c.desc||'')}</p>${c.objectives?`<h4>Цели задания</h4><p>${esc(c.objectives)}</p>`:''}${questReward(c)}${structuredSummary(c)}</div></div><div class="actions">${!player&&c.status==='available'?`<button class="primary" onclick="closeModal();questStatus(${jsid(id)},'active')">Принять</button>`:''}${!player&&c.status==='active'?`<button class="primary" onclick="rewardDialog(${jsid(id)},true)">Завершить</button>`:''}${!player?`<button onclick="editContract(${jsid(id)})">Изменить</button>`:''}<button onclick="closeModal();questFilter='all';questFaction='';switchTab('contracts')">Доска заданий</button></div>`)}
 const REWARD_TYPES=[['gold','Золото'],['rep','Репутация'],['item','Предмет'],['charter','Верительная грамота']];
 function rewardText(r){if(r.type==='gold')return `${r.amount} зм`;if(r.type==='rep')return `${faction(r.faction)&&visibleFaction(faction(r.faction))?faction(r.faction).name:'Фракция'}: ${r.amount>=0?'+':''}${r.amount} репутации`;if(r.type==='charter')return `${faction(r.faction)&&visibleFaction(faction(r.faction))?faction(r.faction).name:'Фракция'} · ${r.text||'Грамота'}`;if(r.type==='item')return `${r.name||S.engine?.items?.find(x=>x.id===r.item_id)?.name||'Предмет'} ×${r.qty||r.quantity||1}${r.owner!=null?' · '+ownerLabel(r.owner):''}`;return ''}
@@ -4023,7 +4035,7 @@ function uxPrepare(){S.settings??={};S.settings.ux??={};const u=S.settings.ux;u.
 function uxRecords(includeArchived=false){const rows=[];const add=(k,x,name,desc='',allowed=true,id=x.id)=>{if(!allowed||(!includeArchived&&x.archived)||player&&x.archived||typeof id!=='string')return;rows.push({k,id,x,name:String(name||'Без названия'),desc:String(desc||''),key:k+':'+id})};
  S.nodes.forEach(x=>add('node',x,x.name,x.desc,visibleNode(x)));S.routes.forEach(x=>add('route',x,routeLabel(x),x.desc,visibleRoute(x)));S.factions.forEach(x=>add('faction',x,x.name,x.desc,visibleFaction(x)));S.company.members.forEach(x=>add('hero',x,memberName(x),x.bio,!player||!x.hidden));allCharacters().filter(x=>x.kind==='staff').forEach(({record:x})=>add('staff',x,x.name,x.desc,!player||!x.hidden));for(const [k,list] of Object.entries(portalData()))if(Array.isArray(list))list.forEach(x=>add(k,x,x.title,k==='achievements'&&achievementTitleOnly(x)?'':[x.body,x.source,x.category].filter(Boolean).join(' · '),!player||published(k,x)));S.contracts.forEach(x=>add('contract',x,x.title,[x.desc,questGiver(x)].join(' · '),!player||!x.hidden));S.company.inventory.forEach(x=>add('item',x,x.name,x.desc,canSeeStack(x)));S.worldBook.chapters.forEach(x=>add('chapter',x,x.title,x.text,true,x.uxid));S.journal.forEach(x=>add('journal',x,x.title,achievementJournalText(x),!player||!x.hidden));S.diplomacy.forEach(x=>add('diplomacy',x,(faction(x.a)?.name||'')+' ↔ '+(faction(x.b)?.name||''),x.desc,visibleDiplomacy(x)));return rows}
 function uxFind(k,id,arch=false){return uxRecords(arch).find(r=>r.k===k&&r.id===id)}
-function uxOpen(k,id){const r=uxFind(k,id);if(!r)return;closeModal();switch(k){case'node':{const d=dims();if(!view)resetView();view.x=r.x.x*d.w-view.w/2;view.y=r.x.y*d.h-view.h/2;selected={type:'node',id};switchTab('map');break}case'route':selected={type:'route',id};switchTab('map');break;case'faction':focusFaction(id);break;case'hero':case'staff':openAffPerson(k,id);uxDetailExtras(k,id);break;case'contract':openMapQuest(id);break;case'item':openItem(id);uxDetailExtras(k,id);break;case'chapter':bookPage=S.worldBook.chapters.findIndex(x=>x.uxid===id);switchTab('worldbook');break;case'journal':openModal(r.name,`<p class="muted">${esc(portalDate(r.x))}</p><p class="record-body">${esc(r.desc)}</p>`);break;case'diplomacy':openDiplomacy(id);break;default:openPortalRecord(k,id)}}
+function uxOpen(k,id){const r=uxFind(k,id);if(!r)return;closeModal();switch(k){case'node':focusMapPlace(id);break;case'route':selected={type:'route',id};switchTab('map');break;case'faction':focusFaction(id);break;case'hero':case'staff':openAffPerson(k,id);uxDetailExtras(k,id);break;case'contract':openMapQuest(id);break;case'item':openItem(id);uxDetailExtras(k,id);break;case'chapter':bookPage=S.worldBook.chapters.findIndex(x=>x.uxid===id);switchTab('worldbook');break;case'journal':openModal(r.name,`<p class="muted">${esc(portalDate(r.x))}</p><p class="record-body">${esc(r.desc)}</p>`);break;case'diplomacy':openDiplomacy(id);break;default:openPortalRecord(k,id)}}
 function uxBtn(k,id,label){return `<button class="ghost ux-link" onclick="uxOpen(${jsid(k)},${jsid(id)})">${esc(label)} ↗</button>`}
 function uxFavorite(k,id){const r=uxFind(k,id);if(!r)return;const u=uxPrepare();u.favorites=u.favorites.includes(r.key)?u.favorites.filter(v=>v!==r.key):[...u.favorites,r.key];save();uxToolbar();document.querySelectorAll('[data-ux-fav]').forEach(b=>{if(b.dataset.uxFav===r.key)b.textContent=u.favorites.includes(r.key)?'★ В избранном':'☆ В избранное'});toast(u.favorites.includes(r.key)?'Добавлено в избранное':'Удалено из избранного')}
 function uxFavButton(k,id){const key=k+':'+id;return `<button class="ghost" data-ux-fav="${esc(key)}" onclick="uxFavorite(${jsid(k)},${jsid(id)})">${uxPrepare().favorites.includes(key)?'★ В избранном':'☆ В избранное'}</button>`}
@@ -4799,18 +4811,29 @@ function inside(x, y, points) {
   for (let i = 0, j = points.length - 1; i < points.length; j = i++) {
     const [a, b] = points[i],
       [c, d] = points[j];
+    const onEdge = Math.abs((x-a)*(d-b)-(y-b)*(c-a)) < 1e-10 &&
+      x >= Math.min(a,c) && x <= Math.max(a,c) && y >= Math.min(b,d) && y <= Math.max(b,d);
+    if (onEdge) return true;
     if (b > y !== d > y && x < ((c - a) * (y - b)) / (d - b) + a) hit = !hit;
   }
   return hit;
 }
 function regionAt(s, n) {
   const rs = foundation(s).regions;
-  return (
-    rs.find((r) => r.id === n?.regionId) ||
-    rs
-      .filter((r) => n && inside(n.x, n.y, r.points || []))
-      .sort((a, b) => b.priority - a.priority)[0]
-  );
+  if (!n) return;
+  const manual = rs.find((row) => row.id === n.regionId);
+  if (manual || !s.engine.regionBoundaries) return manual || rs
+    .filter((row) => inside(n.x, n.y, row.points || [])).sort((a,b) => (b.priority || 0) - (a.priority || 0))[0];
+  const {maps, mapPlacements, regionBoundaries} = mapData(s);
+  const active = new Set(openSheets(maps).map((row) => row.id));
+  const positions = new Map(mapPlacements.filter((row) => row.node_id === n.id && active.has(row.map_id))
+    .map((row) => [row.map_id, row]));
+  return regionBoundaries.flatMap((boundary) => {
+    const p = positions.get(boundary.map_id), region = rs.find((row) => row.id === boundary.region_id);
+    return p && region && inside(p.x, p.y, boundary.points)
+      ? [{region, depth:mapAncestry(maps, boundary.map_id).length}] : [];
+  }).sort((a,b) => (b.region.priority || 0) - (a.region.priority || 0) || b.depth - a.depth ||
+    a.region.id.localeCompare(b.region.id))[0]?.region;
 }
 function currentStay(s) {
   return foundation(s).stays.find((x) => !x.closed);
@@ -5362,8 +5385,9 @@ function stayForm(edit = null) {
     }),
   );
 }
-function regionForm(points = [], r = {}) {
-  commandForm(
+function regionForm(points = [], r = {}, drawAfter = false) {
+  const id = r.id || crypto.randomUUID();
+  form(
     "Регион карты",
     input("Название", "rn", "text", r.name || "", "required") +
       input("Континент", "cont", "text", r.continent || "Калимдор") +
@@ -5385,79 +5409,35 @@ function regionForm(points = [], r = {}) {
       input("Иллюстрация региона", "regImage", "file", "", 'accept="image/*"') +
       input("Приоритет области", "prio", "number", r.priority || 0) +
       pick(
-        "Назначить узлу",
+        "Ручное назначение места (необязательно)",
         "rnNode",
         [["", "Без привязки"], ...pairs(S.nodes)],
         "",
       ) +
       area("Описание", "desc", r.description || ""),
-    "region",
-    async () => ({
-      image: (await readImage($("regImage").files[0])) || r.image || "",
-      levels: val("levels"),
-      danger: val("danger", "text", r.danger || ""),
-      factions: listText("localFactions"),
-      id: r.id || crypto.randomUUID(),
-      name: val("rn"),
-      continent: val("cont"),
-      biome: val("bio"),
-      dc: integer(num("dc"), 0, 100),
-      priority: num("prio"),
-      description: val("desc"),
-      node: val("rnNode"),
-      points,
-    }),
+    async () => {
+      await execute("region", {
+        image: (await readImage($("regImage").files[0])) || r.image || "",
+        levels: val("levels"),
+        danger: val("danger"),
+        factions: listText("localFactions"),
+        id,
+        name: val("rn"),
+        continent: val("cont"),
+        biome: val("bio"),
+        dc: integer(num("dc"), 0, 100),
+        priority: num("prio"),
+        description: val("desc"),
+        node: val("rnNode"),
+        points,
+      });
+      if (drawAfter) {
+        closeModal();
+        startRegionShape(id);
+      }
+    },
   );
 }
-function drawRegion() {
-  if (!canEditMap()) return;
-  const svg = $("mapsvg"),
-    points = [];
-  const shape = document.createElementNS(
-    "http://www.w3.org/2000/svg",
-    "polygon",
-  );
-  shape.setAttribute("fill", "#d7b46355");
-  svg.append(shape);
-  const done = button("Завершить границу (не менее 3 точек)", () => {
-    requireThat(points.length >= 3, "Отметьте три точки");
-    svg.removeEventListener("pointerdown", add, true);
-    done.remove();
-    regionForm(points);
-  });
-  const add = (e) => {
-    if (e.button !== 0 || !canEditMap()) return;
-    e.stopImmediatePropagation();
-    const p = worldPoint(e),
-      d = dims();
-    points.push([clamp(p.x / d.w, 0, 1), clamp(p.y / d.h, 0, 1)]);
-    shape.setAttribute(
-      "points",
-      points.map(([x, y]) => [x * d.w, y * d.h].join(",")).join(" "),
-    );
-  };
-  svg.addEventListener("pointerdown", add, true);
-  $("engineActions").append(done);
-}
-const previousDraw = drawMap;
-drawMap = function () {
-  previousDraw();
-  const svg = $("mapsvg");
-  if (!svg || player) return;
-  const d = dims();
-  for (const r of foundation(S).regions) {
-    if (!r.points?.length) continue;
-    const poly = document.createElementNS(svg.namespaceURI, "polygon");
-    poly.setAttribute(
-      "points",
-      r.points.map(([x, y]) => [x * d.w, y * d.h].join(",")).join(" "),
-    );
-    poly.setAttribute("fill", "#cea25330");
-    poly.setAttribute("stroke", "#d2ad67");
-    poly.setAttribute("pointer-events", "none");
-    svg.append(poly);
-  }
-};
 const travelStart = beginJourney;
 beginJourney = function (id) {
   if (currentStay(S)) return toast("Сначала закройте стоянку");
@@ -5490,13 +5470,13 @@ function canEditMap() {
   return !player && actor?.role === "master" && !S.settings.mapLocked;
 }
 function mapMarkerScale() {
-  const value = Number(localStorage.getItem("atlas-marker-size"));
+  const value = Number(mapPreferences()[1].scale ?? localStorage.getItem("atlas-marker-size"));
   return [80, 100, 125, 150].includes(value) ? value : 100;
 }
 function mapOptions() {
   form("Масштаб маркеров", pick("Размер маркеров", "mapMarkerScale",
     [80, 100, 125, 150].map((size) => [size, size + "%"]), mapMarkerScale()), () => {
-    localStorage.setItem("atlas-marker-size", val("mapMarkerScale"));
+    saveMapPreferences({scale:num("mapMarkerScale")});
     drawMap();
   });
 }
@@ -5512,14 +5492,15 @@ function setMapLock(locked) {
 }
 function mapGeometryChanged(a, b) {
   return a.map?.src !== b.map?.src || [[a.nodes, b.nodes], [a.routes, b.routes],
-    [a.engine?.regions, b.engine?.regions]].some(([left, right]) => JSON.stringify(left) !== JSON.stringify(right));
+    [a.engine?.regions, b.engine?.regions], ...mapTables.map((key) => [a.engine?.[key], b.engine?.[key]])].some(([left, right]) => JSON.stringify(left) !== JSON.stringify(right));
 }
 function canUndoMap() {
   const previous = uxUndo.at(-1)?.data;
-  return canEditMap() && !!previous && mapGeometryChanged(S, previous);
+  return canEditMap() && (sharedGame?.canUndoMapEdit() || !!previous && mapGeometryChanged(S, previous));
 }
 function undoMap() {
   if (!canUndoMap()) return;
+  if (sharedGame?.canUndoMapEdit()) return execute("atlasUndo",{}).catch((error) => toast(error.message));
   const previousView = view, previousSelection = selected;
   uxRestore();
   view = previousView;
@@ -5529,35 +5510,47 @@ function undoMap() {
   renderSidebar();
 }
 function renderMap() {
-  if (!view) resetView();
-  cancelMapGesture(false);
+  adjustActiveSheet();
   const edit = canEditMap();
+  if (!edit || mapDraft?.isRoute && !drawnRoute(mapDraft.id)) mapDraft = null;
+  if (!view) restoreMapView();
+  cancelMapGesture(false);
   const tools = kitLink("Настроить маркеры", "mapOptions()", "map") +
+    visualAction("Слои и подписи", "mapLayerOptions()") +
     visualAction(S.settings.showLabels ? "Скрыть подписи" : "Показать подписи", "toggleLabels()") +
     visualAction(S.settings.showQuests === false ? "Показать задания" : "Скрыть задания", "toggleQuestMarkers()") +
     (edit ? visualAction("Запереть редактирование", "setMapLock(true)") +
       visualAction("Загрузить карту", "$('mapFile').click()") +
-      (!S.nodes.length ? visualAction("Пример", "loadDemo()") : "") +
-      visualAction("Создать регион", "regionForm()") + visualAction("Нарисовать границу", "drawRegion()") +
+      visualAction("Карты Атласа", "manageMapSheets()") +
+      visualAction("Настройки этой карты", "mapSheetForm(" + jsid(activeSheet) + ")") +
+      (!S.nodes.length && activeSheet === overviewMap ? visualAction("Пример", "loadDemo()") : "") +
+      visualAction("Создать регион", "regionForm()") + visualAction("Нарисовать границу", "chooseRegionBoundary()") +
       (S.engine.regions.length ? visualAction("Изменить регион", "editRegionList()") : "") : "");
   $("main").innerHTML = `<div class="map-layout interaction-map">
-    ${sectionHeader("Карта Азерота", "", canTravel() && !S.journey && !currentStay(S) && S.company.location
+    ${sectionHeader(currentSheet().name, currentSheet().desc || "", canTravel() && !S.journey && !currentStay(S) && S.company.location
       ? kitLink("Отправиться в путь", "choosePartyRoute()", "map", "primary") : "")}
     <section class="map-main">
+      ${mapNavigation()}
       <div class="toolbar map-tools" id="engineActions">
-        ${edit ? '<button class="primary" id="mapAdd" onclick="setTool(tool===\'node\'?\'select\':\'node\')">Добавить место</button>' +
+        ${edit && !mapDraft ? '<button class="primary" id="mapAdd" onclick="setTool(tool===\'node\'?\'select\':\'node\')">Добавить место</button>' +
           '<button id="mapRoute" onclick="setTool(tool===\'route\'?\'select\':\'route\')">Соединить места</button>' +
+          visualAction("Разместить место", "setTool(tool==='place'?'select':'place')") +
+          visualAction("Показать маршрут", "showExistingMapRoute()") +
           '<button id="mapUndo" onclick="undoMap()" ' + (canUndoMap() ? "" : 'disabled title="Последнее действие не изменяло карту"') + '>Отменить</button>' : ""}
         ${!player && !edit ? visualAction("Разрешить редактирование", "setMapLock(false)") : ""}
-        ${visualMenu("Настройки карты", tools)}
+        ${!mapDraft ? visualMenu("Настройки карты", tools) : ""}
       </div>
+      ${mapDraftTools()}
       <div class="mapframe" id="mapframe"><svg id="mapsvg" xmlns="http://www.w3.org/2000/svg" aria-label="Интерактивная карта мира"></svg>
         <div class="zoom"><button onclick="zoomBy(1.25)" aria-label="Приблизить">+</button>
         <button onclick="zoomBy(1/1.25)" aria-label="Отдалить">−</button>
-        <button onclick="resetView();drawMap()" aria-label="Вся карта">⌂</button></div>
+        <button onclick="resetView();rememberMapView();drawMap()" aria-label="Вся карта">⌂</button></div>
         <div class="map-context" id="mapContext" hidden></div>
       </div><p class="map-status" id="maphint" role="status"></p>
     </section><aside class="sidebar" id="sidebar" aria-label="Инспектор карты"></aside></div>`;
+  if ($("atlasSheetPicker")) $("atlasSheetPicker").onchange = (e) => switchMapSheet(e.target.value);
+  if ($("mapRouteStyle")) $("mapRouteStyle").onchange = (e) => { mapDraft.style = e.target.value; drawMap(); };
+  if ($("mapDraftHidden")) $("mapDraftHidden").onchange = (e) => { mapDraft.hidden = e.target.checked; };
   drawMap();
   bindMap();
   renderSidebar();
@@ -5573,19 +5566,29 @@ function setTool(mode) {
 }
 function mapHint() {
   if (!canEditMap()) return !player && S.settings.mapLocked ? "Редактирование карты заперто" : "Выберите место или маршрут";
+  if (mapDraft) return mapDraft.isRoute
+    ? "Коснитесь карты, чтобы добавить точку. Перетащите точку для изменения формы."
+    : "Отметьте вершины границы по порядку. Места внутри области определятся автоматически.";
   if (tool === "node") return "Выберите точку для нового места";
+  if (tool === "place") return "Выберите точку для отметки существующего места";
   if (tool === "route") return routeStart ? "Выберите второе место · " + nameOf(routeStart) : "Выберите первое место";
   return "Перетащите маркер или его соединитель. Правый клик или долгое нажатие открывают меню.";
 }
 function mapNodePosition(node, w, h) {
-  const p = mapGesture?.position && mapGesture.node === node.id ? mapGesture.position : node;
+  const p = mapGesture?.position && mapGesture.node === node.id ? mapGesture.position : placedNode(node.id);
   return { x: p.x * w, y: p.y * h };
 }
 function mapPath(r, siblings, w, h) {
+  const geometry = mapDraft?.isRoute && mapDraft.id === r.id ? mapDraft : drawnRoute(r.id);
+  if (geometry.points.length) {
+    const points = routeCoordinates(r,geometry.points,w,h);
+    const middle = points[Math.floor(points.length/2)];
+    return {path:bentMapPath(points,geometry.style === "smooth"), x:middle.x, y:middle.y};
+  }
   const [a, b] = [r.a, r.b].sort().map((id) => mapNodePosition(node(id), w, h));
   const dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy) || 1;
   const index = siblings.indexOf(r), spacing = index - (siblings.length - 1) / 2;
-  const offset = spacing * Math.min(85, length * .52);
+  const offset = geometry.style === "line" ? 0 : spacing * Math.min(85, length * .52);
   const cx = (a.x + b.x) / 2 - dy / length * offset;
   const cy = (a.y + b.y) / 2 + dx / length * offset;
   const t = clamp(.5 + spacing * .09, .24, .76), u = 1 - t;
@@ -5601,7 +5604,7 @@ function mapRouteDrawing(route, siblings, w, h, scale) {
   return `<g class="route-hit" data-route="${esc(route.id)}" role="button" tabindex="0" aria-label="${esc(routeLabel(route))}">
     <path d="${geo.path}" fill="none" stroke="transparent" stroke-width="${20 * scale}"/>
     <path class="visibleline" d="${geo.path}" fill="none" stroke="${color}" stroke-width="${(active ? 4 : 2.6) * scale}"
-      stroke-dasharray="${dash ? dash.split(" ").map((v) => n(v) * scale).join(" ") : ""}" stroke-linecap="round" pointer-events="none"/>
+      stroke-dasharray="${dash ? dash.split(" ").map((v) => n(v) * scale).join(" ") : ""}" stroke-linecap="round" stroke-linejoin="round" pointer-events="none"/>
     ${S.settings.showLabels ? `<g transform="translate(${geo.x} ${geo.y}) scale(${scale})" pointer-events="none"><rect x="-25" y="-8" width="50" height="16" rx="4" fill="#17231f"/>
     <text y="4" text-anchor="middle" fill="${color}" font-size="10">${route.min === route.max ? route.min : route.min + "–" + route.max} д.</text></g>` : ""}</g>`;
 }
@@ -5609,7 +5612,8 @@ function mapMarkerDrawing(a, w, h, scale) {
   const p = mapNodePosition(a, w, h), active = selected?.type === "node" && selected.id === a.id;
   const origin = routeStart === a.id, local = a.id === S.company.location;
   const rumor = player && a.visibility === "rumor";
-  const coord = scale * mapMarkerScale() / 100;
+  const placement = placedNode(a.id), labels = mapMarkerLabels(placement);
+  const coord = scale * mapMarkerScale() * (placement.scale || 100) / 10000;
   const color = safeColor(player && faction(a.faction)?.hidden ? "#a79668" : faction(a.faction)?.color);
   const base = iconPath(mapTypeIcons[a.type] || mapTypeIcons.other);
   const image = rumor ? "" : safeImage(a.markerImage) || iconPath(a.iconId) || base;
@@ -5619,11 +5623,11 @@ function mapMarkerDrawing(a, w, h, scale) {
     <rect x="-18" y="-18" width="36" height="36" rx="8" fill="#121d16" stroke="${active || origin ? "#ffe0a1" : color}" stroke-width="${active || origin ? 3 : 2}" ${a.visibility === "rumor" ? 'stroke-dasharray="4 2"' : ""}/>
     <text x="0" y="5" font-size="16" fill="#fff0cf" text-anchor="middle" pointer-events="none">${esc(rumor ? "?" : type(a.type)[1])}</text>
     ${image ? `<image class="map-marker-image" href="${esc(image)}" data-icon-fallback="${esc(base)}" x="-14" y="-14" width="28" height="28" pointer-events="none"/>` : ""}
-    ${questMapMarks(a, 1)}
+    ${layerOn("quests") ? questMapMarks(a, 1) : ""}
     ${canEditMap() && active && tool !== "node" ? `<g data-connect="${esc(a.id)}" class="map-connector" role="button" tabindex="0" aria-label="Соединить с другим местом" transform="translate(27 16)">
       <circle r="13" fill="transparent"/><circle r="8" fill="#e0bc75" stroke="#171f16" stroke-width="1.5"/>
       <path d="M-3 0H3M0 -3V3" stroke="#192015" stroke-width="1.7" pointer-events="none"/></g>` : ""}
-    ${S.settings.showLabels ? `<text class="map-label" style="stroke-width:3px" y="${local ? 37 : 31}" text-anchor="middle" font-size="13" pointer-events="none">${esc(a.name)}${!player && a.visibility === "hidden" ? " · скрыто" : ""}</text>` : ""}
+    ${labels !== "never" ? `<text class="map-label${labels === "hover" ? " map-hover-label" : ""}" style="stroke-width:3px" y="${local ? 37 : 31}" text-anchor="middle" font-size="13" pointer-events="none">${esc(a.name)}${!player && a.visibility === "hidden" ? " · скрыто" : ""}</text>` : ""}
   </g>`;
 }
 function drawMap() {
@@ -5632,14 +5636,22 @@ function drawMap() {
   const { w, h } = dims();
   svg.setAttribute("viewBox", `${view.x} ${view.y} ${view.w} ${view.h}`);
   const scale = 1 / (Math.abs(svg.getScreenCTM()?.a) || 1);
-  const routes = S.routes.filter(visibleRoute);
+  const placed = S.nodes.filter((place) => visiblePlacement(place,placedNode(place.id)));
+  const places = placed.filter((place) => layerOn(markerLayer(place)) || selected?.type === "node" && selected.id === place.id);
+  const visible = new Set(placed.map((place) => place.id));
+  const routes = S.routes.filter((r) => {
+    const geometry = drawnRoute(r.id);
+    if (!geometry || !visibleRoute(r) || !visible.has(r.a) || !visible.has(r.b)) return false;
+    return (mapDraft?.isRoute && mapDraft.id === r.id || layerOn("routes")) &&
+      (player ? !geometry.hidden && !r.hidden : layerOn("secrets") || !geometry.hidden && !r.hidden && r.visibility !== "hidden");
+  });
   const groups = new Map();
   for (const r of routes) {
     const key = pairKey(r.a, r.b);
     if (!groups.has(key)) groups.set(key, []);
     groups.get(key).push(r);
   }
-  const start = routeStart && node(routeStart);
+  const start = routeStart && visible.has(routeStart) && node(routeStart);
   const p = start && mapNodePosition(start, w, h);
   const preview = p && mapPreview ? `<path class="map-route-preview" d="M${p.x} ${p.y} L${mapPreview.x} ${mapPreview.y}"
     stroke="#fbe2a0" stroke-width="${3 * scale}" stroke-dasharray="${6 * scale} ${5 * scale}" fill="none" pointer-events="none"/>` : "";
@@ -5647,10 +5659,10 @@ function drawMap() {
   const background = href ? `<image href="${esc(href)}" width="${w}" height="${h}" preserveAspectRatio="none" pointer-events="none"/>`
     : `<defs><pattern id="mapGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#a4b59b" stroke-opacity=".18"/></pattern></defs>
       <rect width="${w}" height="${h}" fill="#253932"/><rect width="${w}" height="${h}" fill="url(#mapGrid)"/>
-      ${!S.nodes.length ? `<text x="${w / 2}" y="${h / 2}" fill="#a4b59b" text-anchor="middle" font-size="24">КАРТА АЗЕРОТА</text>` : ""}`;
-  svg.innerHTML = background + routes.map((r) => mapRouteDrawing(r, groups.get(pairKey(r.a, r.b)), w, h, scale)).join("") +
-    preview + S.nodes.filter(visibleNode).map((a) => mapMarkerDrawing(a, w, h, scale)).join("");
-  const hint = $("maphint"), ref = S.map?.src;
+      ${!places.length ? `<text x="${w / 2}" y="${h / 2}" fill="#a4b59b" text-anchor="middle" font-size="24">${esc(currentSheet().name)}</text>` : ""}`;
+  svg.innerHTML = background + mapRegionsMarkup(w,h,scale) + routes.map((r) => mapRouteDrawing(r, groups.get(pairKey(r.a, r.b)), w, h, scale)).join("") +
+    preview + places.map((a) => mapMarkerDrawing(a, w, h, scale)).join("") + mapDraftMarkup(w,h,scale);
+  const hint = $("maphint"), ref = currentMapImage()?.src;
   hint.textContent = mapHint();
   if (!href && sharedGame && remoteMediaRef(ref)) {
     if (sharedGame.imageFailed(ref)) {
@@ -5672,14 +5684,14 @@ function mapPoint(event) {
   return { x: p.x / w, y: p.y / h };
 }
 function startMapRoute(id) {
-  if (!canEditMap() || !node(id)) return;
+  if (!canEditMap() || !placedNode(id)) return;
   setTool("route");
   routeStart = id;
   selectItem("node", id);
 }
 function completeMapRoute(id) {
   const origin = routeStart;
-  if (!canEditMap() || !origin || origin === id || !node(id)) return;
+  if (!canEditMap() || !origin || origin === id || !placedNode(id)) return;
   setTool("select");
   editRoute(null, origin, id);
 }
@@ -5696,6 +5708,9 @@ function mapNodeActions(id, context = false) {
   const args = jsid(id);
   const close = context ? "closeMapContext();" : "";
   return visualAction("Изменить место", close + "editNode(" + args + ")") +
+    visualAction("Отметка на карте", close + "editPlacement(" + args + ")") +
+    visualAction("Регион места", close + "editPlaceRegion(" + args + ")") +
+    visualAction("Убрать отметку", close + "removeMapPlacement(" + args + ")") +
     visualAction("Иконка места", close + "pickMapIcon(" + args + ")") +
     visualAction("Соединить с другим местом", close + "startMapRoute(" + args + ")") +
     visualAction("Иллюстрация места", close + "editPlaceArt(" + args + ")") +
@@ -5709,8 +5724,11 @@ function showMapContext(event, place, path) {
   mapMenuPoint = point;
   const actions = canEditMap() ? place ? mapNodeActions(place, true) : path ?
     visualAction("Изменить маршрут", "closeMapContext();editRoute(" + jsid(path) + ")") +
+    visualAction("Изменить форму дороги", "closeMapContext();startRoadShape(" + jsid(path) + ")") +
+    visualAction("Убрать линию с карты", "closeMapContext();removeMapRepresentation('route'," + jsid(path) + ")") +
     visualAction("Удалить маршрут", "closeMapContext();deleteRoute(" + jsid(path) + ")", "danger") :
-    point ? visualAction("Создать место здесь", "addMapContextPlace()", "primary") : "" : "";
+    point ? visualAction("Создать место здесь", "addMapContextPlace()", "primary") +
+      visualAction("Разместить место из базы", "placeExistingOnMap(mapMenuPoint);closeMapContext()") : "" : "";
   if (!actions) return;
   el.innerHTML = actions;
   const rect = $("mapframe").getBoundingClientRect();
@@ -5750,9 +5768,9 @@ function mapPick(place, path, event) {
     else if (routeStart === place) setTool("select");
     else completeMapRoute(place);
   } else if (place || path) selectItem(place ? "node" : "route", place || path);
-  else if (tool === "node" && canEditMap()) {
+  else if (["node","place"].includes(tool) && canEditMap()) {
     const point = mapPoint(event);
-    if (point) editNode(null, point);
+    if (point) (tool === "node" ? editNode(null,point) : placeExistingOnMap(point));
   } else {
     selected = null;
     drawMap();
@@ -5761,7 +5779,8 @@ function mapPick(place, path, event) {
 }
 function bindMap() {
   const svg = $("mapsvg");
-  const target = (el, key) => el?.closest("[data-" + key + "]")?.dataset[key];
+  bindMapDraft(svg);
+  const target = (el, key) => el?.closest("[data-" + key + "]")?.getAttribute("data-" + key);
   const observer = new ResizeObserver(() => {
     if (!svg.isConnected) return observer.disconnect();
     drawMap();
@@ -5788,6 +5807,11 @@ function bindMap() {
   svg.addEventListener("keydown", (e) => {
     if (!["Enter", " ", "ContextMenu"].includes(e.key) && !(e.shiftKey && e.key === "F10")) return;
     const connect = target(e.target, "connect"), place = target(e.target, "node"), path = target(e.target, "route");
+    const region = target(e.target, "map-region");
+    if (region && ["Enter"," "].includes(e.key)) {
+      e.preventDefault();
+      return selectItem("region",region);
+    }
     if (!place && !path) return;
     e.preventDefault();
     if (e.key === "ContextMenu" || e.shiftKey && e.key === "F10") {
@@ -5805,8 +5829,9 @@ function bindMap() {
     const connect = canEditMap() && e.button === 0 && target(e.target, "connect");
     const move = canEditMap() && e.button === 0 && tool === "select" && !connect ? place : "";
     const point = worldPoint(e);
-    mapGesture = { svg, pointer: e.pointerId, place, path, connect, move, node: place,
-      pan: e.button === 1 || !place && !path && tool !== "node",
+    const region = target(e.target,"map-region");
+    mapGesture = { svg, region, pointer: e.pointerId, place, path, connect, move, node: place,
+      pan: e.button === 1 || !place && !path && !region && !["node","place"].includes(tool),
       x: e.clientX, y: e.clientY, point, view: { ...view }, previousRoute: routeStart, moved: false };
     if (e.pointerType === "touch" && canEditMap()) {
       mapGesture.timer = setTimeout(() => {
@@ -5838,7 +5863,7 @@ function bindMap() {
       const { w, h } = dims();
       mapPreview = under && under !== routeStart ? mapNodePosition(node(under), w, h) : worldPoint(e);
     } else if (gesture.move && canEditMap()) {
-      const p = worldPoint(e), { w, h } = dims(), place = node(gesture.move);
+      const p = worldPoint(e), { w, h } = dims(), place = placedNode(gesture.move);
       gesture.position = { x: clamp(place.x + (p.x - gesture.point.x) / w, 0, 1),
         y: clamp(place.y + (p.y - gesture.point.y) / h, 0, 1) };
     } else if (gesture.pan) {
@@ -5862,14 +5887,21 @@ function bindMap() {
       routeStart = gesture.previousRoute;
       drawMap();
     } else if (gesture.position && canEditMap()) {
-      const place = node(gesture.move);
+      const place = placedNode(gesture.move);
       if (place.x === gesture.position.x && place.y === gesture.position.y) return drawMap();
       selected = { type: "node", id: gesture.move };
-      execute("mapMove", { id: gesture.move, ...gesture.position }).catch((err) => {
+      const command = activeSheet === overviewMap ? "mapMove" : "atlasPlacement";
+      const payload = activeSheet === overviewMap ? {id:gesture.move,...gesture.position} :
+        {node_id:gesture.move,map_id:activeSheet,...gesture.position};
+      execute(command,payload).catch((err) => {
         drawMap();
         toast(err.message);
       });
-    } else if (!gesture.moved && e.button === 0) mapPick(gesture.place, gesture.path, e);
+    } else if (gesture.moved && gesture.pan) rememberMapView();
+    else if (!gesture.moved && e.button === 0) {
+      if (gesture.region && !["node","place"].includes(tool)) selectItem("region",gesture.region);
+      else mapPick(gesture.place,gesture.path,e);
+    }
   });
   const cancel = (e) => {
     if (mapGesture?.pointer === e.pointerId) cancelMapGesture();
@@ -5880,7 +5912,8 @@ function bindMap() {
 let mapResizeObserver = null;
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape" || tab !== "map" || $("modalwrap").classList.contains("open")) return;
-  if (mapGesture) cancelMapGesture();
+  if (mapDraft) cancelMapDraft();
+  else if (mapGesture) cancelMapGesture();
   else if (!$("mapContext")?.hidden) closeMapContext();
   else if (tool !== "select") setTool("select");
 });
@@ -5892,8 +5925,8 @@ register("mapMove", "master", (s, p) => {
   requireMapUnlocked(s);
   const place = byId(s.nodes, p.id);
   requireThat([p.x, p.y].every((v) => Number.isFinite(v) && v >= 0 && v <= 1), "Некорректные координаты");
-  place.x = p.x;
-  place.y = p.y;
+  if (s.engine.mapPlacements) placeOnMap(s, { node_id: place.id, map_id: overviewMap, x: p.x, y: p.y });
+  else Object.assign(place, { x: p.x, y: p.y });
 });
 register("mapIcon", "master", (s, p) => {
   requireMapUnlocked(s);
@@ -5922,6 +5955,685 @@ register("issueCharter", "master", (s, p) => {
     title: "Грамота: " + faction.name, text: p.text.trim(), hidden: !!faction.hidden,
   });
 });
+
+const overviewMap = "overview";
+const mapKinds = { world: "Мир", continent: "Континент", region: "Регион", local: "Поселение или территория" };
+const mapTables = ["maps", "mapPlacements", "routeGeometries", "regionBoundaries"];
+const mapCommands = new Set(["atlasSheet", "atlasImage", "atlasRemoveSheet", "atlasPlacement", "atlasGeometry", "atlasBoundary", "atlasPlaceRegion"]);
+
+function mapData(s) {
+  const e = s.engine ??= { schemaVersion: 1, receipts: [] };
+  e.maps ??= [{ id: overviewMap, name: "Карта Азерота", kind: "world" }];
+  e.mapPlacements ??= (s.nodes || []).map(({id, x, y}) => ({id, map_id: overviewMap, node_id: id, x, y}));
+  e.routeGeometries ??= (s.routes || []).map(({id}) => ({id, map_id: overviewMap, route_id: id, points: []}));
+  e.regionBoundaries ??= (e.regions || []).filter((r) => r.points?.length >= 3).map((r) =>
+    ({id: r.id, map_id: overviewMap, region_id: r.id, points: r.points, hidden: true}));
+  return e;
+}
+function sheetParent(sheet) {
+  return sheet.id === overviewMap ? "" : sheet.parent_id || overviewMap;
+}
+function mapAncestry(sheets, id) {
+  const chain = [], seen = new Set();
+  while (id && !seen.has(id)) {
+    const row = sheets.find((m) => m.id === id);
+    if (!row) break;
+    chain.unshift(row);
+    seen.add(id);
+    id = sheetParent(row);
+  }
+  return chain;
+}
+function openSheets(sheets) {
+  return sheets.filter((sheet) => mapAncestry(sheets, sheet.id).every((row) => !row.archived));
+}
+function publicSheets(sheets) {
+  return openSheets(sheets).filter((sheet) => mapAncestry(sheets, sheet.id).every((row) =>
+    row.id === overviewMap || row.shared === true));
+}
+function normalizedPoint(x, y) {
+  return [x, y].every((v) => Number.isFinite(v) && v >= 0 && v <= 1);
+}
+function validateMapPoints(points, min) {
+  requireThat(Array.isArray(points) && points.length >= min && points.length <= 256 &&
+    points.every((p) => Array.isArray(p) && p.length === 2 && normalizedPoint(...p)), "Некорректные координаты точек карты");
+  if (min === 3) {
+    const area = points.reduce((sum, [x, y], i) => {
+      const [u, v] = points[(i + 1) % points.length];
+      return sum + x * v - y * u;
+    }, 0);
+    requireThat(Math.abs(area) > 1e-10, "Граница должна охватывать область");
+  }
+}
+function mapEntry(rows, key, id, map) {
+  return rows.find((row) => row.map_id === map && row[key] === id);
+}
+function validateCartography(s) {
+  if (!mapTables.some((key) => s.engine?.[key] != null)) return;
+  const {maps, mapPlacements, routeGeometries, regionBoundaries} = s.engine;
+  const {nodes = [], routes = []} = s;
+  const regions = s.engine.regions || [];
+  const has = (rows, id) => rows.some((row) => row.id === id);
+  requireThat(maps?.some((m) => m.id === overviewMap), "Нет обзорной карты");
+  const ids = new Set();
+  for (const sheet of maps) {
+    requireThat(validId(sheet.id) && !ids.has(sheet.id), "Дублирующийся или некорректный ID карты");
+    ids.add(sheet.id);
+    requireThat(typeof sheet.name === "string" && sheet.name.trim() && Object.hasOwn(mapKinds, sheet.kind),
+      "Укажите название и тип карты");
+    requireThat(sheet.id !== overviewMap || !sheet.parent_id && !sheet.archived && !sheet.image, "Некорректная обзорная карта");
+    requireThat(mapAncestry(maps, sheet.id)[0]?.id === overviewMap, "Цикл или неизвестная родительская карта");
+    requireThat(!sheet.node_id || has(nodes, sheet.node_id), "Не найдена локация карты");
+    requireThat(!sheet.region_id || has(regions, sheet.region_id), "Не найден регион карты");
+    requireThat((sheet.x == null && sheet.y == null) || normalizedPoint(sheet.x, sheet.y), "Некорректный центр карты");
+    requireThat(sheet.zoom == null || Number.isFinite(sheet.zoom) && sheet.zoom >= 1 && sheet.zoom <= 20,
+      "Масштаб карты должен быть от 1 до 20");
+    if (sheet.image) requireThat(typeof sheet.image === "string" &&
+      (/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,[A-Za-z0-9+/=\s]+$/i.test(sheet.image) ||
+       /^atlas-storage:v1:[a-f0-9]{64}\.(png|jpeg|webp|gif|bmp|avif)$/.test(sheet.image)) &&
+      sheet.width > 0 && sheet.height > 0 && Number.isFinite(sheet.width) && Number.isFinite(sheet.height),
+      "Некорректная подложка карты");
+  }
+  function links(rows, key, targets, check) {
+    const pairs = new Set();
+    for (const row of rows || []) {
+      const pair = JSON.stringify([row.map_id, row[key]]);
+      requireThat(!pairs.has(pair) && has(maps, row.map_id) && has(targets, row[key]),
+        "Дублирующаяся или отсутствующая связь карты");
+      pairs.add(pair);
+      requireThat(row.hidden == null || typeof row.hidden === "boolean", "Некорректная видимость на карте");
+      check(row);
+    }
+  }
+  links(mapPlacements, "node_id", nodes, (row) => {
+    requireThat(normalizedPoint(row.x, row.y), "Некорректные координаты");
+    requireThat(row.scale == null || Number.isFinite(row.scale) && row.scale >= 50 && row.scale <= 200, "Масштаб отметки от 50% до 200%");
+    requireThat(!row.labels || ["always", "hover", "never"].includes(row.labels), "Неизвестный режим подписи");
+    requireThat(!row.child_id || maps.some((m) => m.id === row.child_id && sheetParent(m) === row.map_id),
+      "Выберите дочернюю карту этого уровня");
+  });
+  links(routeGeometries, "route_id", routes, (row) => {
+    validateMapPoints(row.points, 0);
+    requireThat(!row.style || ["line", "smooth"].includes(row.style), "Неизвестная форма маршрута");
+    const path = byId(routes, row.route_id);
+    requireThat([path.a, path.b].every((id) => mapEntry(mapPlacements || [], "node_id", id, row.map_id)),
+      "Сначала разместите оба конца маршрута");
+  });
+  links(regionBoundaries, "region_id", regions, (row) => validateMapPoints(row.points, 3));
+}
+function putMapEntry(rows, key, id, map, changes) {
+  const previous = mapEntry(rows, key, id, map);
+  if (changes === null) {
+    if (previous) rows.splice(rows.indexOf(previous), 1);
+  } else if (previous) Object.assign(previous, changes);
+  else rows.push({ ...changes, id: crypto.randomUUID(), [key]: id, map_id: map });
+}
+function placeOnMap(s, p) {
+  const e = mapData(s), place = byId(s.nodes, p.node_id);
+  byId(e.maps, p.map_id);
+  if (p.remove) {
+    putMapEntry(e.mapPlacements, "node_id", place.id, p.map_id, null);
+    const adjoining = new Set(s.routes.filter((r) => r.a === place.id || r.b === place.id).map((r) => r.id));
+    e.routeGeometries = e.routeGeometries.filter((r) => r.map_id !== p.map_id || !adjoining.has(r.route_id));
+    return;
+  }
+  requireThat(normalizedPoint(p.x, p.y), "Некорректные координаты");
+  const display = p.display ? Object.fromEntries(["scale", "labels", "hidden", "child_id"].map((key) => [key, p.display[key]])) : {};
+  putMapEntry(e.mapPlacements, "node_id", place.id, p.map_id, {x: p.x, y: p.y, ...display});
+  if (p.map_id === overviewMap) Object.assign(place, {x:p.x, y:p.y});
+}
+registerAtlas("atlasSheet", (s, p) => {
+  const {maps} = mapData(s), old = maps.find((row) => row.id === p.id);
+  const fields = { name: p.name.trim(), desc: p.desc, kind: p.kind, shared: !!p.shared, x:p.x, y:p.y, zoom:p.zoom };
+  if (p.id !== overviewMap) Object.assign(fields, {parent_id:p.parent_id, node_id:p.node_id, region_id:p.region_id, archived:!!p.archived});
+  if (old) Object.assign(old, fields);
+  else maps.push({ id:p.id, ...fields });
+});
+registerAtlas("atlasImage", (s, p) => {
+  const sheet = byId(mapData(s).maps, p.id);
+  if (p.id === overviewMap) s.map = p.image;
+  else Object.assign(sheet, {image:p.image.src, width:p.image.w, height:p.image.h, filename:p.image.name});
+});
+registerAtlas("atlasRemoveSheet", (s, p) => {
+  const e = mapData(s);
+  byId(e.maps, p.id);
+  requireThat(p.id !== overviewMap, "Обзорную карту нельзя удалить");
+  requireThat(!e.maps.some((row) => sheetParent(row) === p.id) && !e.mapPlacements.some((row) => row.child_id === p.id),
+    "Сначала перенесите дочерние карты и уберите ссылки с отметок");
+  e.maps = e.maps.filter((row) => row.id !== p.id);
+  for (const key of mapTables.slice(1)) e[key] = e[key].filter((row) => row.map_id !== p.id);
+});
+registerAtlas("atlasPlacement", placeOnMap);
+registerAtlas("atlasGeometry", (s, p) => {
+  putMapEntry(mapData(s).routeGeometries, "route_id", p.route_id, p.map_id, p.remove ? null :
+    {points:p.points, style:p.style, hidden:!!p.hidden});
+});
+registerAtlas("atlasBoundary", (s, p) => {
+  const e = mapData(s), region = byId(e.regions, p.region_id);
+  putMapEntry(e.regionBoundaries, "region_id", p.region_id, p.map_id, p.remove ? null :
+    {points:p.points, hidden:!!p.hidden});
+  if (p.map_id === overviewMap) region.points = p.remove ? [] : p.points;
+});
+registerAtlas("atlasPlaceRegion", (s, p) => {
+  if (p.region) byId(s.engine.regions, p.region);
+  byId(s.nodes, p.id).regionId = p.region;
+});
+function registerAtlas(name, run) {
+  register(name, "master", (s, payload) => {
+    requireMapUnlocked(s);
+    run(s, payload);
+    validateCartography(s);
+  });
+}
+
+function pruneMapReferences(s) {
+  const e = mapData(s), ids = new Set(s.nodes.map((n) => n.id)), routes = new Set(s.routes.map((r) => r.id));
+  e.mapPlacements = e.mapPlacements.filter((row) => ids.has(row.node_id));
+  e.routeGeometries = e.routeGeometries.filter((row) => routes.has(row.route_id));
+  for (const map of e.maps)
+    if (map.node_id && !ids.has(map.node_id)) delete map.node_id;
+}
+function reconcileMapImport(previous, next, pack) {
+  const e = next.engine;
+  const oldNodes = new Map(previous.nodes.map((n) => [n.id,n]));
+  const oldRoutes = new Set(previous.routes.map((r) => r.id));
+  const oldRegions = new Map((previous.engine.regions || []).map((r) => [r.id,r]));
+  if (pack.nodes && !pack.mapPlacements) for (const row of next.nodes) {
+    const old = oldNodes.get(row.id), placement = mapEntry(e.mapPlacements,"node_id",row.id,overviewMap);
+    if (!old || placement && (old.x !== row.x || old.y !== row.y)) {
+      if (placement) Object.assign(placement,{x:row.x,y:row.y});
+      else e.mapPlacements.push({id:row.id,node_id:row.id,map_id:overviewMap,x:row.x,y:row.y});
+    }
+  }
+  if (pack.routes && !pack.routeGeometries) for (const row of next.routes) {
+    if (!oldRoutes.has(row.id) && [row.a,row.b].every((id) => mapEntry(e.mapPlacements,"node_id",id,overviewMap)))
+      e.routeGeometries.push({id:row.id,route_id:row.id,map_id:overviewMap,points:[]});
+  }
+  if (pack.regions && !pack.regionBoundaries) for (const region of next.engine.regions) {
+    const old = oldRegions.get(region.id);
+    if (region.points?.length >= 3 && JSON.stringify(old?.points) !== JSON.stringify(region.points)) {
+      const boundary = mapEntry(e.regionBoundaries,"region_id",region.id,overviewMap);
+      if (boundary) boundary.points = region.points;
+      else e.regionBoundaries.push({id:region.id,region_id:region.id,map_id:overviewMap,points:region.points,hidden:true});
+    }
+  }
+  for (const row of e.mapPlacements) {
+    if (row.map_id !== overviewMap) continue;
+    const node = next.nodes.find((n) => n.id === row.node_id);
+    if (node) Object.assign(node,{x:row.x,y:row.y});
+  }
+}
+
+let activeSheet = overviewMap, sheetHistory = [], mapDraft = null;
+let mapDraftDrag = null;
+let mapPrefsKey = "", mapPrefs = {};
+const mapLayers = {
+  regions: "Границы регионов", settlements: "Поселения", forts: "Крепости", ports: "Порты",
+  places: "Достопримечательности", routes: "Маршруты", quests: "Задания", resources: "Ресурсы",
+  danger: "Опасные территории", secrets: "Скрытые отметки мастера",
+};
+function mapPreferences() {
+  const key = "atlas-map:" + (sharedGame?.campaign || "local") + ":" + (actor?.nick || "") + ":" + activeSheet;
+  if (key !== mapPrefsKey) {
+    mapPrefsKey = key;
+    mapPrefs = {};
+    try { mapPrefs = JSON.parse(localStorage.getItem(key)) || {}; } catch {}
+  }
+  return [key, mapPrefs];
+}
+function saveMapPreferences(changes) {
+  const [key, prefs] = mapPreferences();
+  mapPrefs = {...prefs, ...changes};
+  try { localStorage.setItem(key, JSON.stringify(mapPrefs)); } catch {}
+}
+function rememberMapView() {
+  if (view) saveMapPreferences({view});
+}
+function restoreMapView() {
+  const saved = mapPreferences()[1].view;
+  if (saved && [saved.x,saved.y,saved.w,saved.h].every(Number.isFinite) && saved.w > 0 && saved.h > 0) {
+    view = saved;
+    return;
+  }
+  const sheet = currentSheet(), {w,h} = dims(), zoom = sheet.zoom || 1;
+  view = {x:(sheet.x ?? .5)*w-w/zoom/2, y:(sheet.y ?? .5)*h-h/zoom/2, w:w/zoom, h:h/zoom};
+}
+function currentSheet() {
+  const {maps} = mapData(S);
+  return maps.find((row) => row.id === activeSheet) || maps[0];
+}
+function currentMapImage() {
+  const sheet = currentSheet();
+  return sheet.id === overviewMap ? S.map : sheet.image
+    ? {src:sheet.image,w:sheet.width,h:sheet.height,name:sheet.filename} : null;
+}
+function availableMaps() {
+  const {maps} = mapData(S);
+  if (sharedGame && !sharedGame.mapLayout()) return maps.filter((map) => map.id === overviewMap);
+  return player ? publicSheets(maps) : openSheets(maps);
+}
+function adjustActiveSheet() {
+  if (availableMaps().some((row) => row.id === activeSheet)) return;
+  activeSheet = overviewMap;
+  selected = null;
+  view = null;
+  mapDraft = null;
+}
+function switchMapSheet(id, remember = true) {
+  if (!availableMaps().some((row) => row.id === id)) return;
+  if (id !== activeSheet) {
+    rememberMapView();
+    if (remember) sheetHistory.push(activeSheet);
+    cancelMapGesture(false);
+    activeSheet = id;
+    mapDraft = null;
+    mapDraftDrag = null;
+    tool = "select";
+    routeStart = null;
+    selected = null;
+    view = null;
+  }
+  switchTab("map");
+}
+function previousMapSheet() {
+  const ids = new Set(availableMaps().map((row) => row.id));
+  while (sheetHistory.length) {
+    const id = sheetHistory.pop();
+    if (ids.has(id) && id !== activeSheet) return switchMapSheet(id, false);
+  }
+}
+function placedNode(id, sheet = activeSheet) {
+  return mapEntry(mapData(S).mapPlacements, "node_id", id, sheet);
+}
+function drawnRoute(id, sheet = activeSheet) {
+  return mapEntry(mapData(S).routeGeometries, "route_id", id, sheet);
+}
+function layerOn(layer) {
+  const setting = mapPreferences()[1].layers?.[layer];
+  return setting ?? !["resources", "danger"].includes(layer);
+}
+function mapLayerOptions() {
+  const layers = Object.entries(mapLayers).filter(([key]) => key !== "secrets" || !player);
+  form("Слои и подписи карты", layers.map(([key,label]) => check(label, "mapLayer-"+key, layerOn(key))).join("") +
+    pick("Подписи по умолчанию", "mapLabels", [["always","Всегда"],["hover","При наведении или выборе"],["never","Скрывать"]],
+      mapPreferences()[1].labels || (S.settings.showLabels ? "always" : "never")), () => {
+    saveMapPreferences({layers:Object.fromEntries(layers.map(([key]) => [key,$("mapLayer-"+key).checked])), labels:val("mapLabels")});
+    drawMap();
+  });
+}
+function markerLayer(place) {
+  if (place.type === "port") return "ports";
+  if (place.type === "fort") return "forts";
+  if (["city","village","camp"].includes(place.type)) return "settlements";
+  return "places";
+}
+function visiblePlacement(place, point) {
+  return !!point && visibleNode(place) && (player ? !point.hidden && !place.hidden : layerOn("secrets") || !point.hidden && !place.hidden && place.visibility !== "hidden");
+}
+function mapMarkerLabels(point) {
+  return point.labels || mapPreferences()[1].labels || (S.settings.showLabels ? "always" : "never");
+}
+function focusMapPlace(id) {
+  const place = node(id);
+  if (!place || !visibleNode(place)) return;
+  const maps = availableMaps();
+  const ids = [activeSheet, ...maps.map((m) => m.id)];
+  const sheet = ids.find((key) => maps.some((m) => m.id === key) && visiblePlacement(place, placedNode(id,key)));
+  if (!sheet) return toast("У места пока нет доступной отметки");
+  closeModal();
+  if (sheet !== activeSheet) switchMapSheet(sheet);
+  const position = placedNode(id), {w,h} = dims();
+  if (!view) restoreMapView();
+  view.x = position.x*w-view.w/2;
+  view.y = position.y*h-view.h/2;
+  selected = {type:"node",id};
+  rememberMapView();
+  switchTab("map");
+}
+function searchMapPlaces() {
+  openModal("Найти место", input("Название", "mapPlaceQuery", "search") + '<div id="mapPlaceResults" class="stack"></div>');
+  const draw = () => {
+    const query = val("mapPlaceQuery").trim().toLowerCase();
+    const maps = availableMaps();
+    const rows = S.nodes.filter((n) => visibleNode(n) && (!player || !n.hidden) && String(n.name).toLowerCase().includes(query));
+    $("mapPlaceResults").replaceChildren(...rows.slice(0,50).map((n) => {
+      const names = maps.filter((map) => visiblePlacement(n,placedNode(n.id,map.id))).map((map) => map.name);
+      const control = button(n.name + " · " + (names.join(", ") || "Без отметки"), () => focusMapPlace(n.id));
+      control.disabled = !names.length;
+      return control;
+    }));
+    if (!rows.length) $("mapPlaceResults").textContent = "Места не найдены.";
+  };
+  $("mapPlaceQuery").oninput = draw;
+  draw();
+}
+function mapNavigation() {
+  const maps = availableMaps();
+  const chain = mapAncestry(maps, activeSheet);
+  return '<div class="map-navigation"><div class="actions">' +
+    (sheetHistory.length ? visualAction("Предыдущая карта", "previousMapSheet()") : "") +
+    visualAction("Найти место", "searchMapPlaces()") +
+    (S.company.location ? visualAction("Где находится компания", "focusMapPlace(" + jsid(S.company.location) + ")") : "") + '</div>' +
+    (maps.length > 1 ? pick("Карта", "atlasSheetPicker", maps.map((map) => [map.id,
+      mapAncestry(maps,map.id).map((m) => m.name).join(" › ")]), activeSheet) : "") +
+    (chain.length > 1 ? '<nav class="actions" aria-label="Родительские карты">' +
+      chain.map((map) => map.id === activeSheet ? '<strong>' + esc(map.name) + '</strong>' :
+        visualAction(map.name, "switchMapSheet(" + jsid(map.id) + ")", "ghost")).join("") + '</nav>' : "") + '</div>';
+}
+function mapSheetForm(id) {
+  if (!canEditMap()) return;
+  const e = mapData(S), sheet = e.maps.find((map) => map.id === id);
+  const root = id === overviewMap;
+  const parents = e.maps.filter((map) => (!map.archived || map.id === sheetParent(sheet || {id:""})) &&
+    !mapAncestry(e.maps,map.id).some((ancestor) => ancestor.id === id));
+  commandForm(sheet ? "Настройки карты" : "Новая карта",
+    input("Название", "sheetName", "text", sheet?.name || "", 'required maxlength="120"') +
+    area("Описание", "sheetDesc", sheet?.desc || "") +
+    pick("Тип и детализация", "sheetKind", Object.entries(mapKinds), sheet?.kind || "region") +
+    (root ? "" : pick("Родительская карта", "sheetParent", pairs(parents), sheet?.parent_id || activeSheet) +
+      pick("Связанный регион", "sheetRegion", [["","Без связи"], ...pairs(e.regions || [])],sheet?.region_id || "") +
+      pick("Связанное место", "sheetNode", [["","Без связи"], ...pairs(S.nodes)],sheet?.node_id || "") +
+      check("Показывать игрокам", "sheetShared", sheet?.shared === true) +
+      check("В архиве", "sheetArchived", sheet?.archived === true)) +
+    '<div class="cols">' + input("Начальный масштаб ×","sheetZoom","number",sheet?.zoom || 1,'min="1" max="20" step="0.1" required') +
+    input("Центр X, %","sheetX","number",100*(sheet?.x ?? .5),'min="0" max="100" step="any" required') +
+    input("Центр Y, %","sheetY","number",100*(sheet?.y ?? .5),'min="0" max="100" step="any" required') + '</div>',
+    "atlasSheet", () => ({id:id || crypto.randomUUID(), name:val("sheetName"), desc:val("sheetDesc"), kind:val("sheetKind"),
+      parent_id:$("sheetParent")?.value || "", node_id:$("sheetNode")?.value || "", region_id:$("sheetRegion")?.value || "",
+      shared:!!$("sheetShared")?.checked, archived:!!$("sheetArchived")?.checked,
+      zoom:num("sheetZoom"), x:num("sheetX")/100, y:num("sheetY")/100}));
+}
+function manageMapSheets() {
+  if (!canEditMap()) return;
+  if (sharedGame && !sharedGame.mapLayout()) return toast("Для связанных карт обновите игровой сервер Supabase");
+  openModal("Карты Атласа", '<div class="actions" id="newMapSheet"></div><div class="stack" id="mapSheetList"></div>');
+  $("newMapSheet").append(button("Создать карту", () => mapSheetForm()));
+  for (const map of mapData(S).maps) {
+    const row = document.createElement("div");
+    row.className = "actions";
+    row.append(mapAncestry(mapData(S).maps,map.id).map((m) => m.name).join(" › ") + (map.archived ? " · архив" : " "),
+      button("Настройки", () => mapSheetForm(map.id)));
+    if (map.id !== overviewMap)
+      row.append(button("Удалить карту", async () => {
+        if (!confirm("Удалить карту и её отметки? Места, маршруты и регионы останутся в базе.")) return;
+        await execute("atlasRemoveSheet",{id:map.id});
+        manageMapSheets();
+      }));
+    $("mapSheetList").append(row);
+  }
+}
+async function loadMapSheetImage(file, id) {
+  if (!file || !canEditMap()) return;
+  requireThat(/^image\/(png|jpeg|webp|gif|bmp|avif)$/.test(file.type), "Выберите PNG, JPG, WEBP, GIF, BMP или AVIF");
+  const src = await new Promise((resolve,reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+  const image = new Image();
+  image.src = src;
+  await image.decode();
+  if (!canEditMap()) return;
+  if (mapData(S).mapPlacements.some((row) => row.map_id === id) &&
+    !confirm("Заменить подложку? Отметки сохранят относительные координаты.")) return;
+  await execute("atlasImage", {id,image:{src,w:image.naturalWidth,h:image.naturalHeight,name:file.name}});
+  if (activeSheet === id) {
+    resetView();
+    rememberMapView();
+    drawMap();
+  }
+  toast("Подложка сохранена");
+}
+function placeExistingOnMap(pos) {
+  const rows = S.nodes.filter((place) => !placedNode(place.id));
+  if (!rows.length) return toast("Все места уже размещены. Можно добавить новое место.");
+  commandForm("Разместить существующее место",
+    pick("Место из базы","mapPlaceId",pairs(rows),rows[0].id),
+    "atlasPlacement", () => ({node_id:val("mapPlaceId"),map_id:activeSheet,...pos}), "Разместить");
+}
+function editPlacement(id) {
+  const p = placedNode(id);
+  if (!canEditMap() || !p) return;
+  commandForm("Отметка на этой карте",
+    input("Размер иконки, %","pointScale","number",p.scale || 100,'min="50" max="200" required') +
+    pick("Подпись", "pointLabels", [["","Как на карте"],["always","Всегда"],["hover","При наведении или выборе"],["never","Скрывать"]], p.labels || "") +
+    pick("Дочерняя карта", "pointChild", [["","Без ссылки"],...pairs(availableMaps().filter((m) => sheetParent(m) === activeSheet))],p.child_id || "") +
+    check("Скрыть отметку от игроков","pointHidden",p.hidden), "atlasPlacement",
+    () => ({node_id:id,map_id:p.map_id,x:p.x,y:p.y,
+      display:{scale:num("pointScale"),labels:val("pointLabels"),hidden:$("pointHidden").checked,child_id:val("pointChild")}}));
+}
+function editPlaceRegion(id) {
+  const place = node(id);
+  if (!canEditMap() || !place) return;
+  commandForm("Регион места", pick("Определение региона","mapPlaceRegion",
+    [["","Автоматически по границе"],...pairs(S.engine.regions)],place.regionId || ""),
+    "atlasPlaceRegion", () => ({id,region:val("mapPlaceRegion")}));
+}
+function removeMapPlacement(id) {
+  if (!canEditMap() || !confirm("Убрать только отметку и связанные линии с этой карты? Само место останется в базе.")) return;
+  selected = null;
+  return execute("atlasPlacement",{node_id:id,map_id:activeSheet,remove:true}).catch((error) => toast(error.message));
+}
+function showExistingMapRoute() {
+  const paths = S.routes.filter((r) => !drawnRoute(r.id) && placedNode(r.a) && placedNode(r.b));
+  if (!paths.length) return toast("Нет маршрутов для добавления. Сначала разместите оба конца маршрута.");
+  commandForm("Показать существующий маршрут",pick("Маршрут","mapRouteId",paths.map((r) => [r.id,routeLabel(r)]),paths[0].id),
+    "atlasGeometry", () => ({route_id:val("mapRouteId"),map_id:activeSheet,points:[]}), "Показать маршрут");
+}
+function linkedMapActions(kind, id) {
+  const rows = availableMaps();
+  const link = kind === "node" && placedNode(id)?.child_id;
+  return rows.filter((map) => map.id !== activeSheet && (map.id === link || map[kind+"_id"] === id))
+    .map((map) => visualAction("Открыть карту «"+map.name+"»","switchMapSheet("+jsid(map.id)+")")).join("");
+}
+
+function routeCoordinates(r, points, w, h) {
+  return [mapNodePosition(node(r.a),w,h), ...points.map(([x,y]) => ({x:x*w,y:y*h})), mapNodePosition(node(r.b),w,h)];
+}
+function bentMapPath(points, smooth) {
+  const xy = ({x,y}) => x+" "+y;
+  const middle = (a,b) => ({x:(a.x+b.x)/2,y:(a.y+b.y)/2});
+  let path = "M"+xy(points[0]);
+  if (!smooth) return path + points.slice(1).map((p) => "L"+xy(p)).join("");
+  for (let i=1; i<points.length-1; i++) {
+    const entry = middle(points[i-1],points[i]), exit = middle(points[i],points[i+1]);
+    path += "L"+xy(entry)+"Q"+xy(points[i])+" "+xy(exit);
+  }
+  return path+"L"+xy(points.at(-1));
+}
+function startRoadShape(id) {
+  if (!canEditMap() || !drawnRoute(id)) return;
+  const row = drawnRoute(id);
+  startMapDraft({isRoute:true,id,points:structuredClone(row.points),style:row.style || "line",hidden:row.hidden});
+}
+function chooseRegionBoundary() {
+  if (!canEditMap()) return;
+  const rows = S.engine.regions;
+  if (!rows.length) return regionForm([],{},true);
+  openModal("Граница региона", pick("Регион","regionToDraw",pairs(rows),rows[0].id) + '<div class="actions" id="regionBoundaryTools"></div>');
+  $("regionBoundaryTools").append(button("Нарисовать или изменить", () => {
+    const id = val("regionToDraw");
+    closeModal();
+    startRegionShape(id);
+  }), button("Создать регион", () => regionForm([],{},true)));
+}
+function startRegionShape(id) {
+  if (!canEditMap()) return;
+  const boundary = mapEntry(mapData(S).regionBoundaries,"region_id",id,activeSheet);
+  startMapDraft({isRoute:false,id,points:structuredClone(boundary?.points || []),hidden:boundary?.hidden ?? true});
+}
+function startMapDraft(draft) {
+  setTool("select");
+  mapDraft = {...draft,map:activeSheet,index:-1,original:JSON.stringify(mapDraftEntry(draft))};
+  mapDraftDrag = null;
+  renderMap();
+}
+function mapDraftEntry(draft) {
+  return draft.isRoute ? drawnRoute(draft.id) :
+    mapEntry(mapData(S).regionBoundaries,"region_id",draft.id,activeSheet);
+}
+function cancelMapDraft() {
+  mapDraft = null;
+  mapDraftDrag = null;
+  renderMap();
+}
+function mapDraftTools() {
+  if (!mapDraft) return "";
+  const {isRoute,style,hidden} = mapDraft;
+  return '<div class="map-draft-tools"><div class="actions">' +
+    visualAction("Сохранить форму","saveMapDraft()","primary") + visualAction("Отмена формы","cancelMapDraft()") +
+    visualAction("Удалить выбранную точку","removeDraftPoint()") +
+    visualAction(isRoute ? "Выпрямить" : "Начать заново","resetMapDraft()") +
+    (!isRoute && mapEntry(mapData(S).regionBoundaries,"region_id",mapDraft.id,activeSheet) ?
+      visualAction("Удалить границу","removeMapRepresentation('region',"+jsid(mapDraft.id)+")","danger") : "") + '</div>' +
+    (isRoute ? pick("Линия","mapRouteStyle",[["line","Ломаная"],["smooth","Плавная"]],style) : "") +
+    check("Скрыть от игроков","mapDraftHidden",hidden) + '</div>';
+}
+function resetMapDraft() {
+  mapDraft.points = [];
+  mapDraft.index = -1;
+  if (mapDraft.isRoute) mapDraft.style = "line";
+  if ($("mapRouteStyle")) $("mapRouteStyle").value = mapDraft.style;
+  drawMap();
+}
+function removeDraftPoint() {
+  if (!mapDraft || mapDraft.index < 0) return toast("Выберите точку на карте");
+  mapDraft.points.splice(mapDraft.index,1);
+  mapDraft.index = -1;
+  drawMap();
+}
+async function saveMapDraft() {
+  if (!mapDraft || !canEditMap()) return;
+  const draft = mapDraft;
+  if (draft.original !== JSON.stringify(mapDraftEntry(draft)))
+    return toast("Форма уже изменилась. Откройте редактор заново");
+  const fields = {map_id:draft.map,points:draft.points,hidden:draft.hidden};
+  mapDraft = null;
+  try {
+    if (draft.isRoute) await execute("atlasGeometry",{...fields,route_id:draft.id,style:draft.style});
+    else await execute("atlasBoundary",{...fields,region_id:draft.id});
+  } catch (error) {
+    if (draft.map === activeSheet) mapDraft = draft;
+    renderMap();
+    toast(error.message);
+  }
+}
+async function removeMapRepresentation(kind,id) {
+  if (!canEditMap() || !confirm("Убрать это представление с текущей карты?")) return;
+  const isRoute = kind === "route";
+  try {
+    await execute(isRoute ? "atlasGeometry" : "atlasBoundary",
+      {map_id:activeSheet,[isRoute ? "route_id" : "region_id"]:id,remove:true});
+    if (mapDraft) cancelMapDraft();
+  } catch (error) {
+    toast(error.message);
+  }
+}
+function mapRegionsMarkup(w,h,scale) {
+  return mapData(S).regionBoundaries.filter((row) => row.map_id === activeSheet &&
+    (player ? !row.hidden : layerOn("secrets") || !row.hidden))
+    .map((row) => {
+      const region = S.engine.regions.find((r) => r.id === row.region_id);
+      if (!region || (player && region.hidden) || mapDraft && !mapDraft.isRoute && mapDraft.id === region.id) return "";
+      const points = row.points.map(([x,y]) => (x*w)+","+(y*h)).join(" ");
+      const [x,y] = row.points.reduce(([x,y],[u,v]) => [x+u*w/row.points.length,y+v*h/row.points.length],[0,0]);
+      const danger = layerOn("danger") && region.danger;
+      const loot = layerOn("resources") && S.engine.loot?.some((r) => r.region_id === region.id && !r.hidden);
+      const label = (layerOn("regions") ? region.name : "") + (danger ? " ⚠" : "") + (loot ? " ✦" : "");
+      return (layerOn("regions") || danger ?
+        '<polygon points="'+points+'" fill="'+(danger ? "#bc593a44" : "#cea25330")+'" stroke="'+(danger ? "#cd8162" : "#d2ad67")+
+        '" stroke-width="'+scale+'" pointer-events="none"/>' : "") +
+        (label ? '<text data-map-region="'+esc(region.id)+'" transform="translate('+x+' '+y+') scale('+scale+
+          ')" text-anchor="middle" class="map-region-label" role="button" tabindex="0"><title>'+
+          esc([region.name,danger,loot ? "Есть ресурсы" : ""].filter(Boolean).join(" · "))+'</title>'+esc(label)+'</text>' : "");
+    }).join("");
+}
+function mapDraftMarkup(w,h,scale) {
+  if (!mapDraft) return "";
+  const points = mapDraft.points.map(([x,y]) => (x*w)+","+(y*h));
+  return (!mapDraft.isRoute ?
+    '<polygon points="'+points.join(" ")+'" stroke="#ffe39a" stroke-width="'+2*scale+'" fill="#ffd47538" pointer-events="none"/>' : "") +
+    points.map((pos,i) => '<g data-bend="'+i+'" role="button" tabindex="0" aria-label="Точка '+(i+1)+
+      '" transform="translate('+pos.replace(","," ")+') scale('+scale+')"><circle r="15" fill="transparent"/>'+
+      '<circle r="7" fill="'+(mapDraft.index === i ? "#fff1ae" : "#c7924e")+'" stroke="#1d2018" stroke-width="2"/></g>').join("");
+}
+function addDraftPoint(point) {
+  if (mapDraft.points.length >= 256) return toast("Достигнут предел точек");
+  let index = mapDraft.points.length;
+  if (mapDraft.isRoute && index) {
+    const {w,h} = dims(), path = routeCoordinates(route(mapDraft.id),mapDraft.points,w,h);
+    let distance = Infinity;
+    for (let i=0; i<path.length-1; i++) {
+      const a = path[i], b = path[i+1], dx=b.x-a.x, dy=b.y-a.y;
+      const t = clamp(((point.x*w-a.x)*dx+(point.y*h-a.y)*dy)/(dx*dx+dy*dy || 1),0,1);
+      const d = Math.hypot(point.x*w-a.x-t*dx,point.y*h-a.y-t*dy);
+      if (d < distance) { distance=d; index=i; }
+    }
+  }
+  mapDraft.points.splice(index,0,[point.x,point.y]);
+  mapDraft.index=index;
+}
+function bindMapDraft(svg) {
+  const capture = (fn) => (e) => {
+    if (!mapDraft) return;
+    e.stopImmediatePropagation();
+    fn(e);
+  };
+  const bend = (el) => {
+    const id = el.closest("[data-bend]")?.dataset.bend;
+    return id == null ? -1 : Number(id);
+  };
+  svg.addEventListener("pointerdown",capture((e) => {
+    if (e.button !== 0 || !canEditMap() || mapDraftDrag) return;
+    const index = bend(e.target);
+    mapDraftDrag = {id:e.pointerId,index,x:e.clientX,y:e.clientY,original:mapDraft.points[index]};
+    if (index >= 0) mapDraft.index = index;
+    svg.setPointerCapture(e.pointerId);
+  }),true);
+  svg.addEventListener("pointermove",capture((e) => {
+    const drag = mapDraftDrag, p = mapPoint(e);
+    if (!drag || drag.id !== e.pointerId || drag.index < 0 || !p) return;
+    mapDraft.points[drag.index]=[p.x,p.y];
+    drawMap();
+  }),true);
+  svg.addEventListener("pointerup",capture((e) => {
+    const drag = mapDraftDrag;
+    if (!drag || drag.id !== e.pointerId) return;
+    mapDraftDrag = null;
+    const p = mapPoint(e);
+    if (drag.index < 0 && p && Math.hypot(e.clientX-drag.x,e.clientY-drag.y) < 6) addDraftPoint(p);
+    drawMap();
+  }),true);
+  for (const type of ["pointercancel","lostpointercapture"]) svg.addEventListener(type,capture((e) => {
+    const drag = mapDraftDrag;
+    if (!drag || drag.id !== e.pointerId) return;
+    mapDraftDrag = null;
+    if (drag.index >= 0) mapDraft.points[drag.index]=drag.original;
+    drawMap();
+  }),true);
+  svg.addEventListener("contextmenu",capture((e) => e.preventDefault()),true);
+  svg.addEventListener("keydown",capture((e) => {
+    const i = bend(e.target);
+    if (i < 0 || !["Enter"," ","Delete","Backspace"].includes(e.key)) return;
+    e.preventDefault();
+    mapDraft.index = i;
+    if (e.key === "Delete" || e.key === "Backspace") removeDraftPoint();
+    else drawMap();
+    svg.querySelector('[data-bend="'+i+'"]')?.focus();
+  }),true);
+}
+function renderMapRegion(id) {
+  const region = S.engine.regions.find((r) => r.id === id);
+  if (!region || player && region.hidden) return;
+  const places = S.nodes.filter((n) => visiblePlacement(n,placedNode(n.id)) && regionAt(S,n)?.id === id);
+  $("sidebar").innerHTML = '<div class="side-inner"><section class="section"><h2>'+esc(region.name)+'</h2>'+
+    (region.description ? '<p>'+esc(region.description)+'</p>' : "") +
+    '<div class="actions">'+linkedMapActions("region",id)+
+    (canEditMap() ? visualAction("Изменить границу","startRegionShape("+jsid(id)+")") : "")+'</div>'+
+    '<h3>Места на этой карте</h3>'+ (places.length ? places.map((p) =>
+      visualAction(p.name,"focusMapPlace("+jsid(p.id)+")")).join("") : '<p>Пока нет мест в этом регионе.</p>')+'</section></div>';
+}
 
 const rulebook = {
   "professions": [
@@ -8422,6 +9134,14 @@ function achievementGrantAllowed(achievement, recipient) {
 
 // Field tokens: suffix ? means optional, @table denotes a foreign key.
 const tables = {
+  maps: ["Карты", "engine.maps",
+    "id name kind parent_id:@maps? node_id:@nodes? region_id:@regions? desc? shared:bool? archived:bool? image? width:pos? height:pos? filename? x:ratio? y:ratio? zoom:num?"],
+  mapPlacements: ["Отметки на картах", "engine.mapPlacements",
+    "id map_id:@maps node_id:@nodes x:ratio y:ratio scale:pos? labels? hidden:bool? child_id:@maps?"],
+  routeGeometries: ["Линии маршрутов", "engine.routeGeometries",
+    "id map_id:@maps route_id:@routes points:json style? hidden:bool?"],
+  regionBoundaries: ["Границы регионов", "engine.regionBoundaries",
+    "id map_id:@maps region_id:@regions points:json hidden:bool?"],
   regions: [
     "Регионы",
     "engine.regions",
@@ -8585,6 +9305,7 @@ function records(s, k) {
       ...arr(s, k).map((x) => ({ ...x, kind: "news" })),
       ...(s.portal.rumors || []).map((x) => ({ ...x, kind: "rumors" })),
     ];
+  if (mapTables.includes(k)) mapData(s);
   return arr(s, k).filter((x) => subset(k, x));
 }
 function csvWrite(rows, names) {
@@ -8933,6 +9654,8 @@ function planImport(s, pack, mode, options = {}) {
       Object.keys(pack).length,
     "Пустой пакет",
   );
+  const hadMap = mapTables.some((key) => next.engine[key] != null) || mapTables.some((key) => Object.hasOwn(pack,key));
+  if (hadMap) mapData(next);
   const replaced = new Set();
   for (const [k, rows] of Object.entries(pack)) {
     requireThat(
@@ -8984,8 +9707,9 @@ function planImport(s, pack, mode, options = {}) {
       ),
     );
   }
+  if (hadMap) reconcileMapImport(s,next,pack);
   const keys = Object.keys(tables).filter(
-    (k) => !["hunting", "fishing"].includes(k),
+    (k) => !["hunting", "fishing"].includes(k) && (hadMap || !mapTables.includes(k)),
   );
   const ids = Object.fromEntries(
     keys.map((k) => [k, new Set(records(next, k).map((x) => x.id))]),
@@ -9061,6 +9785,7 @@ function planImport(s, pack, mode, options = {}) {
       if (records(s, row.table).some((x) => x.id === row.id))
         reference(row.id, ids[row.table], "Запись пакета " + pack.id);
   }
+  if (hadMap) check(() => validateCartography(next), "Карты");
   check(() => validateTradeCatalog(next), "Экономика");
   return { next, count, issues, changes };
 }
@@ -9080,6 +9805,10 @@ function downloadText(filename, body, type = "application/json") {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 const sampleRows = {
+  maps: {id:"kalimdor", name:"Калимдор", kind:"continent", parent_id:"overview", shared:false, x:.5, y:.5, zoom:1},
+  mapPlacements: {id:"kalimdor-crossroads", map_id:"kalimdor", node_id:"crossroads", x:.54, y:.42, scale:100, labels:"hover"},
+  routeGeometries: {id:"kalimdor-trade-road", map_id:"kalimdor", route_id:"trade-road", points:[[.58,.39],[.66,.45]], style:"smooth"},
+  regionBoundaries: {id:"kalimdor-durotar", map_id:"kalimdor", region_id:"durotar", points:[[.5,.3],[.7,.3],[.7,.5],[.5,.5]], hidden:true},
   nodes: {
     id: "crossroads",
     name: "Перекрёсток",
@@ -9149,6 +9878,10 @@ function sampleRow(k) {
   return example;
 }
 const formatNotes = {
+  maps: "overview — существующая обзорная карта. parent_id ссылается на родителя. shared включает доступ игроков, если открыты и родительские карты. Подложку обзорной карты меняют на самой карте.",
+  mapPlacements: "Одна отметка на пару карта и место. Координаты от 0 до 1. scale — размер иконки 50–200%. labels: always, hover, never. child_id — дочерняя карта.",
+  routeGeometries: "Одна линия на пару карта и маршрут. Оба конца маршрута должны иметь отметки на карте. points — массив пар [x,y], пустой массив задаёт линию без изгибов. style: line, smooth.",
+  regionBoundaries: "Контур из 3–256 вершин [x,y] по порядку. По нему автоматически определяются места региона. hidden скрывает границу от игроков.",
   items:
     "quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
   regions:
@@ -9193,7 +9926,7 @@ const formatEnums = {
   visibility: ["known", "rumor", "hidden"], when: ["success", "failure"],
   repeat: ["once", "stay", "day", "period"], time_policy: ["atlas-weekly"],
   state: ["alliance", "cooperation", "neutral", "truce", "tension", "hostility", "war"],
-  kind: { professions: ["gathering", "production"], news: ["news", "rumors"] },
+  kind: { maps: ["world","continent","region","local"], professions: ["gathering", "production"], news: ["news", "rumors"] },
   type: { rewards: ["gold", "rep", "item", "contact", "discover", "achievement"] },
 };
 const fieldPurposes = {
@@ -9503,6 +10236,8 @@ function validateBackup(raw) {
   for (const k of ["nodes", "routes", "factions", "contracts"])
     unique(raw[k], k);
   for (const k of ["members", "staff", "inventory"]) unique(raw.company[k], k);
+  for (const k of mapTables) unique(raw.engine?.[k], k);
+  validateCartography(raw);
   requireThat(
     Number.isFinite(Number(raw.company.gold ?? 0)) &&
       Number(raw.company.gold ?? 0) >= 0,
@@ -15192,6 +15927,7 @@ renderWorldBook = function () {
 };
 const baseVisualSidebar = renderSidebar;
 renderSidebar = function () {
+  if (selected?.type === "region") return renderMapRegion(selected.id);
   baseVisualSidebar();
   const place = selected?.type === "node" ? node(selected.id) : null;
   const path = selected?.type === "route" ? route(selected.id) : null;
@@ -15202,11 +15938,18 @@ renderSidebar = function () {
   if (path && visibleRoute(path)) {
     if (actions) actions.outerHTML = canEditMap() ? visualMenu("Действия с маршрутом",
       visualAction("Изменить маршрут", "editRoute(" + jsid(path.id) + ")") +
+      (drawnRoute(path.id) ? visualAction("Изменить форму дороги", "startRoadShape(" + jsid(path.id) + ")") +
+        visualAction("Убрать линию с карты", "removeMapRepresentation('route'," + jsid(path.id) + ")") : "") +
       visualAction("Удалить маршрут", "deleteRoute(" + jsid(path.id) + ")", "danger")) : "";
     const table = [...panel.querySelectorAll("section")].find((el) => el.querySelector("h3")?.textContent === "Таблица событий");
     if (table) table.innerHTML = '<details><summary>Таблица событий d6</summary>' + [...table.querySelectorAll("p")].map((row) => row.outerHTML).join("") + '</details>';
   } else if (place && visibleNode(place)) {
-    const region = S.engine.regions.find((r) => r.id === place.regionId);
+    const region = regionAt(S,place);
+    if (region && (!player || !region.hidden))
+      section.insertAdjacentHTML("beforeend", '<p class="muted">' +
+        esc(region.name + (!player ? (place.regionId ? " · назначен вручную" : " · по границе") : "")) + '</p>');
+    const sheetLinks = linkedMapActions("node",place.id) + (region && !region.hidden ? linkedMapActions("region",region.id) : "");
+    if (sheetLinks) section.insertAdjacentHTML("beforeend", '<div class="actions">'+sheetLinks+'</div>');
     section.classList.add("place-dossier");
     if (place.image || region?.image)
       section.insertAdjacentHTML("afterbegin", sectionArt(place.image || region.image, "cover", ""));
@@ -20341,7 +21084,12 @@ async function onlineWorkspace(client) {
         if (!file || !window.confirm("Заменить облачное сохранение кампании?")) return;
         const shareWorld = $("onlineShareWorld").checked, shareImages = $("onlineShareImages").checked;
         const revision = campaign.revision;
-        const { document, images } = await splitOnlineBackup(JSON.parse(await file.text()));
+        const raw = JSON.parse(await file.text());
+        if (mapTables.some((key) => raw?.engine?.[key] != null)) {
+          const status = await client.functions.invoke("atlas-play",{body:{action:"state",campaign:campaign.id}});
+          requireThat(status.data?.mapLayout, "Для импорта связанных карт обновите игровой сервер Supabase");
+        }
+        const { document, images } = await splitOnlineBackup(raw);
         const id = await rpc("atlas_begin_import", { p_revision: revision });
         const prefix = campaign.id + "/" + id + "/";
         let count = 0;
@@ -20493,7 +21241,7 @@ manualRoll = function () {
 
 function createSharedGame(client, campaign, initial, openSettings) {
   let current = initial, pendingRevision = initial.revision, saveDraft = null, writing = null, reading = false;
-  let pendingRender = false, exited = false, recovery = null, previousPackage = null;
+  let pendingRender = false, exited = false, recovery = null, previousPackage = null, mapUndo = null;
   const urls = new Map();
   const bucket = client.storage.from(atlasCloud.bucket);
   const handle = async (body) => {
@@ -20514,7 +21262,8 @@ function createSharedGame(client, campaign, initial, openSettings) {
     if (prefix !== current.prefix) {
       for (const url of urls.values()) if (url) URL.revokeObjectURL(url);
       urls.clear();
-      resetView();
+      activeSheet = overviewMap;
+      view = null;
     }
     current = value;
     S = nextActor.role === "master" ? normalize(document) : normalizeEngine(document);
@@ -20524,6 +21273,9 @@ function createSharedGame(client, campaign, initial, openSettings) {
       player = actor.role !== "master";
     }
     if (reset) {
+      sheetHistory = [];
+      activeSheet = overviewMap;
+      mapDraft = null;
       tab = player && actor.heroes.length ? "hero" : "home";
       previewActor = null;
       previewReadOnly = false;
@@ -20567,23 +21319,40 @@ function createSharedGame(client, campaign, initial, openSettings) {
   async function command(name,payload,key=crypto.randomUUID()) {
     if (writing) await writing;
     let request = crypto.randomUUID();
-    if (name === "grantCatalogItem") {
+    const beforeImport = name === "contentImport" && actor.role === "master" ?
+      { document: structuredClone(S), prefix: current.prefix } : null;
+    const importTables = name === "import" ? payload.pack : name === "contentImport" ? payload.pack?.tables : null;
+    const drawing = mapCommands.has(name) || name === "mapMove";
+    const previousMap = drawing ? current.document : null;
+    const mapEdit = mapCommands.has(name) || name === "mapMove" && current.document.engine?.mapPlacements ||
+      importTables && [...mapTables,"nodes","routes","regions"].some((table) => Object.hasOwn(importTables,table));
+    if ((!current.mapLayout && mapCommands.has(name) && !(name === "atlasImage" && payload.id === overviewMap)) ||
+        (!current.mapLayout && importTables && mapTables.some((table) => Object.hasOwn(importTables,table))))
+      throw Error("Для редактора связанных карт обновите игровой сервер Supabase");
+    if (name === "atlasUndo") {
+      requireThat(canUndoMapEdit(), "После этой правки кампания уже изменилась");
+      name = "masterSave";
+      request = key;
+      payload = {document:mapUndo.document};
+    } else if (name === "grantCatalogItem" || mapEdit) {
       requireThat(actor.role === "master" && !previewReadOnly, "Недостаточно прав");
-      // Catalog grants use the existing master editor endpoint on older online deployments.
+      // Administrative edits use the existing revision-checked master endpoint.
       const document = structuredClone(current.document);
-      grantCatalogItem(document, payload);
+      commands.get(name).run(document, payload, actor);
       name = "masterSave";
       payload = { document };
       request = key;
     }
-    const beforeImport = name === "contentImport" && actor.role === "master" ?
-      { document: structuredClone(S), prefix: current.prefix } : null;
     const value = await handle({action:"command",request,revision:current.revision,name,payload,key});
     if (exited) return;
+    if (!value.conflict && previousMap && mapEdit) mapUndo = {document:previousMap,revision:value.revision};
     display(value);
     if (value.conflict) throw Error("Другой участник уже изменил кампанию. Данные обновлены, повторите действие.");
     if (beforeImport) previousPackage = beforeImport;
     toast("Сохранено в общей кампании");
+  }
+  function canUndoMapEdit() {
+    return actor.role === "master" && !previewReadOnly && !writing && !S.settings.mapLocked && mapUndo?.revision === current.revision;
   }
   function save(state) {
     if (exited || actor.role !== "master" || previewReadOnly) return;
@@ -20627,8 +21396,14 @@ function createSharedGame(client, campaign, initial, openSettings) {
     void (async () => {
       let url = false;
       try {
-        const {data,error} = await bucket.download(prefix+ref.slice(atlasStorageReference.length));
-        if (data && !error && !exited && current.prefix === prefix) url = URL.createObjectURL(data);
+        const sheet = current.actor.role !== "master" && current.document.engine?.maps?.find((row) => row.image === ref);
+        const result = sheet
+          ? {data:await handle({action:"mapImage",sheet:sheet.id})}
+          : await bucket.download(prefix+ref.slice(atlasStorageReference.length));
+        if (result.data && !result.error && !exited && current.prefix === prefix) {
+          const image = sheet ? new Blob([result.data],{type:"image/"+ref.split(".").at(-1)}) : result.data;
+          url = URL.createObjectURL(image);
+        }
       } catch {}
       if (exited || current.prefix !== prefix) return;
       urls.set(ref,url);
@@ -20666,12 +21441,13 @@ function createSharedGame(client, campaign, initial, openSettings) {
     await openSettings(mode);
   }
   return {
-    enter:()=>display(initial,true), command, save, image, imageFailed, settings, leave,
+    campaign, enter:()=>display(initial,true), command, save, image, imageFailed, settings, leave,
     hasRecovery:()=>!!recovery && actor.role === "master",
     pendingSave:()=>!!writing,
     downloadRecovery:()=>downloadBackup(recovery,"atlas-unsaved-online.json"),
     downloadPackageBackup:()=>downloadBackup(previousPackage,"atlas-before-package.json"),
     shareMap:()=>current.shareMap,
+    mapLayout:()=>current.mapLayout === true, canUndoMapEdit,
     changed:(revision)=>{
       pendingRevision = Math.max(pendingRevision,revision === Infinity ? current.revision+1 : revision);
       if ($("modalwrap").classList.contains("open") && revision===Infinity) closeModal();

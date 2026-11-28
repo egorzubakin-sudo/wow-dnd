@@ -26,6 +26,7 @@ export function gameHandler(config, transport=fetch) {
     revision: access.revision,
     prefix: access.prefix,
     shareMap: !!access.share_map,
+    mapLayout: access.map_layout === true,
     document: access.document ? gameView(initializeGame(access.document),access) : null,
   });
   return async (request) => {
@@ -45,6 +46,15 @@ export function gameHandler(config, transport=fetch) {
       const identity={p_campaign:body.campaign,p_user:user};
       const access=await rpc("atlas_game_read",identity);
       if (body.action==="state") return response(view(access));
+      if (body.action==="mapImage" && access.map_layout) {
+        const sheet = view(access).document?.engine?.maps?.find((row) => row.id === body.sheet);
+        const name = sheet?.image?.slice(atlasStorageReference.length);
+        if (!access.prefix || !sheet?.image?.startsWith(atlasStorageReference) || !atlasMediaName.test(name))
+          return response({error:"Подложка недоступна"},404);
+        const asset = await server("/storage/v1/object/atlas-campaign-media/"+access.prefix+name);
+        if (!asset.ok) return response({error:"Не удалось загрузить подложку"},502);
+        return new Response(asset.body,{headers:{...cors,"Content-Type":"application/octet-stream"}});
+      }
       if (body.action!=="command" || !uuid.test(body.request) ||
           !Number.isSafeInteger(body.revision) || typeof body.name!=="string" ||
           typeof body.key!=="string" || !body.key.length || body.key.length>180)

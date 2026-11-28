@@ -91,10 +91,27 @@ function gameView(state, access) {
   const mapPath = access.map_path;
   const map = mapPath && access.prefix + state.map?.src?.slice(atlasStorageReference.length) === mapPath
     ? projectFields(state.map, "src w h name") : null;
+  const chart = mapData(state);
+  const openMaps = access.share_map ? publicSheets(chart.maps) : [];
+  const mapIds = new Set(openMaps.map((row) => row.id));
+  const places = chart.mapPlacements.filter((row) => !row.hidden && locations.has(row.node_id) && mapIds.has(row.map_id));
+  const routeIds = new Map(routes.map((row) => [row.id,row]));
+  const layeredPlaces = new Set(places.map((row) => JSON.stringify([row.map_id,row.node_id])));
+  const lines = chart.routeGeometries.filter((row) => {
+    const route = routeIds.get(row.route_id);
+    return !row.hidden && route && [route.a,route.b].every((id) => layeredPlaces.has(JSON.stringify([row.map_id,id])));
+  });
+  const openRegions = publicRows(e.regions);
+  const regionIds = new Set(openRegions.map((row) => row.id));
+  const boundaries = chart.regionBoundaries.filter((row) => !row.hidden && mapIds.has(row.map_id) && regionIds.has(row.region_id));
+  const chartView = {engine:{...e,maps:openMaps,mapPlacements:places,regionBoundaries:boundaries,regions:openRegions}};
+  const regionByNode = new Map(nodes.map((row) => [row.id,regionAt(chartView,row)?.id]).filter(([,id]) => regionIds.has(id)));
+  const projectedRegions = new Set([...regionByNode.values(), ...boundaries.map((row) => row.region_id), t?.region]);
+  const overviewPoints = new Map(places.filter((row) => row.map_id === overviewMap).map((row) => [row.node_id,row]));
   return {
     version: 1, map, journey,
-    nodes: nodes.map((row) => ({ ...projectFields(row, "id name type regionId visibility desc faction"),
-      x: access.share_map ? row.x : 0, y: access.share_map ? row.y : 0 })),
+    nodes: nodes.map((row) => ({ ...projectFields(row, "id name type visibility desc faction"),
+      regionId: regionByNode.get(row.id), x: overviewPoints.get(row.id)?.x ?? 0, y: overviewPoints.get(row.id)?.y ?? 0 })),
     routes: access.share_map ? routes.map((row) => projectFields(row, "id name a b kind min max risk status visibility cost desc")) : [],
     factions: factions.map((row) => projectFields(row, "id name leader color icon iconId desc repPoints rep charter region")),
     diplomacy: publicRows(state.diplomacy).filter((row) => factionIds.has(row.a) && factionIds.has(row.b))
@@ -136,8 +153,23 @@ function gameView(state, access) {
     },
     engine: {
       schemaVersion: 1, receipts: [], phase: e.phase,
-      regions: publicRows(e.regions).filter((row) => row.id === t?.region || nodes.some((place) => place.regionId === row.id))
+      regions: openRegions.filter((row) => projectedRegions.has(row.id))
         .map((row) => ({...projectFields(row, "id name continent biome description tier levels danger"), dc: t?.showDC === false ? 10 : row.dc})),
+      ...(access.share_map ? {
+        maps:openMaps.map((row) => ({
+          ...projectFields(row,"id name kind parent_id desc shared x y zoom"),
+          ...(locations.has(row.node_id) ? {node_id:row.node_id} : {}),
+          ...(regionIds.has(row.region_id) ? {region_id:row.region_id} : {}),
+          ...(typeof row.image === "string" && row.image.startsWith(atlasStorageReference) ?
+            projectFields(row,"image width height filename") : {}),
+        })),
+        mapPlacements:places.map((row) => ({
+          ...projectFields(row,"id map_id node_id x y scale labels"),
+          ...(mapIds.has(row.child_id) ? {child_id:row.child_id} : {}),
+        })),
+        routeGeometries:lines.map((row) => projectFields(row,"id map_id route_id points style")),
+        regionBoundaries:boundaries.map((row) => projectFields(row,"id map_id region_id points")),
+      } : {}),
       stays: stay ? [stay] : [],
       profiles: Object.fromEntries(Object.entries(e.profiles || {}).filter(([id]) => mine.has(id)).map(([id,value]) => [id,ownProfile(value)])),
       rolls: (e.rolls || []).filter((row) => mine.has(row.hero)).slice(0,100)

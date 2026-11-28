@@ -1,5 +1,13 @@
 // Field tokens: suffix ? means optional, @table denotes a foreign key.
 const tables = {
+  maps: ["Карты", "engine.maps",
+    "id name kind parent_id:@maps? node_id:@nodes? region_id:@regions? desc? shared:bool? archived:bool? image? width:pos? height:pos? filename? x:ratio? y:ratio? zoom:num?"],
+  mapPlacements: ["Отметки на картах", "engine.mapPlacements",
+    "id map_id:@maps node_id:@nodes x:ratio y:ratio scale:pos? labels? hidden:bool? child_id:@maps?"],
+  routeGeometries: ["Линии маршрутов", "engine.routeGeometries",
+    "id map_id:@maps route_id:@routes points:json style? hidden:bool?"],
+  regionBoundaries: ["Границы регионов", "engine.regionBoundaries",
+    "id map_id:@maps region_id:@regions points:json hidden:bool?"],
   regions: [
     "Регионы",
     "engine.regions",
@@ -163,6 +171,7 @@ function records(s, k) {
       ...arr(s, k).map((x) => ({ ...x, kind: "news" })),
       ...(s.portal.rumors || []).map((x) => ({ ...x, kind: "rumors" })),
     ];
+  if (mapTables.includes(k)) mapData(s);
   return arr(s, k).filter((x) => subset(k, x));
 }
 function csvWrite(rows, names) {
@@ -511,6 +520,8 @@ function planImport(s, pack, mode, options = {}) {
       Object.keys(pack).length,
     "Пустой пакет",
   );
+  const hadMap = mapTables.some((key) => next.engine[key] != null) || mapTables.some((key) => Object.hasOwn(pack,key));
+  if (hadMap) mapData(next);
   const replaced = new Set();
   for (const [k, rows] of Object.entries(pack)) {
     requireThat(
@@ -562,8 +573,9 @@ function planImport(s, pack, mode, options = {}) {
       ),
     );
   }
+  if (hadMap) reconcileMapImport(s,next,pack);
   const keys = Object.keys(tables).filter(
-    (k) => !["hunting", "fishing"].includes(k),
+    (k) => !["hunting", "fishing"].includes(k) && (hadMap || !mapTables.includes(k)),
   );
   const ids = Object.fromEntries(
     keys.map((k) => [k, new Set(records(next, k).map((x) => x.id))]),
@@ -639,6 +651,7 @@ function planImport(s, pack, mode, options = {}) {
       if (records(s, row.table).some((x) => x.id === row.id))
         reference(row.id, ids[row.table], "Запись пакета " + pack.id);
   }
+  if (hadMap) check(() => validateCartography(next), "Карты");
   check(() => validateTradeCatalog(next), "Экономика");
   return { next, count, issues, changes };
 }

@@ -8,6 +8,10 @@ function downloadText(filename, body, type = "application/json") {
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
 const sampleRows = {
+  maps: {id:"kalimdor", name:"Калимдор", kind:"continent", parent_id:"overview", shared:false, x:.5, y:.5, zoom:1},
+  mapPlacements: {id:"kalimdor-crossroads", map_id:"kalimdor", node_id:"crossroads", x:.54, y:.42, scale:100, labels:"hover"},
+  routeGeometries: {id:"kalimdor-trade-road", map_id:"kalimdor", route_id:"trade-road", points:[[.58,.39],[.66,.45]], style:"smooth"},
+  regionBoundaries: {id:"kalimdor-durotar", map_id:"kalimdor", region_id:"durotar", points:[[.5,.3],[.7,.3],[.7,.5],[.5,.5]], hidden:true},
   nodes: {
     id: "crossroads",
     name: "Перекрёсток",
@@ -77,6 +81,10 @@ function sampleRow(k) {
   return example;
 }
 const formatNotes = {
+  maps: "overview — существующая обзорная карта. parent_id ссылается на родителя. shared включает доступ игроков, если открыты и родительские карты. Подложку обзорной карты меняют на самой карте.",
+  mapPlacements: "Одна отметка на пару карта и место. Координаты от 0 до 1. scale — размер иконки 50–200%. labels: always, hover, never. child_id — дочерняя карта.",
+  routeGeometries: "Одна линия на пару карта и маршрут. Оба конца маршрута должны иметь отметки на карте. points — массив пар [x,y], пустой массив задаёт линию без изгибов. style: line, smooth.",
+  regionBoundaries: "Контур из 3–256 вершин [x,y] по порядку. По нему автоматически определяются места региона. hidden скрывает границу от игроков.",
   items:
     "quality: common, uncommon, rare, epic, legendary. category: Оружие, Броня, Материалы, Магические предметы, Припасы, Снаряжение, Ездовые питомцы, Прочее или созданная мастером категория.",
   regions:
@@ -121,7 +129,7 @@ const formatEnums = {
   visibility: ["known", "rumor", "hidden"], when: ["success", "failure"],
   repeat: ["once", "stay", "day", "period"], time_policy: ["atlas-weekly"],
   state: ["alliance", "cooperation", "neutral", "truce", "tension", "hostility", "war"],
-  kind: { professions: ["gathering", "production"], news: ["news", "rumors"] },
+  kind: { maps: ["world","continent","region","local"], professions: ["gathering", "production"], news: ["news", "rumors"] },
   type: { rewards: ["gold", "rep", "item", "contact", "discover", "achievement"] },
 };
 const fieldPurposes = {
