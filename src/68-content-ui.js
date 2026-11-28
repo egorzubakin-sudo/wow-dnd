@@ -119,6 +119,7 @@ function contentWorkshop() {
       $("packageRaw").value = JSON.stringify(contentExamples.bookEquipment, null, 2); clearPreview();
     }),
     button("Скачать резерв перед последним импортом пакета", async () => {
+      if (sharedGame) return sharedGame.downloadPackageBackup();
       const backup = await dbGet("pre-content-import");
       if (!backup) return toast("Резерв появится после первого импорта пакета");
       downloadText("atlas-before-package.json", JSON.stringify(backup, null, 2));

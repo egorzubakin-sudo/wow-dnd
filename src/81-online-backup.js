@@ -10,11 +10,11 @@ function mapBackupValues(value, visit) {
   return typeof value === "string" ? visit(value) : value;
 }
 
-async function splitOnlineBackup(raw) {
+async function splitOnlineBackup(raw, { allowReferences = false } = {}) {
   validateBackup(raw);
   const dataUrls = new Set();
   mapBackupValues(raw, (value) => {
-    requireThat(!value.startsWith(atlasStorageReference), "Загрузите исходный экспорт Атласа с изображениями");
+    requireThat(allowReferences || !value.startsWith(atlasStorageReference), "Загрузите исходный экспорт Атласа с изображениями");
     if (/^data:image\//i.test(value)) dataUrls.add(value);
     return value;
   });
