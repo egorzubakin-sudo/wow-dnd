@@ -294,7 +294,6 @@ function storageGroups(rows) {
       bankQuery || bankFilter || storageQuality
         ? "По этим фильтрам нет предметов."
         : "В хранилище пока нет добычи и припасов.",
-      !player ? visualAction("Добавить предмет", "editItem()") : "",
     );
   if (storageView === "table" && !player)
     return (
@@ -332,6 +331,7 @@ function storageGroups(rows) {
 }
 renderBank = function () {
   const hero = chosen(), personalOwner = hero ? "member:" + hero : null;
+  const catalogHero = personalOwner && bankOwner === personalOwner ? hero : "";
   const visible = S.company.inventory.filter((x) => canSeeStack(x) && (!player || !x.owner));
   const rows = visible.filter(
     (x) =>
@@ -351,7 +351,7 @@ renderBank = function () {
   const controls = !player
     ? visualMenu(
         "Управление хранилищем",
-        visualAction("Добавить предмет", "editItem()") +
+        visualAction("Создать отдельный предмет", "editItem()") +
           visualAction("Зачислить или списать золото", "treasury()") +
           visualAction("Установить остаток", "setGold()") + visualAction("Категория предметов", "customCategoryForm()"),
       )
@@ -361,7 +361,7 @@ renderBank = function () {
     sectionHeader(
       "Общий банк",
       "Добыча, припасы и имущество компании.",
-      kitHeroSelect(hero) + controls,
+      kitHeroSelect(hero) + itemCatalogLink(catalogHero) + controls,
     ) +
     (!player ? '<div class="kit-tabs" aria-label="Доступное имущество">' +
     [[personalOwner, "Сумки героя", "bank"], ["", "Банк компании", "bank"], ["all", "Все владельцы", "company"]]
@@ -471,6 +471,8 @@ openItem = function (id) {
   const admin = !player
     ? visualMenu(
         "Действия с предметом",
+        (catalog ? visualAction("Открыть в каталоге", "openCatalogItem(" + jsid(catalog.id) + "," +
+          jsid(x.owner?.startsWith("member:") ? x.owner.slice(7) : "") + ")") : "") +
         visualAction("Редактировать", "editItem(" + args + ")") +
           visualAction("Выбрать иконку", "pickInventoryIcon(" + args + ")") +
           visualAction("Увеличить количество", "itemQty(" + args + ",1)") +

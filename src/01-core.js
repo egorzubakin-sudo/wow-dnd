@@ -87,6 +87,7 @@ function applyCommand(source, actor, name, payload, key) {
       "assemble",
       "closeStay",
       "transfer",
+      "grantCatalogItem",
       "merge",
       "withdraw",
       "gold",

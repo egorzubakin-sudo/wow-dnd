@@ -39,7 +39,8 @@ game_state = {'version':1, 'factions':[], 'routes':[], 'settings':{'achievementB
                          'staff':[],'talents':{}}, 'contracts':[], 'journal':[], 'portal':{},
               'engine':{'schemaVersion':1,'receipts':[],'rolls':[],'phase':'stay','stays':[{
                   'id':'stay','name':'Общая стоянка','location':'town','days':1,'hours':8,'start':1,
-                  'history':[],'spent':{},'services':[]}], 'items':[],
+                  'history':[],'spent':{},'services':[]}],
+                  'items':[{'id':'lantern','name':'Фонарь дозорного','category':'Снаряжение','quality':'common','value_gp':5}],
                   'professions':[],'projects':[],'loot':[],'solutions':[],'completions':[],'recipes':[]}}
 
 
@@ -293,6 +294,21 @@ try:
         master_page.get_by_role('button', name='Повторить загрузку карты').click()
         wait_for_map(master_page)
         assert map_read_failures == 0
+        master_page.evaluate("switchTab('bags')")
+        master_page.get_by_role('button', name='Добавить из каталога').click()
+        master_page.get_by_role('button', name='Фонарь дозорного · Снаряжение').click()
+        master_page.get_by_role('button', name='Выдать предмет').click()
+        assert master_page.locator('#catalogRecipient').input_value() == 'h1'
+        master_page.locator('#catalogQty').fill('3')
+        master_page.get_by_role('button', name='Добавить в хранилище').click()
+        master_page.locator('#bagRows').get_by_role('button', name='Фонарь дозорного × 3').wait_for()
+        assert any(row['item_id'] == 'lantern' and row['owner'] == 'member:h1' and row['qty'] == 3
+                   for row in game_state['company']['inventory'])
+        assert game_state['journal'][0]['title'] == 'Выдача: Фонарь дозорного'
+        send_revision(player_id,server_revision)
+        page.evaluate("switchTab('bags')")
+        page.locator('#bagRows').get_by_role('button', name='Фонарь дозорного × 3').wait_for()
+        assert not page.get_by_role('button', name='Добавить из каталога').count()
         assert not errors, errors
         browser.close()
 finally:

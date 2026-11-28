@@ -119,6 +119,18 @@ function take(s, item, owner, amount) {
   }
   s.company.inventory = s.company.inventory.filter((x) => x.qty > 0);
 }
+function grantCatalogItem(s, { item, hero, qty }) {
+  requireThat(typeof hero === "string", "Выберите получателя");
+  const entry = byId(economy(s).items, item);
+  const recipient = hero ? heroOf(s, hero) : null;
+  deposit(s, entry.id, recipient ? "member:" + recipient.id : "", qty);
+  (s.journal ??= []).unshift({
+    id: crypto.randomUUID(), kind: "item", title: "Выдача: " + entry.name,
+    text: (recipient ? recipient.name || recipient.role || "Герой" : "Банк компании") + " · " + qty + " шт.",
+    hidden: !!(recipient || entry.hidden), day: s.company.day, year: s.company.year,
+  });
+}
+register("grantCatalogItem", "master", grantCatalogItem);
 register("transfer", "hero", (s, p) => {
   const row = byId(s.company.inventory, p.stack),
     from = "member:" + p.hero;

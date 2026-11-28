@@ -105,4 +105,12 @@ const updated=await call(master,command("masterSave",{document:masterSnapshot},r
 assert.equal(updated.status,200);
 assert.equal(updated.data.document.company.notes,"Правка мастера");
 assert.equal(updated.data.document.engine.stays[0].spent.hero,4);
+
+const forgedGrant=await call(player,command("grantCatalogItem",{item:"bar",hero:"hero",qty:100},revision));
+assert.equal(forgedGrant.status,422);
+const otherHeroGrant=mutateGame(access(master,document,revision),"grantCatalogItem",{item:"bar",hero:"other",qty:3},"gm-grant");
+assert.equal(otherHeroGrant.company.inventory.find((x)=>x.item_id==="bar"&&x.owner==="member:other").qty,3);
+const playerWithGrant=gameView(otherHeroGrant,access(player));
+assert(!playerWithGrant.company.inventory.some((x)=>x.owner==="member:other"));
+assert(!playerWithGrant.journal.some((row)=>row.title.startsWith("Выдача:")));
 console.log("Shared game permissions, gathering, crafting, visibility, and concurrency passed");

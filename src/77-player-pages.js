@@ -125,12 +125,14 @@ function bagPage() {
   const hero = chosen();
   if (!hero) return;
   openModal("Сумки · " + memberName(heroOf(S, hero)), personalBagContent(hero) +
-    '<div class="actions">' + kitLink("Открыть личные сумки", "closeModal();switchTab('bags')", "bank") + '</div>');
+    '<div class="actions">' + kitLink("Открыть личные сумки", "closeModal();switchTab('bags')", "bank") +
+    itemCatalogLink(hero, "Добавить из каталога") + '</div>');
 }
 function renderBags() {
   const hero = chosen();
   $("main").innerHTML = '<div class="atlas-kit">' + sectionHeader("Личные сумки",
-    hero ? memberName(heroOf(S, hero)) : "Выберите героя", kitHeroSelect(hero)) +
+    hero ? memberName(heroOf(S, hero)) : "Выберите героя",
+    kitHeroSelect(hero) + (hero ? itemCatalogLink(hero, "Добавить из каталога") : "")) +
     (hero ? '<div class="kit-panel hero-bags">' + personalBagContent(hero) + '</div>' :
       emptyScene("Сумки доступны назначенному герою.")) + '</div>';
   bindKitHero();

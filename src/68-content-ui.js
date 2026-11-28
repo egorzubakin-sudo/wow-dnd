@@ -7,30 +7,78 @@ function listImportChanges(rows) {
   return rows.slice(0, 80).map((r) => labels[r.change] + " · " + r.table + " / " + r.id).join("\n") +
     (rows.length > 80 ? "\n… ещё " + (rows.length - 80) + " записей" : "");
 }
-function catalogRecords(table) {
+function catalogRecords(table, hero = "") {
   if (player || !Object.hasOwn(tables, table)) return;
+  const itemCatalog = table === "items";
+  const categories = itemCatalog ? [...new Set(records(S, table).map((row) => row.category))].filter(Boolean).sort() : [];
+  const pageSize = 60;
+  let page = 0;
   openModal(tables[table][0], '<div class="engine-form"><div class="actions" id="catalogActions"></div>' +
-    input("Поиск по имени или ID", "catalogQuery", "search") + '<div id="catalogRows"></div></div>');
-  $("catalogActions").append(button("Новая запись", () => editCatalogRow(table)),
+    input("Поиск по имени или ID", "catalogQuery", "search") +
+    (itemCatalog ? pick("Категория", "catalogCategory", [["", "Все категории"], ...categories.map((c) => [c, c])], "") : "") +
+    '<div id="catalogRows"></div><div id="catalogPages" class="actions"></div></div>');
+  $("catalogActions").append(button(itemCatalog ? "Новый предмет в каталоге" : "Новая запись", () => editCatalogRow(table)),
     button("CSV и JSON", () => workshop(table)));
   function draw() {
-    const query = val("catalogQuery").toLowerCase();
+    const query = val("catalogQuery").trim().toLowerCase();
+    const category = $("catalogCategory")?.value;
     const candidates = records(S, table).filter((row) =>
-      (row.id + " " + catalogRowLabel(row)).toLowerCase().includes(query));
+      (!category || row.category === category) && (row.id + " " + catalogRowLabel(row)).toLowerCase().includes(query));
+    if (itemCatalog) candidates.sort((a, b) => String(catalogRowLabel(a)).localeCompare(catalogRowLabel(b), "ru"));
     const panel = $("catalogRows");
     panel.innerHTML = candidates.length ? "<small>Найдено · " + candidates.length + "</small>" :
       emptyScene("Записи пока не найдены.");
-    for (const row of candidates.slice(0, 60)) {
-      const control = button(catalogRowLabel(row) + " · " + row.id, () => editCatalogRow(table, row));
+    for (const row of candidates.slice(page * pageSize, (page + 1) * pageSize)) {
+      const control = button(catalogRowLabel(row) + " · " + (itemCatalog ? row.category : row.id),
+        () => itemCatalog ? openCatalogItem(row.id, hero) : editCatalogRow(table, row));
       control.className = "kit-listrow";
       panel.append(control);
     }
+    const pages = $("catalogPages");
+    pages.replaceChildren();
+    const totalPages = Math.ceil(candidates.length / pageSize);
+    if (itemCatalog && totalPages > 1) {
+      const previous = button("Назад", () => { page--; draw(); });
+      const next = button("Далее", () => { page++; draw(); });
+      previous.disabled = page === 0;
+      next.disabled = page + 1 === totalPages;
+      pages.append(previous, `${page + 1} / ${totalPages}`, next);
+    }
   }
-  $("catalogQuery").oninput = draw;
+  $("catalogQuery").oninput = () => { page = 0; draw(); };
+  if (itemCatalog) $("catalogCategory").onchange = () => { page = 0; draw(); };
   draw();
 }
 function catalogRowLabel(row) {
   return row.name || row.title || [row.service, row.item_id, row.node_id].filter(Boolean).join(" · ") || row.id;
+}
+function itemCatalogLink(hero = "", label = "Каталог предметов") {
+  return !player && actor?.role === "master" && !previewReadOnly
+    ? kitLink(label, "catalogRecords('items'," + jsid(hero) + ")", "bank") : "";
+}
+function openCatalogItem(id, hero = "") {
+  if (player || actor?.role !== "master" || previewReadOnly) return;
+  const item = records(S, "items").find((row) => row.id === id);
+  if (!item) return toast("Предмет не найден в каталоге");
+  const quality = ITEM_QUAL.find(([code]) => code === item.quality) || ITEM_QUAL[0];
+  openModal(item.name, '<article class="reader item-dossier"><div class="item-dossier-title">' +
+    itemIcon(item) + '<div><strong style="color:' + quality[2] + '">' + esc(item.name) + '</strong>' +
+    '<small>' + esc([item.category, quality[1], item.hidden ? "Скрыт от игроков" : ""].filter(Boolean).join(" · ")) + '</small></div></div>' +
+    (item.desc ? '<p class="record-body">' + esc(item.desc) + '</p>' : '') +
+    (item.value_gp != null ? '<p>Цена за единицу · ' + esc(goldText(item.value_gp)) + '</p>' : '') +
+    equipmentDetails(item, item) + '<div class="actions" id="catalogItemActions"></div></article>');
+  const give = button("Выдать предмет", () => {
+    const recipients = [["", "Банк компании"], ...S.company.members.map((m) => [m.id, memberName(m)])];
+    commandForm("Выдать · " + item.name,
+      pick("Получатель", "catalogRecipient", recipients, hero) +
+      input("Количество", "catalogQty", "number", 1, 'required min="1" step="1"') +
+      (item.hidden ? '<p class="muted">Выданный предмет будет виден только мастеру.</p>' : ''),
+      "grantCatalogItem", () => ({ item: id, hero: val("catalogRecipient"), qty: num("catalogQty") }), "Добавить в хранилище");
+  });
+  give.className = "primary";
+  $("catalogItemActions").append(give,
+    button("Редактировать в каталоге", () => editCatalogRow("items", item)),
+    button("К списку предметов", () => catalogRecords("items", hero)));
 }
 function editCatalogRow(table, old = null) {
   if (player) return;

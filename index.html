@@ -4169,6 +4169,7 @@ function applyCommand(source, actor, name, payload, key) {
       "assemble",
       "closeStay",
       "transfer",
+      "grantCatalogItem",
       "merge",
       "withdraw",
       "gold",
@@ -7531,6 +7532,18 @@ function take(s, item, owner, amount) {
   }
   s.company.inventory = s.company.inventory.filter((x) => x.qty > 0);
 }
+function grantCatalogItem(s, { item, hero, qty }) {
+  requireThat(typeof hero === "string", "Выберите получателя");
+  const entry = byId(economy(s).items, item);
+  const recipient = hero ? heroOf(s, hero) : null;
+  deposit(s, entry.id, recipient ? "member:" + recipient.id : "", qty);
+  (s.journal ??= []).unshift({
+    id: crypto.randomUUID(), kind: "item", title: "Выдача: " + entry.name,
+    text: (recipient ? recipient.name || recipient.role || "Герой" : "Банк компании") + " · " + qty + " шт.",
+    hidden: !!(recipient || entry.hidden), day: s.company.day, year: s.company.year,
+  });
+}
+register("grantCatalogItem", "master", grantCatalogItem);
 register("transfer", "hero", (s, p) => {
   const row = byId(s.company.inventory, p.stack),
     from = "member:" + p.hero;
@@ -12006,6 +12019,7 @@ function renderWorkshop() {
     '<section class="kit-panel"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div></div>';
   $("main").firstElementChild.insertAdjacentHTML("beforeend", administrationSections());
   $("workshopLinks").append(
+    button("Каталог предметов", () => catalogRecords("items")),
     button("Мастерская данных", () => workshop()),
     button("Пакеты контента", contentWorkshop),
     button("Скачать спецификацию для генерации контента", downloadContentSpecification),
@@ -12924,30 +12938,78 @@ function listImportChanges(rows) {
   return rows.slice(0, 80).map((r) => labels[r.change] + " · " + r.table + " / " + r.id).join("\n") +
     (rows.length > 80 ? "\n… ещё " + (rows.length - 80) + " записей" : "");
 }
-function catalogRecords(table) {
+function catalogRecords(table, hero = "") {
   if (player || !Object.hasOwn(tables, table)) return;
+  const itemCatalog = table === "items";
+  const categories = itemCatalog ? [...new Set(records(S, table).map((row) => row.category))].filter(Boolean).sort() : [];
+  const pageSize = 60;
+  let page = 0;
   openModal(tables[table][0], '<div class="engine-form"><div class="actions" id="catalogActions"></div>' +
-    input("Поиск по имени или ID", "catalogQuery", "search") + '<div id="catalogRows"></div></div>');
-  $("catalogActions").append(button("Новая запись", () => editCatalogRow(table)),
+    input("Поиск по имени или ID", "catalogQuery", "search") +
+    (itemCatalog ? pick("Категория", "catalogCategory", [["", "Все категории"], ...categories.map((c) => [c, c])], "") : "") +
+    '<div id="catalogRows"></div><div id="catalogPages" class="actions"></div></div>');
+  $("catalogActions").append(button(itemCatalog ? "Новый предмет в каталоге" : "Новая запись", () => editCatalogRow(table)),
     button("CSV и JSON", () => workshop(table)));
   function draw() {
-    const query = val("catalogQuery").toLowerCase();
+    const query = val("catalogQuery").trim().toLowerCase();
+    const category = $("catalogCategory")?.value;
     const candidates = records(S, table).filter((row) =>
-      (row.id + " " + catalogRowLabel(row)).toLowerCase().includes(query));
+      (!category || row.category === category) && (row.id + " " + catalogRowLabel(row)).toLowerCase().includes(query));
+    if (itemCatalog) candidates.sort((a, b) => String(catalogRowLabel(a)).localeCompare(catalogRowLabel(b), "ru"));
     const panel = $("catalogRows");
     panel.innerHTML = candidates.length ? "<small>Найдено · " + candidates.length + "</small>" :
       emptyScene("Записи пока не найдены.");
-    for (const row of candidates.slice(0, 60)) {
-      const control = button(catalogRowLabel(row) + " · " + row.id, () => editCatalogRow(table, row));
+    for (const row of candidates.slice(page * pageSize, (page + 1) * pageSize)) {
+      const control = button(catalogRowLabel(row) + " · " + (itemCatalog ? row.category : row.id),
+        () => itemCatalog ? openCatalogItem(row.id, hero) : editCatalogRow(table, row));
       control.className = "kit-listrow";
       panel.append(control);
     }
+    const pages = $("catalogPages");
+    pages.replaceChildren();
+    const totalPages = Math.ceil(candidates.length / pageSize);
+    if (itemCatalog && totalPages > 1) {
+      const previous = button("Назад", () => { page--; draw(); });
+      const next = button("Далее", () => { page++; draw(); });
+      previous.disabled = page === 0;
+      next.disabled = page + 1 === totalPages;
+      pages.append(previous, `${page + 1} / ${totalPages}`, next);
+    }
   }
-  $("catalogQuery").oninput = draw;
+  $("catalogQuery").oninput = () => { page = 0; draw(); };
+  if (itemCatalog) $("catalogCategory").onchange = () => { page = 0; draw(); };
   draw();
 }
 function catalogRowLabel(row) {
   return row.name || row.title || [row.service, row.item_id, row.node_id].filter(Boolean).join(" · ") || row.id;
+}
+function itemCatalogLink(hero = "", label = "Каталог предметов") {
+  return !player && actor?.role === "master" && !previewReadOnly
+    ? kitLink(label, "catalogRecords('items'," + jsid(hero) + ")", "bank") : "";
+}
+function openCatalogItem(id, hero = "") {
+  if (player || actor?.role !== "master" || previewReadOnly) return;
+  const item = records(S, "items").find((row) => row.id === id);
+  if (!item) return toast("Предмет не найден в каталоге");
+  const quality = ITEM_QUAL.find(([code]) => code === item.quality) || ITEM_QUAL[0];
+  openModal(item.name, '<article class="reader item-dossier"><div class="item-dossier-title">' +
+    itemIcon(item) + '<div><strong style="color:' + quality[2] + '">' + esc(item.name) + '</strong>' +
+    '<small>' + esc([item.category, quality[1], item.hidden ? "Скрыт от игроков" : ""].filter(Boolean).join(" · ")) + '</small></div></div>' +
+    (item.desc ? '<p class="record-body">' + esc(item.desc) + '</p>' : '') +
+    (item.value_gp != null ? '<p>Цена за единицу · ' + esc(goldText(item.value_gp)) + '</p>' : '') +
+    equipmentDetails(item, item) + '<div class="actions" id="catalogItemActions"></div></article>');
+  const give = button("Выдать предмет", () => {
+    const recipients = [["", "Банк компании"], ...S.company.members.map((m) => [m.id, memberName(m)])];
+    commandForm("Выдать · " + item.name,
+      pick("Получатель", "catalogRecipient", recipients, hero) +
+      input("Количество", "catalogQty", "number", 1, 'required min="1" step="1"') +
+      (item.hidden ? '<p class="muted">Выданный предмет будет виден только мастеру.</p>' : ''),
+      "grantCatalogItem", () => ({ item: id, hero: val("catalogRecipient"), qty: num("catalogQty") }), "Добавить в хранилище");
+  });
+  give.className = "primary";
+  $("catalogItemActions").append(give,
+    button("Редактировать в каталоге", () => editCatalogRow("items", item)),
+    button("К списку предметов", () => catalogRecords("items", hero)));
 }
 function editCatalogRow(table, old = null) {
   if (player) return;
@@ -14419,7 +14481,6 @@ function storageGroups(rows) {
       bankQuery || bankFilter || storageQuality
         ? "По этим фильтрам нет предметов."
         : "В хранилище пока нет добычи и припасов.",
-      !player ? visualAction("Добавить предмет", "editItem()") : "",
     );
   if (storageView === "table" && !player)
     return (
@@ -14457,6 +14518,7 @@ function storageGroups(rows) {
 }
 renderBank = function () {
   const hero = chosen(), personalOwner = hero ? "member:" + hero : null;
+  const catalogHero = personalOwner && bankOwner === personalOwner ? hero : "";
   const visible = S.company.inventory.filter((x) => canSeeStack(x) && (!player || !x.owner));
   const rows = visible.filter(
     (x) =>
@@ -14476,7 +14538,7 @@ renderBank = function () {
   const controls = !player
     ? visualMenu(
         "Управление хранилищем",
-        visualAction("Добавить предмет", "editItem()") +
+        visualAction("Создать отдельный предмет", "editItem()") +
           visualAction("Зачислить или списать золото", "treasury()") +
           visualAction("Установить остаток", "setGold()") + visualAction("Категория предметов", "customCategoryForm()"),
       )
@@ -14486,7 +14548,7 @@ renderBank = function () {
     sectionHeader(
       "Общий банк",
       "Добыча, припасы и имущество компании.",
-      kitHeroSelect(hero) + controls,
+      kitHeroSelect(hero) + itemCatalogLink(catalogHero) + controls,
     ) +
     (!player ? '<div class="kit-tabs" aria-label="Доступное имущество">' +
     [[personalOwner, "Сумки героя", "bank"], ["", "Банк компании", "bank"], ["all", "Все владельцы", "company"]]
@@ -14596,6 +14658,8 @@ openItem = function (id) {
   const admin = !player
     ? visualMenu(
         "Действия с предметом",
+        (catalog ? visualAction("Открыть в каталоге", "openCatalogItem(" + jsid(catalog.id) + "," +
+          jsid(x.owner?.startsWith("member:") ? x.owner.slice(7) : "") + ")") : "") +
         visualAction("Редактировать", "editItem(" + args + ")") +
           visualAction("Выбрать иконку", "pickInventoryIcon(" + args + ")") +
           visualAction("Увеличить количество", "itemQty(" + args + ",1)") +
@@ -16079,12 +16143,14 @@ function bagPage() {
   const hero = chosen();
   if (!hero) return;
   openModal("Сумки · " + memberName(heroOf(S, hero)), personalBagContent(hero) +
-    '<div class="actions">' + kitLink("Открыть личные сумки", "closeModal();switchTab('bags')", "bank") + '</div>');
+    '<div class="actions">' + kitLink("Открыть личные сумки", "closeModal();switchTab('bags')", "bank") +
+    itemCatalogLink(hero, "Добавить из каталога") + '</div>');
 }
 function renderBags() {
   const hero = chosen();
   $("main").innerHTML = '<div class="atlas-kit">' + sectionHeader("Личные сумки",
-    hero ? memberName(heroOf(S, hero)) : "Выберите героя", kitHeroSelect(hero)) +
+    hero ? memberName(heroOf(S, hero)) : "Выберите героя",
+    kitHeroSelect(hero) + (hero ? itemCatalogLink(hero, "Добавить из каталога") : "")) +
     (hero ? '<div class="kit-panel hero-bags">' + personalBagContent(hero) + '</div>' :
       emptyScene("Сумки доступны назначенному герою.")) + '</div>';
   bindKitHero();
@@ -20500,9 +20566,19 @@ function createSharedGame(client, campaign, initial, openSettings) {
   closing.observe($("modalwrap"),{attributes:true,attributeFilter:["class"]});
   async function command(name,payload,key=crypto.randomUUID()) {
     if (writing) await writing;
+    let request = crypto.randomUUID();
+    if (name === "grantCatalogItem") {
+      requireThat(actor.role === "master" && !previewReadOnly, "Недостаточно прав");
+      // Catalog grants use the existing master editor endpoint on older online deployments.
+      const document = structuredClone(current.document);
+      grantCatalogItem(document, payload);
+      name = "masterSave";
+      payload = { document };
+      request = key;
+    }
     const beforeImport = name === "contentImport" && actor.role === "master" ?
       { document: structuredClone(S), prefix: current.prefix } : null;
-    const value = await handle({action:"command",request:crypto.randomUUID(),revision:current.revision,name,payload,key});
+    const value = await handle({action:"command",request,revision:current.revision,name,payload,key});
     if (exited) return;
     display(value);
     if (value.conflict) throw Error("Другой участник уже изменил кампанию. Данные обновлены, повторите действие.");

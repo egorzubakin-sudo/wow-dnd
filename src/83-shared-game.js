@@ -160,9 +160,19 @@ function createSharedGame(client, campaign, initial, openSettings) {
   closing.observe($("modalwrap"),{attributes:true,attributeFilter:["class"]});
   async function command(name,payload,key=crypto.randomUUID()) {
     if (writing) await writing;
+    let request = crypto.randomUUID();
+    if (name === "grantCatalogItem") {
+      requireThat(actor.role === "master" && !previewReadOnly, "Недостаточно прав");
+      // Catalog grants use the existing master editor endpoint on older online deployments.
+      const document = structuredClone(current.document);
+      grantCatalogItem(document, payload);
+      name = "masterSave";
+      payload = { document };
+      request = key;
+    }
     const beforeImport = name === "contentImport" && actor.role === "master" ?
       { document: structuredClone(S), prefix: current.prefix } : null;
-    const value = await handle({action:"command",request:crypto.randomUUID(),revision:current.revision,name,payload,key});
+    const value = await handle({action:"command",request,revision:current.revision,name,payload,key});
     if (exited) return;
     display(value);
     if (value.conflict) throw Error("Другой участник уже изменил кампанию. Данные обновлены, повторите действие.");

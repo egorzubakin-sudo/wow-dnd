@@ -812,6 +812,7 @@ function renderWorkshop() {
     '<section class="kit-panel"><h3>Демонстрационные данные</h3><p>Три региона, ресурсы, рецепты, занятия и местные поручения. Добавляются по подтверждению мастера.</p><div class="actions" id="demoLinks"></div></section></div></div>';
   $("main").firstElementChild.insertAdjacentHTML("beforeend", administrationSections());
   $("workshopLinks").append(
+    button("Каталог предметов", () => catalogRecords("items")),
     button("Мастерская данных", () => workshop()),
     button("Пакеты контента", contentWorkshop),
     button("Скачать спецификацию для генерации контента", downloadContentSpecification),
