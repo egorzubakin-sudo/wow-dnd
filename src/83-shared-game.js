@@ -201,16 +201,23 @@ function createSharedGame(client, campaign, initial, openSettings) {
       void refresh();
     });
   }
-  function image(ref) {
+  const imageFailed = (ref) => urls.get(ref) === false;
+  function image(ref, retry = false) {
+    if (retry && imageFailed(ref)) urls.delete(ref);
     if (urls.has(ref)) return urls.get(ref) || "";
     const prefix = current.prefix;
     if (!prefix) return "";
     urls.set(ref,null);
-    bucket.download(prefix+ref.slice(atlasStorageReference.length)).then(({data,error}) => {
-      if (!data || error || exited || current.prefix !== prefix) return;
-      urls.set(ref,URL.createObjectURL(data));
+    void (async () => {
+      let url = false;
+      try {
+        const {data,error} = await bucket.download(prefix+ref.slice(atlasStorageReference.length));
+        if (data && !error && !exited && current.prefix === prefix) url = URL.createObjectURL(data);
+      } catch {}
+      if (exited || current.prefix !== prefix) return;
+      urls.set(ref,url);
       redraw();
-    }).catch(()=>{});
+    })();
     return "";
   }
   function leave() {
@@ -243,7 +250,7 @@ function createSharedGame(client, campaign, initial, openSettings) {
     await openSettings(mode);
   }
   return {
-    enter:()=>display(initial,true), command, save, image, settings, leave,
+    enter:()=>display(initial,true), command, save, image, imageFailed, settings, leave,
     hasRecovery:()=>!!recovery && actor.role === "master",
     pendingSave:()=>!!writing,
     downloadRecovery:()=>downloadBackup(recovery,"atlas-unsaved-online.json"),

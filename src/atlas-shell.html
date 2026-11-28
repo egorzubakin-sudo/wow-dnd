@@ -37,7 +37,23 @@ const TALENTS=[['Военное дело',['Арсенал','Оружейная'
 const WORLD_BOOK={"title":"Хроники Азерота","subtitle":"Книга первая. Приближение хаоса","year":"27-й год после открытия Тёмного портала","chapters":[{"title":"Видение Света","text":"","image":""},{"title":"Поход на запад","text":"","image":""},{"title":"Бастион на краю света","text":"","image":""},{"title":"Последняя зима Лордерона","text":"","image":""},{"title":"Возрождение Арати","text":"","image":""},{"title":"Битва за Андорал и Пепельный Крестовый Поход","text":"","image":""},{"title":"Калимдорская война","text":"","image":""},{"title":"Ярость Хиджала","text":"","image":""},{"title":"Хиджальский договор","text":"","image":""},{"title":"Пропавший король","text":"","image":""},{"title":"Революция в Штормграде","text":"","image":""},{"title":"Изгнанники Штормграда","text":"","image":""},{"title":"Золотой век вольных компаний","text":"","image":""},{"title":"Наступал 27-й год после открытия Тёмного портала","text":"","image":""}]};
 function fresh(){return {version:1,worldBook:JSON.parse(JSON.stringify(WORLD_BOOK)),map:null,nodes:[],routes:[],factions:FACTIONS.map((f,i)=>({id:'f'+i,name:f[0],leader:f[1],color:f[2],icon:f[3],desc:f[4],rep:'Нейтралитет',charter:'',notes:'',hidden:false})),company:{name:'Вольная компания',gold:0,day:1,year:27,location:'',notes:'',members:ROLES.map(r=>({id:uid(),name:'',role:r,mod:0,active:true})),talents:{},staff:[]},contracts:[],journal:[],journey:null,settings:{showLabels:true}}}
 let cachedMap=null,cachedMapUrl='';
-function mapHref(){if(cachedMap!==S.map){if(cachedMapUrl)URL.revokeObjectURL(cachedMapUrl);cachedMap=S.map;cachedMapUrl='';if(S.map){if(sharedGame&&remoteMediaRef(S.map.src))return remoteImageURL(S.map.src);try{const [head,body]=S.map.src.split(',');const bin=atob(body),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);cachedMapUrl=URL.createObjectURL(new Blob([bytes],{type:head.split(':')[1].split(';')[0]}))}catch{}}}return cachedMapUrl||S.map?.src||''}
+function mapHref() {
+  if (cachedMap !== S.map) {
+    if (cachedMapUrl) URL.revokeObjectURL(cachedMapUrl);
+    cachedMap = S.map;
+    cachedMapUrl = '';
+    if (S.map && !remoteMediaRef(S.map.src)) {
+      try {
+        const [head, body] = S.map.src.split(',');
+        const decoded = atob(body), bytes = new Uint8Array(decoded.length);
+        for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
+        cachedMapUrl = URL.createObjectURL(new Blob([bytes], {type: head.split(':')[1].split(';')[0]}));
+      } catch {}
+    }
+  }
+  if (remoteMediaRef(S.map?.src)) return remoteImageURL(S.map.src);
+  return cachedMapUrl || S.map?.src || '';
+}
 let S=fresh(),tab='home',player=false,selected=null,tool='select',routeStart=null,view=null,db=null,saveTimer=null,saveSeq=0,toastTimer,modalCancel=null,searchText='';
 const node=id=>S.nodes.find(x=>x.id===id), route=id=>S.routes.find(x=>x.id===id), faction=id=>S.factions.find(x=>x.id===id), nameOf=id=>node(id)?.name||'Неизвестный узел', memberName=m=>m?(m.name||m.role||'Участник'):'Не выбран', fName=id=>player&&faction(id)?.hidden?'Неизвестная принадлежность':faction(id)?.name||'Нейтральная территория', routeLabel=r=>r.name||`${nameOf(r.a)} — ${nameOf(r.b)}`, kind=k=>ROUTES.find(x=>x[0]===k)||ROUTES[0], type=k=>TYPES.find(x=>x[0]===k)||TYPES[11], dayLabel=()=>`День ${S.company.day} · ${S.company.year}-й год`; 
 function visibleNode(a){return !player||a.visibility!=='hidden'}function visibleRoute(r){return (!player||r.visibility!=='hidden')&&node(r.a)&&node(r.b)&&visibleNode(node(r.a))&&visibleNode(node(r.b))}function visibleFaction(f){return !player||!f.hidden}

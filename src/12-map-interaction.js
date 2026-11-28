@@ -162,13 +162,26 @@ function drawMap() {
   const p = start && mapNodePosition(start, w, h);
   const preview = p && mapPreview ? `<path class="map-route-preview" d="M${p.x} ${p.y} L${mapPreview.x} ${mapPreview.y}"
     stroke="#fbe2a0" stroke-width="${3 * scale}" stroke-dasharray="${6 * scale} ${5 * scale}" fill="none" pointer-events="none"/>` : "";
-  const background = S.map ? `<image href="${esc(mapHref())}" width="${w}" height="${h}" preserveAspectRatio="none" pointer-events="none"/>`
+  const href = mapHref();
+  const background = href ? `<image href="${esc(href)}" width="${w}" height="${h}" preserveAspectRatio="none" pointer-events="none"/>`
     : `<defs><pattern id="mapGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#a4b59b" stroke-opacity=".18"/></pattern></defs>
       <rect width="${w}" height="${h}" fill="#253932"/><rect width="${w}" height="${h}" fill="url(#mapGrid)"/>
       ${!S.nodes.length ? `<text x="${w / 2}" y="${h / 2}" fill="#a4b59b" text-anchor="middle" font-size="24">КАРТА АЗЕРОТА</text>` : ""}`;
   svg.innerHTML = background + routes.map((r) => mapRouteDrawing(r, groups.get(pairKey(r.a, r.b)), w, h, scale)).join("") +
     preview + S.nodes.filter(visibleNode).map((a) => mapMarkerDrawing(a, w, h, scale)).join("");
-  $("maphint").textContent = mapHint();
+  const hint = $("maphint"), ref = S.map?.src;
+  hint.textContent = mapHint();
+  if (!href && sharedGame && remoteMediaRef(ref)) {
+    if (sharedGame.imageFailed(ref)) {
+      hint.textContent = "Подложка не загрузилась. ";
+      hint.append(button("Повторить загрузку карты", () => {
+        sharedGame.image(ref, true);
+        drawMap();
+      }));
+    } else {
+      hint.textContent = "Загружаем подложку карты…";
+    }
+  }
   $("mapAdd")?.setAttribute("aria-pressed", String(tool === "node"));
   $("mapRoute")?.setAttribute("aria-pressed", String(tool === "route"));
 }

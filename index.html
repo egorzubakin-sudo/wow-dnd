@@ -3722,7 +3722,23 @@ const TALENTS=[['Военное дело',['Арсенал','Оружейная'
 const WORLD_BOOK={"title":"Хроники Азерота","subtitle":"Книга первая. Приближение хаоса","year":"27-й год после открытия Тёмного портала","chapters":[{"title":"Видение Света","text":"","image":""},{"title":"Поход на запад","text":"","image":""},{"title":"Бастион на краю света","text":"","image":""},{"title":"Последняя зима Лордерона","text":"","image":""},{"title":"Возрождение Арати","text":"","image":""},{"title":"Битва за Андорал и Пепельный Крестовый Поход","text":"","image":""},{"title":"Калимдорская война","text":"","image":""},{"title":"Ярость Хиджала","text":"","image":""},{"title":"Хиджальский договор","text":"","image":""},{"title":"Пропавший король","text":"","image":""},{"title":"Революция в Штормграде","text":"","image":""},{"title":"Изгнанники Штормграда","text":"","image":""},{"title":"Золотой век вольных компаний","text":"","image":""},{"title":"Наступал 27-й год после открытия Тёмного портала","text":"","image":""}]};
 function fresh(){return {version:1,worldBook:JSON.parse(JSON.stringify(WORLD_BOOK)),map:null,nodes:[],routes:[],factions:FACTIONS.map((f,i)=>({id:'f'+i,name:f[0],leader:f[1],color:f[2],icon:f[3],desc:f[4],rep:'Нейтралитет',charter:'',notes:'',hidden:false})),company:{name:'Вольная компания',gold:0,day:1,year:27,location:'',notes:'',members:ROLES.map(r=>({id:uid(),name:'',role:r,mod:0,active:true})),talents:{},staff:[]},contracts:[],journal:[],journey:null,settings:{showLabels:true}}}
 let cachedMap=null,cachedMapUrl='';
-function mapHref(){if(cachedMap!==S.map){if(cachedMapUrl)URL.revokeObjectURL(cachedMapUrl);cachedMap=S.map;cachedMapUrl='';if(S.map){if(sharedGame&&remoteMediaRef(S.map.src))return remoteImageURL(S.map.src);try{const [head,body]=S.map.src.split(',');const bin=atob(body),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);cachedMapUrl=URL.createObjectURL(new Blob([bytes],{type:head.split(':')[1].split(';')[0]}))}catch{}}}return cachedMapUrl||S.map?.src||''}
+function mapHref() {
+  if (cachedMap !== S.map) {
+    if (cachedMapUrl) URL.revokeObjectURL(cachedMapUrl);
+    cachedMap = S.map;
+    cachedMapUrl = '';
+    if (S.map && !remoteMediaRef(S.map.src)) {
+      try {
+        const [head, body] = S.map.src.split(',');
+        const decoded = atob(body), bytes = new Uint8Array(decoded.length);
+        for (let i = 0; i < decoded.length; i++) bytes[i] = decoded.charCodeAt(i);
+        cachedMapUrl = URL.createObjectURL(new Blob([bytes], {type: head.split(':')[1].split(';')[0]}));
+      } catch {}
+    }
+  }
+  if (remoteMediaRef(S.map?.src)) return remoteImageURL(S.map.src);
+  return cachedMapUrl || S.map?.src || '';
+}
 let S=fresh(),tab='home',player=false,selected=null,tool='select',routeStart=null,view=null,db=null,saveTimer=null,saveSeq=0,toastTimer,modalCancel=null,searchText='';
 const node=id=>S.nodes.find(x=>x.id===id), route=id=>S.routes.find(x=>x.id===id), faction=id=>S.factions.find(x=>x.id===id), nameOf=id=>node(id)?.name||'Неизвестный узел', memberName=m=>m?(m.name||m.role||'Участник'):'Не выбран', fName=id=>player&&faction(id)?.hidden?'Неизвестная принадлежность':faction(id)?.name||'Нейтральная территория', routeLabel=r=>r.name||`${nameOf(r.a)} — ${nameOf(r.b)}`, kind=k=>ROUTES.find(x=>x[0]===k)||ROUTES[0], type=k=>TYPES.find(x=>x[0]===k)||TYPES[11], dayLabel=()=>`День ${S.company.day} · ${S.company.year}-й год`; 
 function visibleNode(a){return !player||a.visibility!=='hidden'}function visibleRoute(r){return (!player||r.visibility!=='hidden')&&node(r.a)&&node(r.b)&&visibleNode(node(r.a))&&visibleNode(node(r.b))}function visibleFaction(f){return !player||!f.hidden}
@@ -5626,13 +5642,26 @@ function drawMap() {
   const p = start && mapNodePosition(start, w, h);
   const preview = p && mapPreview ? `<path class="map-route-preview" d="M${p.x} ${p.y} L${mapPreview.x} ${mapPreview.y}"
     stroke="#fbe2a0" stroke-width="${3 * scale}" stroke-dasharray="${6 * scale} ${5 * scale}" fill="none" pointer-events="none"/>` : "";
-  const background = S.map ? `<image href="${esc(mapHref())}" width="${w}" height="${h}" preserveAspectRatio="none" pointer-events="none"/>`
+  const href = mapHref();
+  const background = href ? `<image href="${esc(href)}" width="${w}" height="${h}" preserveAspectRatio="none" pointer-events="none"/>`
     : `<defs><pattern id="mapGrid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="#a4b59b" stroke-opacity=".18"/></pattern></defs>
       <rect width="${w}" height="${h}" fill="#253932"/><rect width="${w}" height="${h}" fill="url(#mapGrid)"/>
       ${!S.nodes.length ? `<text x="${w / 2}" y="${h / 2}" fill="#a4b59b" text-anchor="middle" font-size="24">КАРТА АЗЕРОТА</text>` : ""}`;
   svg.innerHTML = background + routes.map((r) => mapRouteDrawing(r, groups.get(pairKey(r.a, r.b)), w, h, scale)).join("") +
     preview + S.nodes.filter(visibleNode).map((a) => mapMarkerDrawing(a, w, h, scale)).join("");
-  $("maphint").textContent = mapHint();
+  const hint = $("maphint"), ref = S.map?.src;
+  hint.textContent = mapHint();
+  if (!href && sharedGame && remoteMediaRef(ref)) {
+    if (sharedGame.imageFailed(ref)) {
+      hint.textContent = "Подложка не загрузилась. ";
+      hint.append(button("Повторить загрузку карты", () => {
+        sharedGame.image(ref, true);
+        drawMap();
+      }));
+    } else {
+      hint.textContent = "Загружаем подложку карты…";
+    }
+  }
   $("mapAdd")?.setAttribute("aria-pressed", String(tool === "node"));
   $("mapRoute")?.setAttribute("aria-pressed", String(tool === "route"));
 }
@@ -20512,16 +20541,23 @@ function createSharedGame(client, campaign, initial, openSettings) {
       void refresh();
     });
   }
-  function image(ref) {
+  const imageFailed = (ref) => urls.get(ref) === false;
+  function image(ref, retry = false) {
+    if (retry && imageFailed(ref)) urls.delete(ref);
     if (urls.has(ref)) return urls.get(ref) || "";
     const prefix = current.prefix;
     if (!prefix) return "";
     urls.set(ref,null);
-    bucket.download(prefix+ref.slice(atlasStorageReference.length)).then(({data,error}) => {
-      if (!data || error || exited || current.prefix !== prefix) return;
-      urls.set(ref,URL.createObjectURL(data));
+    void (async () => {
+      let url = false;
+      try {
+        const {data,error} = await bucket.download(prefix+ref.slice(atlasStorageReference.length));
+        if (data && !error && !exited && current.prefix === prefix) url = URL.createObjectURL(data);
+      } catch {}
+      if (exited || current.prefix !== prefix) return;
+      urls.set(ref,url);
       redraw();
-    }).catch(()=>{});
+    })();
     return "";
   }
   function leave() {
@@ -20554,7 +20590,7 @@ function createSharedGame(client, campaign, initial, openSettings) {
     await openSettings(mode);
   }
   return {
-    enter:()=>display(initial,true), command, save, image, settings, leave,
+    enter:()=>display(initial,true), command, save, image, imageFailed, settings, leave,
     hasRecovery:()=>!!recovery && actor.role === "master",
     pendingSave:()=>!!writing,
     downloadRecovery:()=>downloadBackup(recovery,"atlas-unsaved-online.json"),

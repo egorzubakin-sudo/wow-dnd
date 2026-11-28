@@ -2,6 +2,7 @@
 import base64
 from copy import deepcopy
 from functools import partial
+from hashlib import sha256
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
@@ -17,6 +18,11 @@ import_id = '20000000-0000-0000-0000-000000000001'
 master_id = '00000000-0000-0000-0000-000000000001'
 player_id = '00000000-0000-0000-0000-000000000002'
 asset = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+rRFkAAAAASUVORK5CYII='
+asset_bytes = base64.b64decode(asset.split(',')[1])
+media_prefix = f'{campaign_id}/{import_id}/'
+map_file = sha256(asset_bytes).hexdigest() + '.png'
+map_ref = 'atlas-storage:v1:' + map_file
+map_read_failures = 0
 backup = {'version': 1, 'company': {'gold': 50, 'members': [{'id': 'h1', 'name': 'Арья', 'image': asset}]},
           'nodes': [], 'routes': [], 'factions': [], 'settings': {'heroIcon': asset}, 'journal': [{'text': 'Заметка мастера'}]}
 calls = []
@@ -70,7 +76,7 @@ def fake_token(sub):
                      segment({'sub': sub, 'exp': int(time.time())+3600, 'role': 'authenticated'}), 'unused'])
 
 def intercept(route):
-    global server_revision, uploaded_doc
+    global server_revision, uploaded_doc, map_read_failures
     request = route.request
     active_user=user_from_token(request.headers.get("authorization","").removeprefix("Bearer "))
     path = urlsplit(request.url).path
@@ -100,8 +106,12 @@ def intercept(route):
             else:
                 assert args['name']=='masterSave'
                 game_state.update(deepcopy(args['payload']['document']))
+                map_data = game_state.get('map')
+                if map_data and map_data['src'].startswith('data:'):
+                    assert map_data['src'] == asset
+                    map_data['src'] = map_ref
             server_revision+=1
-        return respond({'document':game_state,'revision':server_revision,'prefix':None,'shareMap':True,
+        return respond({'document':game_state,'revision':server_revision,'prefix':media_prefix,'shareMap':True,
                         'actor':{'nick':active_user,'name':'Игрок' if active_user==player_id else 'Мастер',
                                  'heroes':['h1'] if active_user==player_id else [],
                                  'role':'player' if active_user==player_id else 'master'}})
@@ -151,8 +161,11 @@ def intercept(route):
             uploaded.append(path)
             return respond({'Key': 'atlas-campaign-media/' + path.split('/atlas-campaign-media/',1)[1]})
         if method == 'GET':
+            if path.endswith(media_prefix + map_file) and game_state.get('map') and map_read_failures:
+                map_read_failures -= 1
+                return respond({'message': 'Storage temporarily unavailable'}, 503)
             return route.fulfill(status=200, headers=headers, content_type='image/png',
-                                 body=base64.b64decode(asset.split(',')[1]))
+                                 body=asset_bytes)
     return respond({'message': 'Unexpected request ' + method + ' ' + path}, 400)
 
 class Local(SimpleHTTPRequestHandler):
@@ -224,6 +237,7 @@ try:
         master_page=master_context.new_page()
         master_page.set_default_timeout(7000)
         master_page.on('pageerror',lambda error: errors.append(str(error)))
+        master_page.on('dialog',lambda dialog: dialog.accept())
         subscriptions.pop(master_id,None)
         master_page.goto(base + '?online=1')
         master_page.locator('#onlineEmail').fill('gm@example.test')
@@ -255,6 +269,30 @@ try:
         master_page.evaluate("S.company.notes='После возврата';commit()")
         master_page.wait_for_function("!sharedGame.pendingSave()")
         assert game_state['company']['notes']=='После возврата'
+        master_page.evaluate("switchTab('map')")
+        master_page.locator('#mapFile').set_input_files({'name': 'atlas.png', 'mimeType': 'image/png', 'buffer': asset_bytes})
+        master_page.wait_for_function("S.map?.src.startsWith('atlas-storage:v1:') && !sharedGame.pendingSave()")
+        assert game_state['map']['src'] == map_ref
+
+        def wait_for_map(page):
+            page.wait_for_function("document.querySelector('#mapsvg > image')?.getAttribute('href').startsWith('blob:')")
+            assert page.evaluate("""async () => {
+                const image = new Image();
+                image.src = document.querySelector('#mapsvg > image').getAttribute('href');
+                await image.decode();
+                return image.naturalWidth === 1;
+            }""")
+
+        wait_for_map(master_page)
+        master_page.locator('button[aria-label="Приблизить"]').click()
+        wait_for_map(master_page)
+        map_read_failures = 1
+        master_page.reload()
+        master_page.wait_for_function("sharedGame && actor?.role === 'master'")
+        master_page.evaluate("switchTab('map')")
+        master_page.get_by_role('button', name='Повторить загрузку карты').click()
+        wait_for_map(master_page)
+        assert map_read_failures == 0
         assert not errors, errors
         browser.close()
 finally:
