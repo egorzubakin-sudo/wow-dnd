@@ -32,7 +32,8 @@ function applyCommand(source, actor, name, payload, key) {
   requireThat(actor && cmd, "Неизвестная команда");
   requireThat(
     actor.role === "master" ||
-      (cmd.access === "hero" && owned(actor, payload.hero)),
+      (cmd.access === "hero" && owned(actor, payload.hero)) ||
+      (cmd.access === "party" && actor.role === "captain" && actor.travel),
     "Недостаточно прав",
   );
   requireThat(

@@ -3722,7 +3722,7 @@ const TALENTS=[['Военное дело',['Арсенал','Оружейная'
 const WORLD_BOOK={"title":"Хроники Азерота","subtitle":"Книга первая. Приближение хаоса","year":"27-й год после открытия Тёмного портала","chapters":[{"title":"Видение Света","text":"","image":""},{"title":"Поход на запад","text":"","image":""},{"title":"Бастион на краю света","text":"","image":""},{"title":"Последняя зима Лордерона","text":"","image":""},{"title":"Возрождение Арати","text":"","image":""},{"title":"Битва за Андорал и Пепельный Крестовый Поход","text":"","image":""},{"title":"Калимдорская война","text":"","image":""},{"title":"Ярость Хиджала","text":"","image":""},{"title":"Хиджальский договор","text":"","image":""},{"title":"Пропавший король","text":"","image":""},{"title":"Революция в Штормграде","text":"","image":""},{"title":"Изгнанники Штормграда","text":"","image":""},{"title":"Золотой век вольных компаний","text":"","image":""},{"title":"Наступал 27-й год после открытия Тёмного портала","text":"","image":""}]};
 function fresh(){return {version:1,worldBook:JSON.parse(JSON.stringify(WORLD_BOOK)),map:null,nodes:[],routes:[],factions:FACTIONS.map((f,i)=>({id:'f'+i,name:f[0],leader:f[1],color:f[2],icon:f[3],desc:f[4],rep:'Нейтралитет',charter:'',notes:'',hidden:false})),company:{name:'Вольная компания',gold:0,day:1,year:27,location:'',notes:'',members:ROLES.map(r=>({id:uid(),name:'',role:r,mod:0,active:true})),talents:{},staff:[]},contracts:[],journal:[],journey:null,settings:{showLabels:true}}}
 let cachedMap=null,cachedMapUrl='';
-function mapHref(){if(cachedMap!==S.map){if(cachedMapUrl)URL.revokeObjectURL(cachedMapUrl);cachedMap=S.map;cachedMapUrl='';if(S.map){try{const [head,body]=S.map.src.split(',');const bin=atob(body),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);cachedMapUrl=URL.createObjectURL(new Blob([bytes],{type:head.split(':')[1].split(';')[0]}))}catch{}}}return cachedMapUrl||S.map?.src||''}
+function mapHref(){if(cachedMap!==S.map){if(cachedMapUrl)URL.revokeObjectURL(cachedMapUrl);cachedMap=S.map;cachedMapUrl='';if(S.map){if(sharedGame&&remoteMediaRef(S.map.src))return remoteImageURL(S.map.src);try{const [head,body]=S.map.src.split(',');const bin=atob(body),bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);cachedMapUrl=URL.createObjectURL(new Blob([bytes],{type:head.split(':')[1].split(';')[0]}))}catch{}}}return cachedMapUrl||S.map?.src||''}
 let S=fresh(),tab='home',player=false,selected=null,tool='select',routeStart=null,view=null,db=null,saveTimer=null,saveSeq=0,toastTimer,modalCancel=null,searchText='';
 const node=id=>S.nodes.find(x=>x.id===id), route=id=>S.routes.find(x=>x.id===id), faction=id=>S.factions.find(x=>x.id===id), nameOf=id=>node(id)?.name||'Неизвестный узел', memberName=m=>m?(m.name||m.role||'Участник'):'Не выбран', fName=id=>player&&faction(id)?.hidden?'Неизвестная принадлежность':faction(id)?.name||'Нейтральная территория', routeLabel=r=>r.name||`${nameOf(r.a)} — ${nameOf(r.b)}`, kind=k=>ROUTES.find(x=>x[0]===k)||ROUTES[0], type=k=>TYPES.find(x=>x[0]===k)||TYPES[11], dayLabel=()=>`День ${S.company.day} · ${S.company.year}-й год`; 
 function visibleNode(a){return !player||a.visibility!=='hidden'}function visibleRoute(r){return (!player||r.visibility!=='hidden')&&node(r.a)&&node(r.b)&&visibleNode(node(r.a))&&visibleNode(node(r.b))}function visibleFaction(f){return !player||!f.hidden}
@@ -3730,12 +3730,12 @@ function toast(msg){$('toast').textContent=msg;$('toast').classList.remove('hidd
 function openDB(){return new Promise((ok,fail)=>{const req=indexedDB.open('shattered-atlas-engine',1);req.onupgradeneeded=()=>{req.result.createObjectStore('atlas');req.result.createObjectStore('accounts',{keyPath:'nick'})};req.onsuccess=()=>ok(req.result);req.onerror=()=>fail(req.error)})}
 function dbGet(key='campaign'){return new Promise((ok,fail)=>{const tx=db.transaction('atlas','readonly'),r=tx.objectStore('atlas').get(key);r.onsuccess=()=>ok(r.result);r.onerror=()=>fail(r.error)})}
 function dbPut(data,backup){return new Promise((ok,fail)=>{const tx=db.transaction('atlas','readwrite'),store=tx.objectStore('atlas');if(backup)store.put(backup,'pre-content-import');store.put(data,'campaign');tx.oncomplete=ok;tx.onerror=()=>fail(tx.error);tx.onabort=()=>fail(tx.error)})}
-function save(){const seq=++saveSeq;clearTimeout(saveTimer);if($('saveState'))$('saveState').textContent='Сохранение…';saveTimer=setTimeout(async()=>{try{if(db)await dbPut(S);else localStorage.setItem('shattered-atlas-v1',JSON.stringify(S));if(seq===saveSeq&&$('saveState'))$('saveState').textContent='Сохранено локально'}catch(e){if($('saveState'))$('saveState').textContent='Не сохранено — экспортируйте JSON';toast('Автосохранение недоступно. Сделайте экспорт JSON.')}},100)}
-function normalize(raw){if(!raw||typeof raw!=='object'||!Array.isArray(raw.nodes)||!Array.isArray(raw.routes)||!Array.isArray(raw.factions)||!raw.company||typeof raw.company!=='object')throw Error('Это не файл кампании атласа.');if(raw.version!==1)throw Error('Неподдерживаемая версия файла.');const base=fresh();const list=(v)=>Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];const out={...base,...raw,company:{...base.company,...raw.company},settings:{...base.settings,...raw.settings}};out.company.day=int(out.company.day,1);out.company.year=int(out.company.year,1);out.company.gold=n(out.company.gold);out.company.members=list(out.company.members);out.company.staff=list(out.company.staff);out.company.talents=out.company.talents&&typeof out.company.talents==='object'?out.company.talents:{};out.nodes=list(raw.nodes).filter(x=>typeof x.id==='string'&&Number.isFinite(Number(x.x))&&Number.isFinite(Number(x.y))).map(x=>({...x,x:clamp(n(x.x),0,1),y:clamp(n(x.y),0,1)}));const ids=new Set(out.nodes.map(x=>x.id));out.routes=list(raw.routes).filter(x=>typeof x.id==='string'&&ids.has(x.a)&&ids.has(x.b)&&x.a!==x.b).map(x=>({...x,min:int(x.min,0,3650),max:Math.max(int(x.min,0,3650),int(x.max,0,3650)),risk:int(x.risk,0,2),events:Array.from({length:6},(_,i)=>String(x.events?.[i]??DEF_EVENTS[i]))}));out.factions=list(raw.factions).filter(x=>typeof x.id==='string');out.journal=list(raw.journal);out.contracts=list(raw.contracts);out.portal=Object.fromEntries(Object.keys(PORTAL).map(k=>[k,list(raw.portal?.[k])]));out.company.development=int(raw.company.development??0);out.worldBook=normalizeBook(raw.worldBook??WORLD_BOOK);if(out.map&&(!/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,/i.test(out.map.src||'')||!n(out.map.w)||!n(out.map.h)))out.map=null;if(!out.routes.some(r=>r.id===out.journey?.routeId))out.journey=null;if(!ids.has(out.company.location))out.company.location='';return prepareAchievements(prepareDiplomacy(prepareAffiliations(prepareV4(out))))}
+function save(){if(sharedGame)return sharedGame.save(S);const seq=++saveSeq;clearTimeout(saveTimer);if($('saveState'))$('saveState').textContent='Сохранение…';saveTimer=setTimeout(async()=>{try{if(db)await dbPut(S);else localStorage.setItem('shattered-atlas-v1',JSON.stringify(S));if(seq===saveSeq&&$('saveState'))$('saveState').textContent='Сохранено локально'}catch(e){if($('saveState'))$('saveState').textContent='Не сохранено — экспортируйте JSON';toast('Автосохранение недоступно. Сделайте экспорт JSON.')}},100)}
+function normalize(raw){if(!raw||typeof raw!=='object'||!Array.isArray(raw.nodes)||!Array.isArray(raw.routes)||!Array.isArray(raw.factions)||!raw.company||typeof raw.company!=='object')throw Error('Это не файл кампании атласа.');if(raw.version!==1)throw Error('Неподдерживаемая версия файла.');const base=fresh();const list=(v)=>Array.isArray(v)?v.filter(x=>x&&typeof x==='object'):[];const out={...base,...raw,company:{...base.company,...raw.company},settings:{...base.settings,...raw.settings}};out.company.day=int(out.company.day,1);out.company.year=int(out.company.year,1);out.company.gold=n(out.company.gold);out.company.members=list(out.company.members);out.company.staff=list(out.company.staff);out.company.talents=out.company.talents&&typeof out.company.talents==='object'?out.company.talents:{};out.nodes=list(raw.nodes).filter(x=>typeof x.id==='string'&&Number.isFinite(Number(x.x))&&Number.isFinite(Number(x.y))).map(x=>({...x,x:clamp(n(x.x),0,1),y:clamp(n(x.y),0,1)}));const ids=new Set(out.nodes.map(x=>x.id));out.routes=list(raw.routes).filter(x=>typeof x.id==='string'&&ids.has(x.a)&&ids.has(x.b)&&x.a!==x.b).map(x=>({...x,min:int(x.min,0,3650),max:Math.max(int(x.min,0,3650),int(x.max,0,3650)),risk:int(x.risk,0,2),events:Array.from({length:6},(_,i)=>String(x.events?.[i]??DEF_EVENTS[i]))}));out.factions=list(raw.factions).filter(x=>typeof x.id==='string');out.journal=list(raw.journal);out.contracts=list(raw.contracts);out.portal=Object.fromEntries(Object.keys(PORTAL).map(k=>[k,list(raw.portal?.[k])]));out.company.development=int(raw.company.development??0);out.worldBook=normalizeBook(raw.worldBook??WORLD_BOOK);if(out.map&&((!/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,/i.test(out.map.src||'')&&!(sharedGame&&remoteMediaRef(out.map.src)))||!n(out.map.w)||!n(out.map.h)))out.map=null;if(!out.routes.some(r=>r.id===out.journey?.routeId))out.journey=null;if(!ids.has(out.company.location))out.company.location='';return prepareAchievements(prepareDiplomacy(prepareAffiliations(prepareV4(out))))}
 async function init(){try{db=await openDB();const old=await dbGet();if(old)S=normalize(old);else{const backup=localStorage.getItem('shattered-atlas-v1');if(backup)S=normalize(JSON.parse(backup))}}catch(e){try{const old=localStorage.getItem('shattered-atlas-v1');if(old)S=normalize(JSON.parse(old))}catch{} }render()}
 function commit(){portalData();checkAchievements();save();render()}
 function exportData(){if(player)return;const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Atlas_campaign_day_'+S.company.day+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);toast('Резервная копия кампании создана')}
-$('importFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||player)return;try{const raw=normalize(JSON.parse(await f.text()));if(!confirm('Заменить текущую кампанию данными из файла? Сначала экспортируйте текущую кампанию, если нужно.'))return;S=raw;selected=null;view=null;routeStart=null;tool='select';tab='home';adventure(S);commit();toast('Кампания загружена')}catch(err){alert('Не удалось импортировать: '+err.message)}};
+$('importFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||player)return;if(sharedGame)return sharedGame.settings('data');try{const raw=normalize(JSON.parse(await f.text()));if(!confirm('Заменить текущую кампанию данными из файла? Сначала экспортируйте текущую кампанию, если нужно.'))return;S=raw;selected=null;view=null;routeStart=null;tool='select';tab='home';adventure(S);commit();toast('Кампания загружена')}catch(err){alert('Не удалось импортировать: '+err.message)}};
 function toggleMode(){if(!player){uxPopupQueue=[];clearTimeout(uxPopupTimer);uxPopupTimer=null;$('uxAchievementPopup').hidden=true}player=!player;tool='select';routeStart=null;selected=null;closeModal();render()}
 function switchTab(t){if(t!=='craft')craftCompanionContext=null;if(t==='bank'&&player)bankOwner='';if(tab!==t)window.scrollTo(0,0);if(t==='rumors'){t='news';newsFilter='rumors'}else if(t==='news')newsFilter='all';tab=t;searchText='';tool='select';routeStart=null;render()}
 function render(){const menu=$('atlasOperations').querySelector('.visual-menu-panel');for(const id of ['exportBtn','importBtn'])menu.append($(id));portalData();$('nav').innerHTML=renderNavigation();$('nav').hidden=tab==='home'&&!getHomePrefs().nav;restoreNavScroll();$('modeBtn').textContent=player?'Режим мастера':'Режим игроков';$('navIconBtn').hidden=player;$('exportBtn').hidden=player;$('importBtn').hidden=player;$('status').innerHTML=`<span>${esc(dayLabel())}</span><span>Компания: <strong>${esc(S.company.name)}</strong></span><span>Казна: <strong>${esc(S.company.gold)} зм</strong></span><span>Стоянка: <strong>${esc(S.company.location&&(!player||node(S.company.location)?.visibility!=='hidden')?nameOf(S.company.location):'Не установлена')}</strong></span>${S.journey?'<span class="tag med">Путешествие в процессе</span>':''}<span class="save" id="saveState">${player?'Просмотр игроками':db?'Локальная кампания':'Локальное хранилище'}</span>`;if(PORTAL[tab])renderPortal(tab);else ({home:renderHome,worldbook:renderWorldBook,map:renderMap,factions:renderFactions,diplomacy:renderDiplomacy,company:renderCompany,hero:renderHero,bags:renderBags,personalAchievements:renderHeroAchievements,camp:renderCampV2,stay:renderStay,craft:renderCraft,workshop:renderWorkshop,bank:renderBank,contracts:renderContracts,journal:renderJournal,help:renderHelp})[tab]();}
@@ -3809,7 +3809,7 @@ const CAMP_DETAILS={
  'Сеть осведомителей':['Предварительные сведения о регионах, угрозах, контрактах и состоянии дорог.','Налаженные связи и доверенные информаторы.']
 };
 const CAMP_COST=[100,300,750];
-const safeImage=v=>typeof v==='string'&&/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,[A-Za-z0-9+/=\s]+$/i.test(v)?v:'';
+const safeImage=v=>typeof v==='string'&&/^data:image\/(png|jpeg|webp|gif|bmp|avif);base64,[A-Za-z0-9+/=\s]+$/i.test(v)?v:remoteImageURL(v);
 function portalData(){prepareV4(S);S.portal??={};for(const k of Object.keys(PORTAL))if(!Array.isArray(S.portal[k]))S.portal[k]=[];S.company.development=Math.max(0,int(S.company.development??0));prepareAffiliations(S);prepareDiplomacy(S);prepareAchievements(S);installAchievementCatalog(S);return S.portal}
 function published(k,x){return !x.hidden&&(k!=='news'&&k!=='rumors'&&k!=='mail'||(n(x.year,27)<S.company.year||n(x.year,27)===S.company.year&&n(x.day,1)<=S.company.day))&&(k!=='achievements'||x.closed||!x.secret||visibleGrants(x).length>0)}
 function seen(k,x){return !player||published(k,x)}
@@ -3957,7 +3957,7 @@ const utilityNav = ["Служебное", [["home","Главная","⌂"],["dip
 const iconBands = [...NAV_BANDS, utilityNav];
 const DIP_STATES=[['alliance','Союз','#8dc88d'],['cooperation','Сотрудничество','#96bfa9'],['neutral','Нейтралитет','#cfbd86'],['truce','Перемирие','#b4b6db'],['tension','Напряжённость','#e1b06b'],['hostility','Вражда','#e88d65'],['war','Война','#e46f66']];
 let dipFaction='',dipStatus='',iconTarget='',navOffsets=[0,0,0];
-function prepareDiplomacy(data){const ids=new Set(data.factions.map(f=>f.id)),pairs=new Set();data.diplomacy=(Array.isArray(data.diplomacy)?data.diplomacy:[]).filter(r=>{if(!r||!ids.has(r.a)||!ids.has(r.b)||r.a===r.b||!DIP_STATES.some(x=>x[0]===r.state))return false;let key=pairKey(r.a,r.b);if(pairs.has(key))return false;pairs.add(key);return true}).map(r=>({...r,id:typeof r.id==='string'?r.id:uid(),desc:String(r.desc||''),notes:String(r.notes||''),hidden:!!r.hidden}));data.settings??={};const old=data.settings.navIcons||{};if(!old.news&&safeImage(old.rumors))old.news=old.rumors;data.settings.navIcons=Object.fromEntries(iconBands.flatMap(b=>b[1]).filter(([k])=>safeImage(old[k])).map(([k])=>[k,old[k]]));return data}
+function prepareDiplomacy(data){const ids=new Set(data.factions.map(f=>f.id)),pairs=new Set();data.diplomacy=(Array.isArray(data.diplomacy)?data.diplomacy:[]).filter(r=>{if(!r||!ids.has(r.a)||!ids.has(r.b)||r.a===r.b||!DIP_STATES.some(x=>x[0]===r.state))return false;let key=pairKey(r.a,r.b);if(pairs.has(key))return false;pairs.add(key);return true}).map(r=>({...r,id:typeof r.id==='string'?r.id:uid(),desc:String(r.desc||''),notes:String(r.notes||''),hidden:!!r.hidden}));data.settings??={};const old=data.settings.navIcons||{};if(!old.news&&storedImage(old.rumors))old.news=old.rumors;data.settings.navIcons=Object.fromEntries(iconBands.flatMap(b=>b[1]).filter(([k])=>storedImage(old[k])).map(([k])=>[k,old[k]]));return data}
 function pairKey(a,b){return JSON.stringify([a,b].sort())}
 function navIcon(k,fallback){const img=safeImage(S.settings.navIcons?.[k]);return img?`<img src="${esc(img)}" alt="">`:esc(fallback||iconBands.flatMap(b=>b[1]).find(t=>t[0]===k)?.[2]||'◆')}
 function restoreNavScroll(){document.querySelectorAll('.nav-scroll').forEach(el=>{el.scrollLeft=navOffsets[+el.dataset.band]||0;const b=el.querySelector('.active');if(b){const er=el.getBoundingClientRect(),br=b.getBoundingClientRect();if(br.left<er.left)el.scrollLeft-=er.left-br.left+4;else if(br.right>er.right)el.scrollLeft+=br.right-er.right+4}})}
@@ -4003,7 +4003,7 @@ function bindPortalSearch(fn){$('portalSearch').oninput=e=>{searchText=e.target.
 const UX_LABEL={node:'Место',route:'Маршрут',faction:'Фракция',hero:'Герой',staff:'Специалист',people:'Персонаж мира',news:'Новость',rumors:'Слух',codex:'Кодекс',mail:'Письмо',chronicle:'Летопись',achievements:'Достижение',contract:'Задание',item:'Предмет',chapter:'Глава',journal:'Журнал',diplomacy:'Дипломатия'};
 let uxLast=null,uxUndo=[],uxRedo=[],uxRead={},uxPopupQueue=[],uxPopupTimer=null;
 const uxClone=x=>typeof structuredClone==='function'?structuredClone(x):JSON.parse(JSON.stringify(x));
-function uxPrepare(){S.settings??={};S.settings.ux??={};const u=S.settings.ux;u.id??=uid();u.favorites=Array.isArray(u.favorites)?u.favorites:[];u.audit=Array.isArray(u.audit)?u.audit.slice(0,100):[];u.cover= safeImage(u.cover)||'';for(const c of S.worldBook.chapters)c.uxid??=uid();return u}
+function uxPrepare(){S.settings??={};S.settings.ux??={};const u=S.settings.ux;u.id??=uid();u.favorites=Array.isArray(u.favorites)?u.favorites:[];u.audit=Array.isArray(u.audit)?u.audit.slice(0,100):[];u.cover= storedImage(u.cover)||'';for(const c of S.worldBook.chapters)c.uxid??=uid();return u}
 function uxRecords(includeArchived=false){const rows=[];const add=(k,x,name,desc='',allowed=true,id=x.id)=>{if(!allowed||(!includeArchived&&x.archived)||player&&x.archived||typeof id!=='string')return;rows.push({k,id,x,name:String(name||'Без названия'),desc:String(desc||''),key:k+':'+id})};
  S.nodes.forEach(x=>add('node',x,x.name,x.desc,visibleNode(x)));S.routes.forEach(x=>add('route',x,routeLabel(x),x.desc,visibleRoute(x)));S.factions.forEach(x=>add('faction',x,x.name,x.desc,visibleFaction(x)));S.company.members.forEach(x=>add('hero',x,memberName(x),x.bio,!player||!x.hidden));allCharacters().filter(x=>x.kind==='staff').forEach(({record:x})=>add('staff',x,x.name,x.desc,!player||!x.hidden));for(const [k,list] of Object.entries(portalData()))if(Array.isArray(list))list.forEach(x=>add(k,x,x.title,k==='achievements'&&achievementTitleOnly(x)?'':[x.body,x.source,x.category].filter(Boolean).join(' · '),!player||published(k,x)));S.contracts.forEach(x=>add('contract',x,x.title,[x.desc,questGiver(x)].join(' · '),!player||!x.hidden));S.company.inventory.forEach(x=>add('item',x,x.name,x.desc,canSeeStack(x)));S.worldBook.chapters.forEach(x=>add('chapter',x,x.title,x.text,true,x.uxid));S.journal.forEach(x=>add('journal',x,x.title,achievementJournalText(x),!player||!x.hidden));S.diplomacy.forEach(x=>add('diplomacy',x,(faction(x.a)?.name||'')+' ↔ '+(faction(x.b)?.name||''),x.desc,visibleDiplomacy(x)));return rows}
 function uxFind(k,id,arch=false){return uxRecords(arch).find(r=>r.k===k&&r.id===id)}
@@ -4098,7 +4098,8 @@ function applyCommand(source, actor, name, payload, key) {
   requireThat(actor && cmd, "Неизвестная команда");
   requireThat(
     actor.role === "master" ||
-      (cmd.access === "hero" && owned(actor, payload.hero)),
+      (cmd.access === "hero" && owned(actor, payload.hero)) ||
+      (cmd.access === "party" && actor.role === "captain" && actor.travel),
     "Недостаточно прав",
   );
   requireThat(
@@ -4221,6 +4222,7 @@ let actor = null,
   activeHero = "",
   previewActor = null, previewReadOnly = false;
 const onRender = [];
+let sharedGame = null;
 function accountStore(mode, fn) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction("accounts", mode),
@@ -4508,6 +4510,7 @@ async function execute(name, payload, key = crypto.randomUUID()) {
   busy = true;
   document.body.inert = true;
   try {
+    if (sharedGame) return await sharedGame.command(name, payload, key);
     const next = applyCommand(S, actor, name, payload, key);
     clearTimeout(saveTimer);
     await dbPut(next, name === "contentImport" ? S : null);
@@ -4516,6 +4519,7 @@ async function execute(name, payload, key = crypto.randomUUID()) {
   } finally {
     busy = false;
     document.body.inert = false;
+    if (sharedGame) sharedGame.changed(0);
   }
 }
 const oldNormalize = normalize;
@@ -13003,6 +13007,7 @@ function contentWorkshop() {
       $("packageRaw").value = JSON.stringify(contentExamples.bookEquipment, null, 2); clearPreview();
     }),
     button("Скачать резерв перед последним импортом пакета", async () => {
+      if (sharedGame) return sharedGame.downloadPackageBackup();
       const backup = await dbGet("pre-content-import");
       if (!backup) return toast("Резерв появится после первого импорта пакета");
       downloadText("atlas-before-package.json", JSON.stringify(backup, null, 2));
@@ -19891,11 +19896,11 @@ function mapBackupValues(value, visit) {
   return typeof value === "string" ? visit(value) : value;
 }
 
-async function splitOnlineBackup(raw) {
+async function splitOnlineBackup(raw, { allowReferences = false } = {}) {
   validateBackup(raw);
   const dataUrls = new Set();
   mapBackupValues(raw, (value) => {
-    requireThat(!value.startsWith(atlasStorageReference), "Загрузите исходный экспорт Атласа с изображениями");
+    requireThat(allowReferences || !value.startsWith(atlasStorageReference), "Загрузите исходный экспорт Атласа с изображениями");
     if (/^data:image\//i.test(value)) dataUrls.add(value);
     return value;
   });
@@ -19971,7 +19976,7 @@ async function onlineWorkspace(client) {
   const root = $("main"), gate = $("gate"), bucket = client.storage.from(atlasCloud.bucket);
   const roles = { master: "Мастер", captain: "Капитан", player: "Игрок", observer: "Наблюдатель" };
   let session, channel, campaign, membership, campaigns = [], heroes = [], subscribed = "",
-    scene = "", generation = 0, imageUrls = [], busy = false;
+    scene = "", generation = 0, imageUrls = [], busy = false, gameAvailable = false;
   const unwrap = async (request) => {
     const { data, error } = await request;
     if (error) throw Error(error.message);
@@ -19993,6 +19998,10 @@ async function onlineWorkspace(client) {
     if (previous) await client.removeChannel(previous);
   }
   function showGate(reason = "") {
+    if (sharedGame) sharedGame.leave();
+    sharedGame = null;
+    actor = null;
+    player = true;
     generation++;
     clearPreviews();
     document.body.classList.add("locked");
@@ -20025,6 +20034,8 @@ async function onlineWorkspace(client) {
     document.body.classList.remove("locked");
     document.body.classList.add("atlas-kit-active");
     $("kitTop").hidden = false;
+    const operations = $("atlasOperations");
+    if (operations) $("modeBtn").parentElement.append(operations);
     $("kitTop").innerHTML = '<div class="kit-brand">' + uiIcon("map") +
       '<span><strong>Warcraft: Век Авантюристов</strong><small>Онлайн-кампания</small></span></div>' +
       '<div class="kit-topmeta"><button id="onlineSignOut" type="button">Выйти</button></div>';
@@ -20037,7 +20048,10 @@ async function onlineWorkspace(client) {
         esc(session.user.id) + '</code><div class="actions"><button id="onlineRefresh">Проверить доступ</button></div></section>' :
         (campaigns.length > 1 ? pick("Кампания", "onlineCampaign", campaigns.map((row) => [row.id,row.name]), campaign.id) : "") +
         '<section class="kit-panel"><div class="kit-subhead"><h3>Кампания</h3><small id="onlineRevision">Версия ' +
-        esc(campaign.revision) + '</small></div><p>Просмотр кампании. Игровые действия выполняются в локальной версии.</p>' +
+        esc(campaign.revision) + '</small></div>' +
+        (campaign.revision ? '<p>Откройте общую кампанию или перейдите к настройкам.</p>' :
+          '<p>Кампания ещё пуста. Мастер может загрузить сохранение Атласа.</p>') +
+        (campaign.revision ? '<div class="actions"><button class="primary" id="onlinePlay">Открыть Атлас</button></div>' : "") +
         '<div class="actions"><button id="onlineRefresh">Обновить</button><button id="onlineWorld">Открыть карту</button>' +
         '<button id="onlineHeroes">Герои</button>' +
         (membership.role === "master" ? '<button id="onlineAccounts">Аккаунты и герои</button><button id="onlineData">Импорт и экспорт</button>' : "") +
@@ -20051,6 +20065,7 @@ async function onlineWorkspace(client) {
     $("onlineRefresh").onclick = () => run(() => openCampaign(campaign?.id));
     if (!campaign) return;
     if ($("onlineCampaign")) $("onlineCampaign").onchange = (e) => run(() => openCampaign(e.target.value));
+    if ($("onlinePlay")) $("onlinePlay").onclick = () => run(enterGame);
     $("onlineWorld").onclick = () => run(showWorld);
     $("onlineHeroes").onclick = () => run(showHeroes);
     if ($("onlineAccounts")) $("onlineAccounts").onclick = () => run(showAccounts);
@@ -20068,7 +20083,7 @@ async function onlineWorkspace(client) {
       busy = false;
     }
   }
-  async function openCampaign(preferred) {
+  async function openCampaign(preferred, autoPlay = true) {
     if (!session) return showGate();
     const memberships = await unwrap(client.from("atlas_members")
       .select("campaign_id,nickname,role").eq("user_id",session.user.id));
@@ -20080,7 +20095,7 @@ async function onlineWorkspace(client) {
     scene = "";
     render();
     if (!campaign) return stopUpdates();
-    if (subscribed === campaign.id) return;
+    if (subscribed !== campaign.id) {
     await stopUpdates();
     subscribed = campaign.id;
     const id = subscribed;
@@ -20088,6 +20103,7 @@ async function onlineWorkspace(client) {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "atlas_campaigns", filter: "id=eq." + id }, ({ new: row }) => {
         if (campaign?.id !== id || row.revision <= campaign.revision) return;
         campaign = { ...campaign, revision: row.revision, name: row.name };
+        if (sharedGame) return sharedGame.changed(row.revision);
         if ($("onlineRevision")) $("onlineRevision").textContent = "Версия " + row.revision;
         const refreshScene = scene === "world" ? showWorld : scene === "heroes" ? showHeroes : null;
         if (refreshScene) {
@@ -20099,6 +20115,26 @@ async function onlineWorkspace(client) {
         }
         flash("Кампания обновилась");
       }).subscribe();
+    }
+    if (autoPlay && campaign.revision) {
+      try {
+        await enterGame();
+      } catch {
+        flash("Игровой сервер недоступен. Можно открыть просмотр и настройки кампании.");
+      }
+    }
+  }
+  async function enterGame() {
+    const result = await client.functions.invoke("atlas-play",{body:{action:"state",campaign:campaign.id}});
+    if (result.error) throw Error("Игровой сервер недоступен");
+    if (!result.data?.document || !result.data.actor) throw Error("Сначала импортируйте кампанию");
+    gameAvailable = true;
+    sharedGame = createSharedGame(client,campaign.id,result.data,async (mode)=>{
+      await openCampaign(campaign.id,false);
+      if (mode === "accounts" && membership?.role === "master") await showAccounts();
+      if (mode === "data" && membership?.role === "master") await showData();
+    });
+    sharedGame.enter();
   }
   function panel(name, html) {
     generation++;
@@ -20157,7 +20193,7 @@ async function onlineWorkspace(client) {
   }
   async function showAccounts(selected) {
     const [users, links] = await Promise.all([
-      unwrap(client.from("atlas_members").select("user_id,nickname,role").eq("campaign_id",campaign.id).order("nickname")),
+      unwrap(client.from("atlas_members").select("user_id,nickname,role"+(gameAvailable?",travel":"")).eq("campaign_id",campaign.id).order("nickname")),
       unwrap(client.from("atlas_hero_links").select("user_id,hero_id").eq("campaign_id",campaign.id)),
       getHeroes(),
     ]);
@@ -20170,6 +20206,7 @@ async function onlineWorkspace(client) {
       input("UID пользователя Auth", "onlineMemberId", "text", member?.user_id || "", 'required pattern="[a-fA-F0-9-]{36}"') +
       input("Никнейм", "onlineNickname", "text", member?.nickname || "", 'required maxlength="50"') +
       pick("Роль", "onlineRole", Object.entries(roles), member?.role || "player") +
+      (gameAvailable ? check("Разрешить капитану вести отряд","onlineTravel",member?.travel || false) : "") +
       '<div id="onlineHeroLinks"><h4>Привязать героев</h4>' +
       heroes.map((hero, i) => check(hero.name,"onlineAssign" + i,assigned.has(hero.hero_id))).join("") +
       '</div><button class="primary">Сохранить профиль</button></form>');
@@ -20185,7 +20222,8 @@ async function onlineWorkspace(client) {
         const id = val("onlineMemberId").trim(), role = val("onlineRole");
         await rpc("atlas_manage_member", { p_user: id, p_nickname: val("onlineNickname"), p_role: role,
           p_heroes: role === "observer" ? [] : heroes.filter((_, i) => $("onlineAssign" + i).checked).map((row) => row.hero_id) });
-        if (id === session.user.id) await openCampaign(campaign.id);
+        if (gameAvailable && role === "captain") await rpc("atlas_set_captain_travel",{p_user:id,p_travel:$("onlineTravel").checked});
+        if (id === session.user.id) await openCampaign(campaign.id,false);
         await showAccounts(id);
         flash("Профиль сохранён");
       });
@@ -20218,7 +20256,7 @@ async function onlineWorkspace(client) {
         }
         campaign.revision = await rpc("atlas_finish_import", { p_import: id, p_document: document,
           p_share_world: shareWorld, p_share_images: shareImages });
-        await openCampaign(campaign.id);
+        await openCampaign(campaign.id,false);
         await showData();
         flash("Кампания импортирована");
       });
@@ -20269,6 +20307,265 @@ async function onlineWorkspace(client) {
   const auth = await unwrap(client.auth.getSession());
   session = auth.session;
   if (session) await run(openCampaign);
+}
+
+// The local game stays mounted in the same shell. Only its storage and command boundary change.
+const localGameMap = renderMap;
+const localGameAccounts = manageUsers;
+const localGameCreateUser = createUserDialog;
+const localGameAccountMenu = accountMenu;
+const localGameExport = exportData;
+const localGameMapStart = beginJourney;
+const localGameTravelRoll = applyRoll;
+const localGameGuideCheck = guideCheck;
+const localGameManualRoll = manualRoll;
+const localGameEventRoll = rollJourney;
+
+function remoteMediaRef(value) {
+  return typeof value === "string" && value.startsWith(atlasStorageReference) &&
+    atlasMediaName.test(value.slice(atlasStorageReference.length));
+}
+function storedImage(value) {
+  return sharedGame && remoteMediaRef(value) ? value : safeImage(value);
+}
+function remoteImageURL(value) {
+  return sharedGame && remoteMediaRef(value) ? sharedGame.image(value) : "";
+}
+renderMap = function () {
+  if (sharedGame && player && !sharedGame.shareMap()) {
+    $("main").innerHTML = '<div class="atlas-kit">' + sectionHeader("Карта Азерота", "") +
+      '<section class="kit-panel">Мастер пока не открыл карту для просмотра.</section></div>';
+    return;
+  }
+  localGameMap();
+};
+manageUsers = function () {
+  if (sharedGame) return sharedGame.settings("accounts");
+  return localGameAccounts();
+};
+createUserDialog = function () {
+  if (sharedGame) return sharedGame.settings("accounts");
+  return localGameCreateUser();
+};
+accountMenu = function () {
+  if (!sharedGame || previewReadOnly) return localGameAccountMenu();
+  openModal("Онлайн-профиль · " + actor.name, '<div class="actions" id="onlineProfileActions"></div>');
+  $("onlineProfileActions").append(
+    button("Обновить кампанию", () => sharedGame.changed(Infinity)),
+    button("Настройки онлайн-кампании", () => sharedGame.settings("")),
+  );
+  if (sharedGame.hasRecovery()) $("onlineProfileActions").append(button("Скачать несохранённую правку", sharedGame.downloadRecovery));
+  if (actor.role === "master") $("onlineProfileActions").append(
+    button("Аккаунты и герои", () => sharedGame.settings("accounts")),
+  );
+};
+exportData = function () {
+  if (sharedGame) return sharedGame.settings("data");
+  return localGameExport();
+};
+
+beginJourney = function (id) {
+  if (!sharedGame) return localGameMapStart(id);
+  if (!canTravel() || S.journey || currentStay(S)) return;
+  const r = route(id);
+  if (!r || !visibleRoute(r)) return;
+  const values = [["random","Определить жребием"],["","Без проводника"],
+    ...companyHeroRows().filter((m) => m.active).map((m) => [m.id,memberName(m)])];
+  if (!player) values.push(["physical","Ввести физический жребий"]);
+  form("Подготовка к путешествию", '<p>' + esc(routeLabel(r)) + ' · ' + esc(duration(r)) + '</p>' +
+    selectField("Проводник","sharedGuide",values,"random") +
+    (!player ? input("Жребий на физическом кубике","sharedGuideDie","number",1) +
+      input("Стоимость для компании, зм","sharedTravelCost","number",r.cost || 0,'min="0" step="0.01"') : ""),
+    () => execute("travelStart", { route:id, guide:val("sharedGuide"), guideDie:Number($("sharedGuideDie")?.value),
+      cost:Number($("sharedTravelCost")?.value || 0) }), "Отправиться в путь");
+};
+guideCheck = function () {
+  if (!sharedGame) return localGameGuideCheck();
+  execute("travelGuide",{}).catch((error)=>toast(error.message));
+};
+applyRoll = function (values) {
+  if (!sharedGame) return localGameTravelRoll(values);
+  execute("travelRoll",{values}).catch((error)=>toast(error.message));
+};
+rollJourney = function () {
+  if (!sharedGame) return localGameEventRoll();
+  execute("travelRoll",{}).catch((error)=>toast(error.message));
+};
+manualRoll = function () {
+  if (sharedGame && player) return toast("Физический результат вводит мастер");
+  return localGameManualRoll();
+};
+
+function createSharedGame(client, campaign, initial, openSettings) {
+  let current = initial, pendingRevision = initial.revision, saveDraft = null, writing = null, reading = false;
+  let pendingRender = false, exited = false, recovery = null, previousPackage = null;
+  const urls = new Map();
+  const bucket = client.storage.from(atlasCloud.bucket);
+  const handle = async (body) => {
+    const result = await client.functions.invoke("atlas-play",{body:{campaign,...body}});
+    if (result.error) {
+      const reason = await result.error.context?.json?.().catch(()=>null);
+      throw Error(reason?.error || "Игровой сервер недоступен");
+    }
+    return result.data;
+  };
+  function redraw() {
+    if (!exited && !$("modalwrap").classList.contains("open")) render();
+    else pendingRender = true;
+  }
+  function display(value, reset=false) {
+    const { actor: nextActor, document, revision, prefix } = value;
+    if (!document || !nextActor || revision < current.revision) return;
+    if (prefix !== current.prefix) {
+      for (const url of urls.values()) if (url) URL.revokeObjectURL(url);
+      urls.clear();
+      resetView();
+    }
+    current = value;
+    S = nextActor.role === "master" ? normalize(document) : normalizeEngine(document);
+    if (reset || activeHero && !S.company.members.some((row) => row.id === activeHero)) activeHero = "";
+    if (!previewReadOnly || reset) {
+      actor = nextActor;
+      player = actor.role !== "master";
+    }
+    if (reset) {
+      tab = player && actor.heroes.length ? "hero" : "home";
+      previewActor = null;
+      previewReadOnly = false;
+      selected = null;
+      view = null;
+      uxUndo = [];
+      uxRedo = [];
+      documentBodyOpen();
+    }
+    uxLast = uxSnapshot();
+    if (tab === "workshop" && player) tab = "home";
+    render();
+  }
+  function documentBodyOpen() {
+    $("gate").replaceChildren();
+    document.body.classList.remove("locked");
+    applyUiScale();
+  }
+  async function refresh() {
+    if (exited || writing || reading || busy || $("modalwrap").classList.contains("open") ||
+      pendingRevision <= current.revision) return;
+    reading = true;
+    try {
+      const value = await handle({action:"state"});
+      if (!exited) display(value);
+    } catch(error) {
+      if (!exited) toast(error.message);
+    } finally {
+      reading = false;
+    }
+  }
+  const closing = new MutationObserver(() => {
+    if ($("modalwrap").classList.contains("open")) return;
+    if (pendingRender) {
+      pendingRender = false;
+      redraw();
+    }
+    void refresh();
+  });
+  closing.observe($("modalwrap"),{attributes:true,attributeFilter:["class"]});
+  async function command(name,payload,key=crypto.randomUUID()) {
+    if (writing) await writing;
+    const beforeImport = name === "contentImport" && actor.role === "master" ?
+      { document: structuredClone(S), prefix: current.prefix } : null;
+    const value = await handle({action:"command",request:crypto.randomUUID(),revision:current.revision,name,payload,key});
+    if (exited) return;
+    display(value);
+    if (value.conflict) throw Error("Другой участник уже изменил кампанию. Данные обновлены, повторите действие.");
+    if (beforeImport) previousPackage = beforeImport;
+    toast("Сохранено в общей кампании");
+  }
+  function save(state) {
+    if (exited || actor.role !== "master" || previewReadOnly) return;
+    saveDraft = structuredClone(state);
+    if (writing) return;
+    writing = (async ()=>{
+      while (saveDraft && !exited) {
+        const draft = saveDraft;
+        saveDraft = null;
+        const key = crypto.randomUUID();
+        try {
+          const value = await handle({action:"command",request:key,revision:current.revision,name:"masterSave",payload:{document:draft},key});
+          if (exited) return;
+          if (value.conflict) {
+            recovery = { document:saveDraft || draft,prefix:current.prefix };
+            saveDraft = null;
+            display(value);
+            toast("Кампания обновилась. Последнюю правку можно скачать из профиля.");
+            return;
+          }
+          current = value;
+          if (!saveDraft) display(value);
+        } catch (error) {
+          recovery = { document:saveDraft || draft,prefix:current.prefix };
+          saveDraft = null;
+          toast(error.message + " · Правку можно скачать из профиля");
+        }
+      }
+    })().finally(()=>{
+      writing = null;
+      void refresh();
+    });
+  }
+  function image(ref) {
+    if (urls.has(ref)) return urls.get(ref) || "";
+    const prefix = current.prefix;
+    if (!prefix) return "";
+    urls.set(ref,null);
+    bucket.download(prefix+ref.slice(atlasStorageReference.length)).then(({data,error}) => {
+      if (!data || error || exited || current.prefix !== prefix) return;
+      urls.set(ref,URL.createObjectURL(data));
+      redraw();
+    }).catch(()=>{});
+    return "";
+  }
+  function leave() {
+    exited = true;
+    closing.disconnect();
+    for (const url of urls.values()) if (url) URL.revokeObjectURL(url);
+    urls.clear();
+    closeModal();
+    previewActor = null;
+    previewReadOnly = false;
+  }
+  async function downloadBackup(record,name) {
+    if (!record || actor.role !== "master") return toast("Резерв пока отсутствует");
+    const value=await joinOnlineBackup(record.document,async(file)=>{
+      const {data,error}=await bucket.download(record.prefix+file);
+      if (error) throw Error("Не удалось скачать изображение из резерва");
+      return new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(reader.result);
+        reader.onerror=reject;
+        reader.readAsDataURL(new Blob([data],{type:"image/"+file.split(".").at(-1)}));
+      });
+    });
+    downloadText(name,JSON.stringify(value,null,2));
+  }
+  async function settings(mode) {
+    if (writing) await writing;
+    leave();
+    sharedGame = null;
+    await openSettings(mode);
+  }
+  return {
+    enter:()=>display(initial,true), command, save, image, settings, leave,
+    hasRecovery:()=>!!recovery && actor.role === "master",
+    pendingSave:()=>!!writing,
+    downloadRecovery:()=>downloadBackup(recovery,"atlas-unsaved-online.json"),
+    downloadPackageBackup:()=>downloadBackup(previousPackage,"atlas-before-package.json"),
+    shareMap:()=>current.shareMap,
+    changed:(revision)=>{
+      pendingRevision = Math.max(pendingRevision,revision === Infinity ? current.revision+1 : revision);
+      if ($("modalwrap").classList.contains("open") && revision===Infinity) closeModal();
+      void refresh();
+    },
+  };
 }
 
 if (atlasOnlineMode()) bootOnline();

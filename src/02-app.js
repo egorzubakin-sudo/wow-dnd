@@ -4,6 +4,7 @@ let actor = null,
   activeHero = "",
   previewActor = null, previewReadOnly = false;
 const onRender = [];
+let sharedGame = null;
 function accountStore(mode, fn) {
   return new Promise((resolve, reject) => {
     const tx = db.transaction("accounts", mode),
@@ -291,6 +292,7 @@ async function execute(name, payload, key = crypto.randomUUID()) {
   busy = true;
   document.body.inert = true;
   try {
+    if (sharedGame) return await sharedGame.command(name, payload, key);
     const next = applyCommand(S, actor, name, payload, key);
     clearTimeout(saveTimer);
     await dbPut(next, name === "contentImport" ? S : null);
@@ -299,6 +301,7 @@ async function execute(name, payload, key = crypto.randomUUID()) {
   } finally {
     busy = false;
     document.body.inert = false;
+    if (sharedGame) sharedGame.changed(0);
   }
 }
 const oldNormalize = normalize;

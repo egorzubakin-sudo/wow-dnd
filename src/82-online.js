@@ -38,7 +38,7 @@ async function onlineWorkspace(client) {
   const root = $("main"), gate = $("gate"), bucket = client.storage.from(atlasCloud.bucket);
   const roles = { master: "Мастер", captain: "Капитан", player: "Игрок", observer: "Наблюдатель" };
   let session, channel, campaign, membership, campaigns = [], heroes = [], subscribed = "",
-    scene = "", generation = 0, imageUrls = [], busy = false;
+    scene = "", generation = 0, imageUrls = [], busy = false, gameAvailable = false;
   const unwrap = async (request) => {
     const { data, error } = await request;
     if (error) throw Error(error.message);
@@ -60,6 +60,10 @@ async function onlineWorkspace(client) {
     if (previous) await client.removeChannel(previous);
   }
   function showGate(reason = "") {
+    if (sharedGame) sharedGame.leave();
+    sharedGame = null;
+    actor = null;
+    player = true;
     generation++;
     clearPreviews();
     document.body.classList.add("locked");
@@ -92,6 +96,8 @@ async function onlineWorkspace(client) {
     document.body.classList.remove("locked");
     document.body.classList.add("atlas-kit-active");
     $("kitTop").hidden = false;
+    const operations = $("atlasOperations");
+    if (operations) $("modeBtn").parentElement.append(operations);
     $("kitTop").innerHTML = '<div class="kit-brand">' + uiIcon("map") +
       '<span><strong>Warcraft: Век Авантюристов</strong><small>Онлайн-кампания</small></span></div>' +
       '<div class="kit-topmeta"><button id="onlineSignOut" type="button">Выйти</button></div>';
@@ -104,7 +110,10 @@ async function onlineWorkspace(client) {
         esc(session.user.id) + '</code><div class="actions"><button id="onlineRefresh">Проверить доступ</button></div></section>' :
         (campaigns.length > 1 ? pick("Кампания", "onlineCampaign", campaigns.map((row) => [row.id,row.name]), campaign.id) : "") +
         '<section class="kit-panel"><div class="kit-subhead"><h3>Кампания</h3><small id="onlineRevision">Версия ' +
-        esc(campaign.revision) + '</small></div><p>Просмотр кампании. Игровые действия выполняются в локальной версии.</p>' +
+        esc(campaign.revision) + '</small></div>' +
+        (campaign.revision ? '<p>Откройте общую кампанию или перейдите к настройкам.</p>' :
+          '<p>Кампания ещё пуста. Мастер может загрузить сохранение Атласа.</p>') +
+        (campaign.revision ? '<div class="actions"><button class="primary" id="onlinePlay">Открыть Атлас</button></div>' : "") +
         '<div class="actions"><button id="onlineRefresh">Обновить</button><button id="onlineWorld">Открыть карту</button>' +
         '<button id="onlineHeroes">Герои</button>' +
         (membership.role === "master" ? '<button id="onlineAccounts">Аккаунты и герои</button><button id="onlineData">Импорт и экспорт</button>' : "") +
@@ -118,6 +127,7 @@ async function onlineWorkspace(client) {
     $("onlineRefresh").onclick = () => run(() => openCampaign(campaign?.id));
     if (!campaign) return;
     if ($("onlineCampaign")) $("onlineCampaign").onchange = (e) => run(() => openCampaign(e.target.value));
+    if ($("onlinePlay")) $("onlinePlay").onclick = () => run(enterGame);
     $("onlineWorld").onclick = () => run(showWorld);
     $("onlineHeroes").onclick = () => run(showHeroes);
     if ($("onlineAccounts")) $("onlineAccounts").onclick = () => run(showAccounts);
@@ -135,7 +145,7 @@ async function onlineWorkspace(client) {
       busy = false;
     }
   }
-  async function openCampaign(preferred) {
+  async function openCampaign(preferred, autoPlay = true) {
     if (!session) return showGate();
     const memberships = await unwrap(client.from("atlas_members")
       .select("campaign_id,nickname,role").eq("user_id",session.user.id));
@@ -147,7 +157,7 @@ async function onlineWorkspace(client) {
     scene = "";
     render();
     if (!campaign) return stopUpdates();
-    if (subscribed === campaign.id) return;
+    if (subscribed !== campaign.id) {
     await stopUpdates();
     subscribed = campaign.id;
     const id = subscribed;
@@ -155,6 +165,7 @@ async function onlineWorkspace(client) {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "atlas_campaigns", filter: "id=eq." + id }, ({ new: row }) => {
         if (campaign?.id !== id || row.revision <= campaign.revision) return;
         campaign = { ...campaign, revision: row.revision, name: row.name };
+        if (sharedGame) return sharedGame.changed(row.revision);
         if ($("onlineRevision")) $("onlineRevision").textContent = "Версия " + row.revision;
         const refreshScene = scene === "world" ? showWorld : scene === "heroes" ? showHeroes : null;
         if (refreshScene) {
@@ -166,6 +177,26 @@ async function onlineWorkspace(client) {
         }
         flash("Кампания обновилась");
       }).subscribe();
+    }
+    if (autoPlay && campaign.revision) {
+      try {
+        await enterGame();
+      } catch {
+        flash("Игровой сервер недоступен. Можно открыть просмотр и настройки кампании.");
+      }
+    }
+  }
+  async function enterGame() {
+    const result = await client.functions.invoke("atlas-play",{body:{action:"state",campaign:campaign.id}});
+    if (result.error) throw Error("Игровой сервер недоступен");
+    if (!result.data?.document || !result.data.actor) throw Error("Сначала импортируйте кампанию");
+    gameAvailable = true;
+    sharedGame = createSharedGame(client,campaign.id,result.data,async (mode)=>{
+      await openCampaign(campaign.id,false);
+      if (mode === "accounts" && membership?.role === "master") await showAccounts();
+      if (mode === "data" && membership?.role === "master") await showData();
+    });
+    sharedGame.enter();
   }
   function panel(name, html) {
     generation++;
@@ -224,7 +255,7 @@ async function onlineWorkspace(client) {
   }
   async function showAccounts(selected) {
     const [users, links] = await Promise.all([
-      unwrap(client.from("atlas_members").select("user_id,nickname,role").eq("campaign_id",campaign.id).order("nickname")),
+      unwrap(client.from("atlas_members").select("user_id,nickname,role"+(gameAvailable?",travel":"")).eq("campaign_id",campaign.id).order("nickname")),
       unwrap(client.from("atlas_hero_links").select("user_id,hero_id").eq("campaign_id",campaign.id)),
       getHeroes(),
     ]);
@@ -237,6 +268,7 @@ async function onlineWorkspace(client) {
       input("UID пользователя Auth", "onlineMemberId", "text", member?.user_id || "", 'required pattern="[a-fA-F0-9-]{36}"') +
       input("Никнейм", "onlineNickname", "text", member?.nickname || "", 'required maxlength="50"') +
       pick("Роль", "onlineRole", Object.entries(roles), member?.role || "player") +
+      (gameAvailable ? check("Разрешить капитану вести отряд","onlineTravel",member?.travel || false) : "") +
       '<div id="onlineHeroLinks"><h4>Привязать героев</h4>' +
       heroes.map((hero, i) => check(hero.name,"onlineAssign" + i,assigned.has(hero.hero_id))).join("") +
       '</div><button class="primary">Сохранить профиль</button></form>');
@@ -252,7 +284,8 @@ async function onlineWorkspace(client) {
         const id = val("onlineMemberId").trim(), role = val("onlineRole");
         await rpc("atlas_manage_member", { p_user: id, p_nickname: val("onlineNickname"), p_role: role,
           p_heroes: role === "observer" ? [] : heroes.filter((_, i) => $("onlineAssign" + i).checked).map((row) => row.hero_id) });
-        if (id === session.user.id) await openCampaign(campaign.id);
+        if (gameAvailable && role === "captain") await rpc("atlas_set_captain_travel",{p_user:id,p_travel:$("onlineTravel").checked});
+        if (id === session.user.id) await openCampaign(campaign.id,false);
         await showAccounts(id);
         flash("Профиль сохранён");
       });
@@ -285,7 +318,7 @@ async function onlineWorkspace(client) {
         }
         campaign.revision = await rpc("atlas_finish_import", { p_import: id, p_document: document,
           p_share_world: shareWorld, p_share_images: shareImages });
-        await openCampaign(campaign.id);
+        await openCampaign(campaign.id,false);
         await showData();
         flash("Кампания импортирована");
       });
